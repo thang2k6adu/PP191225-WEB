@@ -142,7 +142,7 @@ export function LoginFormSection() {
 
               <div className="flex justify-end w-full pt-1">
                 <Link
-                  to={ROUTES.FORGOT_PASSWORD}
+                  to={ROUTES.V2.FORGOT_PASSWORD}
                   className="text-body-regular text-gray-700 hover:text-[#5B3EE5] transition-colors"
                 >
                   Forgot password?
