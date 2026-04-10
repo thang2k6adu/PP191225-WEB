@@ -97,7 +97,7 @@ export function Header({ user }: HeaderProps) {
                     className="w-full justify-start text-sm font-normal text-red-600 hover:text-red-700 hover:bg-red-50"
                     onClick={async () => {
                       await dispatch(logoutThunk());
-                      navigate(ROUTES.V2.LOGIN);
+                      navigate(ROUTES.LOGIN);
                     }}
                   >
                     <LogOut className="mr-2 h-4 w-4" />

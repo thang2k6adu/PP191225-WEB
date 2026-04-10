@@ -53,11 +53,11 @@ export function LoginFormSection() {
       ).unwrap();
 
       toast.success('Login successful!');
-      navigate(ROUTES.V2.HOME);
+      navigate(ROUTES.HOME);
     } catch (err) {
       console.error(err);
       if (err === 'email_not_verified') {
-        navigate(ROUTES.V2.VERIFY_EMAIL);
+        navigate(ROUTES.VERIFY_EMAIL);
         return;
       }
       const errorMessage = typeof err === 'string' ? err : 'Login failed';
@@ -152,7 +152,7 @@ export function LoginFormSection() {
 
               <div className="flex justify-end w-full pt-1">
                 <Link
-                  to={ROUTES.V2.FORGOT_PASSWORD}
+                  to={ROUTES.FORGOT_PASSWORD}
                   className="text-body-regular text-gray-700 hover:text-[#5B3EE5] transition-colors"
                 >
                   Forgot password?
@@ -198,7 +198,7 @@ export function LoginFormSection() {
         <div className="flex items-center gap-1 mt-auto pt-10">
           <span className="text-gray-800 text-body-regular">Not a member?</span>
           <Link
-            to={ROUTES.V2.SIGNUP}
+            to={ROUTES.SIGNUP}
             className="text-[#5B3EE5] text-body-regular hover:underline"
           >
             Register now!

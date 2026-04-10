@@ -83,7 +83,7 @@ export function ResetPasswordFormSection() {
             </p>
 
             <Link
-              to={ROUTES.V2.LOGIN}
+              to={ROUTES.LOGIN}
               className="w-full py-3 mt-2 bg-[#5B3EE5] hover:bg-opacity-90 transition-all rounded-full text-white text-sm flex justify-center items-center shadow-md shadow-[#5B3EE5]/20 font-medium"
             >
               Sign In Now
@@ -181,7 +181,7 @@ export function ResetPasswordFormSection() {
             <div className="flex items-center gap-1 mt-2 text-xs md:text-sm">
               <span className="text-gray-800">Remember your password?</span>
               <Link
-                to={ROUTES.V2.LOGIN}
+                to={ROUTES.LOGIN}
                 className="text-[#5B3EE5] hover:underline"
               >
                 Sign In

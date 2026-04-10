@@ -1,27 +1,28 @@
 export const ROUTES = {
   HOME: '/',
-  ABOUT: '/about',
-
   LOGIN: '/login',
   SIGNUP: '/signup',
   FORGOT_PASSWORD: '/forgot-password',
+  RESET_PASSWORD: '/reset-password',
+  VERIFY_EMAIL: '/verify-email',
 
-  DASHBOARD: '/dashboard',
+  DASHBOARD: '/',
   TASKS: '/tasks',
-  MATCHMAKING: '/matchmaking',
+  FOCUS: '/focus',
+  FOCUS_ROOM: '/focus-room',
 
   V2: {
-    HOME: '/v2',
-    LOGIN: '/v2/login',
-    SIGNUP: '/v2/signup',
-    FORGOT_PASSWORD: '/v2/forgot-password',
-    RESET_PASSWORD: '/v2/reset-password',
-    VERIFY_EMAIL: '/v2/verify-email',
+    HOME: '/',
+    LOGIN: '/login',
+    SIGNUP: '/signup',
+    FORGOT_PASSWORD: '/forgot-password',
+    RESET_PASSWORD: '/reset-password',
+    VERIFY_EMAIL: '/verify-email',
 
-    DASHBOARD: '/v2',
-    TASKS: '/v2/tasks',
-    FOCUS: '/v2/focus',
-    FOCUS_ROOM: '/v2/focus-room',
+    DASHBOARD: '/',
+    TASKS: '/tasks',
+    FOCUS: '/focus',
+    FOCUS_ROOM: '/focus-room',
   },
 } as const;
 

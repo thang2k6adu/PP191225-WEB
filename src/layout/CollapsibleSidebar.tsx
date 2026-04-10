@@ -12,29 +12,30 @@ import {
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { ROUTES } from '@/constants';
 
 export default function CollapsibleSidebar() {
   const [isCollapsed, setIsCollapsed] = React.useState(false);
 
   const mainNavItems = [
-    { icon: Home, label: 'Home', path: '/v2' },
-    { icon: Focus, label: 'Focus', path: '/v2/focus' },
-    { icon: List, label: 'Tasks', path: '/v2/tasks' },
-    { icon: MessageCircle, label: 'Chat', path: '/v2/chat' },
-    { icon: Calendar, label: 'Schedule', path: '/v2/schedule' },
+    { icon: Home, label: 'Home', path: ROUTES.DASHBOARD },
+    { icon: Focus, label: 'Focus', path: ROUTES.FOCUS },
+    { icon: List, label: 'Tasks', path: ROUTES.TASKS },
+    { icon: MessageCircle, label: 'Chat', path: '/chat' },
+    { icon: Calendar, label: 'Schedule', path: '/schedule' },
   ];
 
   const bottomNavItems = [
-    { icon: Settings, label: 'Settings', path: '/v2/settings' },
-    { icon: User, label: 'User', path: '/v2/profile' },
+    { icon: Settings, label: 'Settings', path: '/settings' },
+    { icon: User, label: 'User', path: '/profile' },
   ];
 
   const navigate = useNavigate();
   const location = useLocation();
 
   const isActive = (path: string) => {
-    if (path === '/v2') {
-      return location.pathname === '/v2';
+    if (path === '/') {
+      return location.pathname === '/';
     }
     return (
       location.pathname === path || location.pathname.startsWith(path + '/')

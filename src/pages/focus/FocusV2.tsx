@@ -29,7 +29,7 @@ export default function FocusV2() {
 
       if (roomId) {
         clearError();
-        navigate(`${ROUTES.V2.FOCUS_ROOM}/${roomId}`);
+        navigate(`${ROUTES.FOCUS_ROOM}/${roomId}`);
       }
     }
   }, [matchData, state, navigate, clearError]);

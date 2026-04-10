@@ -54,7 +54,7 @@ export default function VerifyEmailV2() {
             </p>
 
             <Link
-              to={ROUTES.V2.LOGIN}
+              to={ROUTES.LOGIN}
               className="w-[400px] py-3 mt-2 bg-white border border-[#5B3EE5] hover:bg-gray-50 transition-all rounded-full text-[#5B3EE5] text-sm flex justify-center items-center font-medium"
             >
               I have already verified
