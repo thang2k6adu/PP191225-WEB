@@ -20,6 +20,7 @@ const DashboardV2 = React.lazy(() => import('@/pages/dashboard/DashboardV2'));
 const TaskV2 = React.lazy(() => import('@/pages/task/TasksV2'));
 const FocusV2 = React.lazy(() => import('@/pages/focus/FocusV2'));
 const FocusRoomV2 = React.lazy(() => import('@/pages/focus-room/FocusRoomV2'));
+const LoginV2 = React.lazy(() => import('@/pages/LoginV2/LoginV2'));
 
 export const routes: RouteConfig[] = [
   {
@@ -37,7 +38,7 @@ export const routes: RouteConfig[] = [
   {
     path: '/v2',
     children: [
-      { path: 'login', element: <Login /> },
+      { path: 'login', element: <LoginV2 /> },
       { path: 'signup', element: <SignUp /> },
       { path: 'forgot-password', element: <ForgotPassword /> },
       { path: 'focus-room/:roomId', element: <FocusRoomV2 /> },
