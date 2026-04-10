@@ -3,7 +3,7 @@ import { IllustrationSection } from './sections/IllustrationSection';
 
 export default function LoginV2() {
   return (
-    <div className="flex w-[1512px] h-[982px] items-start px-8 py-0 relative bg-white">
+    <div className="flex h-screen w-screen bg-white font-sans overflow-hidden">
       <LoginFormSection />
       <IllustrationSection />
     </div>
