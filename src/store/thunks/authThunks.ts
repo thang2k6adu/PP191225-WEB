@@ -113,6 +113,10 @@ export const loginWithFirebaseThunk = createAsyncThunk<
     );
     console.log('✅ [loginWithFirebaseThunk] Firebase login successful');
 
+    if (!userCredential.user.emailVerified) {
+      return rejectWithValue('email_not_verified');
+    }
+
     // Step 2: Get idToken từ Firebase
     console.log('🔵 [loginWithFirebaseThunk] Step 2: Getting idToken...');
     const idToken = await userCredential.user.getIdToken();
@@ -164,39 +168,15 @@ export const signUpWithFirebaseThunk = createAsyncThunk<
 
   try {
     // Step 1: Create user with Firebase
-    const userCredential = await createUserWithEmailAndPassword(
+    await createUserWithEmailAndPassword(
       auth,
       credentials.email,
       credentials.password
     );
 
-    // Step 2: Update displayName if provided
-    if (credentials.displayName) {
-      // Optional: Update user profile with displayName
-      // This is handled in the backend during token verification
-    }
-
-    // Step 3: Get idToken từ Firebase
-    const idToken = await userCredential.user.getIdToken();
-
-    // Step 4: Send idToken to Backend with signup info
-    const signUpRequest: FirebaseLoginRequest = {
-      idToken,
-      deviceId: getDeviceId(),
-      platform: 'web',
-    };
-
-    const response = await authService.signUpWithFirebase(signUpRequest);
-
-    if (response.error || !response.data) {
-      return rejectWithValue(response.message || 'Firebase sign up failed');
-    }
-
-    // Step 5: Return response from backend
-    return {
-      user: response.data.user,
-      tokens: response.data.tokens,
-    };
+    // Step 2: Request backend to send custom verification email and hard-stop
+    await authService.sendVerificationEmail(credentials.email);
+    return rejectWithValue('email_not_verified');
   } catch (error: unknown) {
     const errorMessage = getErrorMessage(error, 'Firebase sign up failed');
     return rejectWithValue(errorMessage);

@@ -16,6 +16,7 @@ export const ROUTES = {
     SIGNUP: '/v2/signup',
     FORGOT_PASSWORD: '/v2/forgot-password',
     RESET_PASSWORD: '/v2/reset-password',
+    VERIFY_EMAIL: '/v2/verify-email',
 
     DASHBOARD: '/v2',
     TASKS: '/v2/tasks',
@@ -40,6 +41,7 @@ export const API_ENDPOINTS = {
     RESET_PASSWORD: '/auth/reset-password',
     FIREBASE_LOGIN: '/auth/firebase/login',
     FIREBASE_REFRESH: '/auth/refresh',
+    SEND_VERIFICATION_EMAIL: '/auth/send-verification-email',
   },
   TASKS: {
     LIST: '/tasks',

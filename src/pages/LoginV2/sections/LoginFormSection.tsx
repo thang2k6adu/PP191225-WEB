@@ -50,6 +50,10 @@ export function LoginFormSection() {
       navigate(ROUTES.V2.HOME);
     } catch (err) {
       console.error(err);
+      if (err === 'email_not_verified') {
+        navigate(ROUTES.V2.VERIFY_EMAIL);
+        return;
+      }
       const errorMessage = typeof err === 'string' ? err : 'Login failed';
       setFirebaseError(errorMessage);
       toast.error(errorMessage);

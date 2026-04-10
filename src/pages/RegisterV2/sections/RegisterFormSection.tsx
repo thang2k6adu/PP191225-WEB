@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate, Link } from 'react-router-dom';
+import { ROUTES } from '@/constants';
 import toast from 'react-hot-toast';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { signUpWithFirebaseThunk } from '@/store/thunks/authThunks';
@@ -56,6 +57,10 @@ export function RegisterFormSection() {
       navigate('/dashboard');
     } catch (err) {
       console.error(err);
+      if (err === 'email_not_verified') {
+        navigate(ROUTES.V2.VERIFY_EMAIL);
+        return;
+      }
       const errorMessage =
         typeof err === 'string' ? err : 'Registration failed';
       setFirebaseError(errorMessage);
