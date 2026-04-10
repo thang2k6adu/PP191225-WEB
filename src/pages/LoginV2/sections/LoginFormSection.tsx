@@ -71,7 +71,7 @@ export function LoginFormSection() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center flex-1 w-full h-full bg-white relative">
+    <div className="flex flex-col items-center justify-center px-4 flex-1 w-full h-full bg-white relative">
       <div className="flex flex-col items-center gap-2 w-full py-16 max-w-[540px] max-h-[1000px]">
         <div className="flex flex-col items-center w-full space-y-9 mt-4">
           <div className="flex flex-col items-center text-center space-y-4">
