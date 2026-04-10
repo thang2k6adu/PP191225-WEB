@@ -7,9 +7,12 @@ import { z } from 'zod';
 import { useNavigate, Link } from 'react-router-dom';
 import { ROUTES } from '@/constants';
 import toast from 'react-hot-toast';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { loginWithFirebaseThunk } from '@/store/thunks/authThunks';
+import { useAuth } from '@/hooks/useAuth';
 
 const loginSchema = z.object({
-  username: z.string().min(1, 'Username is required'),
+  email: z.string().email('Invalid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
@@ -18,24 +21,52 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export function LoginFormSection() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { isLoading: authLoading, error: authError } = useAppSelector(
+    state => state.auth
+  );
+  const [firebaseError, setFirebaseError] = useState<string | null>(null);
+  const { signInWithGoogle, signInWithFacebook, signInWithGitHub } = useAuth();
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
 
   const onSubmit = async (data: LoginFormData) => {
+    setFirebaseError(null);
     try {
-      await new Promise(resolve => setTimeout(resolve, 800));
-      console.log('Login data:', data);
+      await dispatch(
+        loginWithFirebaseThunk({
+          email: data.email,
+          password: data.password,
+        })
+      ).unwrap();
+
       toast.success('Login successful!');
       navigate(ROUTES.V2.HOME);
-    } catch (error) {
-      console.error(error);
-      toast.error('Login failed. Please try again.');
+    } catch (err) {
+      console.error(err);
+      const errorMessage = typeof err === 'string' ? err : 'Login failed';
+      setFirebaseError(errorMessage);
+      toast.error(errorMessage);
+    }
+  };
+
+  const handleProviderClick = (id: string) => {
+    switch (id) {
+      case 'google':
+        signInWithGoogle();
+        break;
+      case 'facebook':
+        signInWithFacebook();
+        break;
+      case 'github':
+        signInWithGitHub();
+        break;
     }
   };
 
@@ -56,20 +87,26 @@ export function LoginFormSection() {
             onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col w-full space-y-6"
           >
+            {(firebaseError || authError) && (
+              <div className="p-3 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-100 rounded-md text-sm text-center">
+                {firebaseError || authError}
+              </div>
+            )}
+
             <div className="flex flex-col w-full space-y-4">
               <div className="flex flex-col w-full space-y-4">
                 <div className="relative flex flex-col">
                   <div className="flex items-center w-full px-5 py-3.5 rounded-full border border-gray-300 bg-white focus-within:border-[#5B3EE5] focus-within:ring-1 focus-within:ring-[#5B3EE5] transition-all">
                     <input
-                      type="text"
-                      placeholder="Username"
-                      {...register('username')}
+                      type="email"
+                      placeholder="Email"
+                      {...register('email')}
                       className="w-full bg-transparent text-gray-800 placeholder-gray-400 outline-none text-sm font-medium"
                     />
                   </div>
-                  {errors.username && (
+                  {errors.email && (
                     <span className="text-[10px] text-red-500 absolute -bottom-4 left-4">
-                      {errors.username.message}
+                      {errors.email.message}
                     </span>
                   )}
                 </div>
@@ -113,17 +150,15 @@ export function LoginFormSection() {
               </div>
             </div>
 
-            {/* Login Button */}
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={authLoading}
               className="w-full py-4 mt-2 bg-[#5B3EE5] hover:bg-opacity-90 disabled:opacity-70 transition-all rounded-full text-white text-body-regular flex justify-center items-center shadow-md shadow-[#5B3EE5]/20"
             >
-              {isSubmitting ? 'Logging in...' : 'Login'}
+              {authLoading ? 'Logging in...' : 'Login'}
             </button>
           </form>
 
-          {/* Divider */}
           <div className="flex items-center w-full px-2 pt-2">
             <div className="flex-1 h-[1px] bg-gray-200" />
             <span className="px-4 text-body-regular text-gray-800">
@@ -137,10 +172,11 @@ export function LoginFormSection() {
               <button
                 key={provider.id}
                 type="button"
+                onClick={() => handleProviderClick(provider.id)}
                 aria-label={provider.label}
-                className="flex items-center justify-center w-12 h-12 bg-[#5B3EE5] hover:bg-opacity-90 transition-opacity rounded-full shadow-md text-white"
+                disabled={authLoading}
+                className="flex items-center justify-center w-12 h-12 bg-[#5B3EE5] hover:bg-opacity-90 disabled:opacity-70 transition-opacity rounded-full shadow-md text-white"
               >
-                {/* Override size slightly to fit nicely within a flex circle */}
                 <div className="scale-90 flex items-center justify-center">
                   {provider.icon}
                 </div>
@@ -149,7 +185,6 @@ export function LoginFormSection() {
           </div>
         </div>
 
-        {/* Footer / Register */}
         <div className="flex items-center gap-1 mt-auto pt-10">
           <span className="text-gray-800 text-body-regular">Not a member?</span>
           <Link

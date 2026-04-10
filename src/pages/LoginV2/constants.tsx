@@ -1,4 +1,4 @@
-import { FaGoogle, FaFacebook, FaApple } from 'react-icons/fa';
+import { FaGoogle, FaFacebook, FaGithub } from 'react-icons/fa';
 
 export const SOCIAL_PROVIDERS = [
   {
@@ -12,8 +12,8 @@ export const SOCIAL_PROVIDERS = [
     label: 'Sign in with Facebook',
   },
   {
-    id: 'apple',
-    icon: <FaApple size={24} color="white" />,
-    label: 'Sign in with Apple',
+    id: 'github',
+    icon: <FaGithub size={24} color="white" />,
+    label: 'Sign in with GitHub',
   },
 ];
