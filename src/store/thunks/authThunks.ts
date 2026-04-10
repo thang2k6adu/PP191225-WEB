@@ -8,7 +8,6 @@ import {
   FacebookAuthProvider,
   GithubAuthProvider,
   signInWithPopup,
-  sendPasswordResetEmail,
   confirmPasswordReset,
 } from 'firebase/auth';
 import {
@@ -421,14 +420,8 @@ export const forgotPasswordThunk = createAsyncThunk<
   string,
   { rejectValue: string }
 >('auth/forgotPassword', async (email, { rejectWithValue }) => {
-  if (!auth) {
-    const error =
-      'Firebase is not configured. Please set up Firebase in .env file.';
-    return rejectWithValue(error);
-  }
-
   try {
-    await sendPasswordResetEmail(auth, email);
+    await authService.forgotPassword(email);
   } catch (error: unknown) {
     const errorMessage = getErrorMessage(error, 'Failed to send reset email');
     return rejectWithValue(errorMessage);

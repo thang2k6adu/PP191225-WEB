@@ -39,15 +39,10 @@ export const authService = {
   },
 
   forgotPassword: async (email: string): Promise<void> => {
-    await apiClient.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, { email });
+    await apiClient.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, { email });
   },
 
-  resetPassword: async (token: string, password: string): Promise<void> => {
-    await apiClient.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, {
-      token,
-      password,
-    });
-  },
+  // resetPassword is now handled directly by Firebase Client SDK in thunks
 
   // Firebase Login
   loginWithFirebase: async (

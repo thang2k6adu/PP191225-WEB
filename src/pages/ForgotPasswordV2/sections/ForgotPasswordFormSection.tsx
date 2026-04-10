@@ -118,7 +118,7 @@ export function ForgotPasswordFormSection() {
               <button
                 type="submit"
                 disabled={authLoading}
-                className="max-w-[400px] py-3 mt-2 bg-[#5B3EE5] hover:bg-opacity-90 disabled:opacity-70 transition-all rounded-full text-white text-sm flex justify-center items-center shadow-md shadow-[#5B3EE5]/20 font-medium"
+                className="w-full py-3 mt-2 bg-[#5B3EE5] hover:bg-opacity-90 disabled:opacity-70 transition-all rounded-full text-white text-sm flex justify-center items-center shadow-md shadow-[#5B3EE5]/20 font-medium"
               >
                 {authLoading ? 'Sending...' : 'Next'}
               </button>
