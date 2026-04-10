@@ -1,14 +1,14 @@
 import * as React from 'react';
 import {
-  Heart,
-  Home,
-  Focus,
-  List,
-  MessageCircle,
-  Calendar,
-  Settings,
-  User,
-} from 'lucide-react';
+  LuHeart as Heart,
+  LuHouse as Home,
+  LuFocus as Focus,
+  LuList as List,
+  LuMessageCircle as MessageCircle,
+  LuCalendar as Calendar,
+  LuSettings as Settings,
+  LuUser as User,
+} from 'react-icons/lu';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useNavigate, useLocation } from 'react-router-dom';

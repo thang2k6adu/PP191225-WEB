@@ -5,7 +5,10 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { Calendar as CalendarIcon, ChevronDown } from 'lucide-react';
+import {
+  LuCalendar as CalendarIcon,
+  LuChevronDown as ChevronDown,
+} from 'react-icons/lu';
 import { format } from 'date-fns';
 
 type FloatingDatePickerProps = {

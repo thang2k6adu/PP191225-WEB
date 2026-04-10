@@ -7,7 +7,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { LuPlus as Plus } from 'react-icons/lu';
 import { FloatingInput } from '@/components/FloatingInput';
 import { FloatingTextarea } from '@/components/FloatingTextarea';
 import { FloatingDatePicker } from '@/components/FloatingDatePicker';

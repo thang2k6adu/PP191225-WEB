@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Bell } from 'lucide-react';
+import { LuSearch as Search, LuBell as Bell } from 'react-icons/lu';
 import { useAuth } from '@/hooks/useAuth';
 
 const DashboardHeader: React.FC = () => {

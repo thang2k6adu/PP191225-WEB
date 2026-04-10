@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+  LuChevronLeft as ChevronLeft,
+  LuChevronRight as ChevronRight,
+} from 'react-icons/lu';
 import { useTasks } from '@/hooks/useTasks';
 import { Task } from '@/types/task';
 import Modal from '@/components/Modal';

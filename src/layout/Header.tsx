@@ -1,4 +1,4 @@
-import { Bell, ChevronDown } from 'lucide-react';
+import { LuBell as Bell, LuChevronDown as ChevronDown } from 'react-icons/lu';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

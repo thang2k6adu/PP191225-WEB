@@ -8,7 +8,7 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from 'recharts';
-import { ChevronDown } from 'lucide-react';
+import { LuChevronDown as ChevronDown } from 'react-icons/lu';
 
 type TaskChartData = {
   month: string;

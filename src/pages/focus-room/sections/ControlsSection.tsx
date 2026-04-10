@@ -1,5 +1,11 @@
 import React from 'react';
-import { Video, Mic, MicOff, VideoOff, PhoneOff } from 'lucide-react';
+import {
+  LuVideo as Video,
+  LuMic as Mic,
+  LuMicOff as MicOff,
+  LuVideoOff as VideoOff,
+  LuPhoneOff as PhoneOff,
+} from 'react-icons/lu';
 import { ControlButton } from '../components/ControlButton';
 import { FocusRoomState } from '../types';
 

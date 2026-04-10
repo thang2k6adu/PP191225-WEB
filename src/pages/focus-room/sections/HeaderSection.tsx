@@ -1,5 +1,5 @@
 import React from 'react';
-import { Settings } from 'lucide-react';
+import { LuSettings as Settings } from 'react-icons/lu';
 
 interface HeaderSectionProps {
   roomName: string;

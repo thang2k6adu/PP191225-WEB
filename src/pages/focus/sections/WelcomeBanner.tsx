@@ -2,7 +2,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useMatchmaking } from '@/hooks/useMatchmaking';
 import { UserState } from '@/types/matchmaking';
-import { Loader2 } from 'lucide-react';
+import { LuLoaderCircle as Loader2 } from 'react-icons/lu';
 import toast from 'react-hot-toast';
 
 export function WelcomeBanner() {

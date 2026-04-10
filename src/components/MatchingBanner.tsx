@@ -1,6 +1,6 @@
 import { useMatchmaking } from '@/hooks/useMatchmaking';
 import { UserState } from '@/types/matchmaking';
-import { X } from 'lucide-react';
+import { LuX as X } from 'react-icons/lu';
 
 export default function MatchingBanner() {
   const { state, cancelMatchmaking, error, clearError } = useMatchmaking();

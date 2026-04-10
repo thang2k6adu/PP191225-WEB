@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Pause, Play, Square } from 'lucide-react';
+import {
+  LuPause as Pause,
+  LuPlay as Play,
+  LuSquare as Square,
+} from 'react-icons/lu';
 import { updateRemainingTime } from '@/store/slices/taskSlice';
 import { RootState } from '@/store';
 

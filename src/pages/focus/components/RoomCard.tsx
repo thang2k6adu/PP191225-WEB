@@ -1,5 +1,5 @@
 import { Room } from '../types';
-import { UsersIcon } from '@heroicons/react/24/solid';
+import { LuUsers as Users } from 'react-icons/lu';
 
 type RoomCardProps = Room & {
   onJoin?: (id: number) => void;
@@ -32,7 +32,7 @@ export function RoomCard({
           </div>
 
           <div className="flex items-center gap-1 text-primary text-caption-lg-regular shrink-0">
-            <UsersIcon className="w-4 h-4" />
+            <Users className="w-4 h-4" />
             <span className="">{members.length}</span>
           </div>
         </div>

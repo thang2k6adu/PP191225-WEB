@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MoreHorizontal, Play } from 'lucide-react';
+import { LuEllipsis as MoreHorizontal, LuPlay as Play } from 'react-icons/lu';
 
 interface PlannedTask {
   id: string;

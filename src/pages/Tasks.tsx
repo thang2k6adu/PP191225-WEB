@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useTasks } from '@/hooks/useTasks';
-import { Play, Check, Trash2, Edit2, Plus, Filter } from 'lucide-react';
+import {
+  LuPlay as Play,
+  LuCheck as Check,
+  LuTrash2 as Trash2,
+  LuPencil as Edit2,
+  LuPlus as Plus,
+  LuFilter as Filter,
+} from 'react-icons/lu';
 import Modal from '@/components/Modal';
 import Button from '@/components/Button';
 import LoadingSpinner from '@/components/LoadingSpinner';

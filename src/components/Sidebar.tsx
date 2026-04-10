@@ -1,13 +1,13 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
-  LayoutDashboard,
-  CheckSquare,
-  Calendar,
-  Settings,
-  LogOut,
-  Swords,
-} from 'lucide-react';
+  LuLayoutDashboard as LayoutDashboard,
+  LuSquareCheck as CheckSquare,
+  LuCalendar as Calendar,
+  LuSettings as Settings,
+  LuLogOut as LogOut,
+  LuSwords as Swords,
+} from 'react-icons/lu';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/utils/helpers';
 

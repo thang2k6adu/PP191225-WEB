@@ -1,6 +1,9 @@
 import * as React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+  LuChevronLeft as ChevronLeft,
+  LuChevronRight as ChevronRight,
+} from 'react-icons/lu';
 
 type CalendarDay = {
   day: number;

@@ -9,16 +9,16 @@ import {
   RemoteTrack,
 } from 'livekit-client';
 import {
-  Mic,
-  MicOff,
-  Video,
-  VideoOff,
-  PhoneOff,
-  Monitor,
-  MonitorOff,
-  Settings,
-  Users,
-} from 'lucide-react';
+  LuMic as Mic,
+  LuMicOff as MicOff,
+  LuVideo as Video,
+  LuVideoOff as VideoOff,
+  LuPhoneOff as PhoneOff,
+  LuMonitor as Monitor,
+  LuMonitorOff as MonitorOff,
+  LuSettings as Settings,
+  LuUsers as Users,
+} from 'react-icons/lu';
 
 interface VideoCallProps {
   roomName: string;
