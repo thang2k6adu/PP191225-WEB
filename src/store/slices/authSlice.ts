@@ -155,7 +155,9 @@ const authSlice = createSlice({
       })
       .addCase(loginWithFirebaseThunk.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload || 'Firebase login failed';
+        if (action.payload !== 'email_not_verified') {
+          state.error = action.payload || 'Firebase login failed';
+        }
         state.isAuthenticated = false;
       });
 
@@ -191,7 +193,9 @@ const authSlice = createSlice({
       })
       .addCase(signUpWithFirebaseThunk.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload || 'Firebase sign up failed';
+        if (action.payload !== 'email_not_verified') {
+          state.error = action.payload || 'Firebase sign up failed';
+        }
         state.isAuthenticated = false;
       });
 

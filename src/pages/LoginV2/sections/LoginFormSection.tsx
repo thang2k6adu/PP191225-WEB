@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { LuEye, LuEyeOff } from 'react-icons/lu';
 import { SOCIAL_PROVIDERS } from '../constants';
 import { useForm } from 'react-hook-form';
@@ -9,6 +9,7 @@ import { ROUTES } from '@/constants';
 import toast from 'react-hot-toast';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { loginWithFirebaseThunk } from '@/store/thunks/authThunks';
+import { clearError } from '@/store/slices/authSlice';
 import { useAuth } from '@/hooks/useAuth';
 
 const loginSchema = z.object({
@@ -35,6 +36,11 @@ export function LoginFormSection() {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
+
+  useEffect(() => {
+    // Clear any persisted Redux auth errors on mount
+    dispatch(clearError());
+  }, [dispatch]);
 
   const onSubmit = async (data: LoginFormData) => {
     setFirebaseError(null);
