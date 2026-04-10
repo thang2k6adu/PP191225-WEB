@@ -188,7 +188,7 @@ export function LoginFormSection() {
         <div className="flex items-center gap-1 mt-auto pt-10">
           <span className="text-gray-800 text-body-regular">Not a member?</span>
           <Link
-            to={ROUTES.SIGNUP}
+            to={ROUTES.V2.SIGNUP}
             className="text-[#5B3EE5] text-body-regular hover:underline"
           >
             Register now!
