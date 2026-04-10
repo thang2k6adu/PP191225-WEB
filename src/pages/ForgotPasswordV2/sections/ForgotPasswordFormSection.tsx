@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { forgotPasswordThunk } from '@/store/thunks/authThunks';
 import { useState } from 'react';
+import { LuCircleCheck } from 'react-icons/lu';
 
 const forgotPasswordSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -45,64 +46,95 @@ export function ForgotPasswordFormSection() {
 
   return (
     <div className="flex flex-col items-center justify-center px-4 flex-1 w-full h-full bg-white relative">
-      <div className="flex flex-col items-center gap-2 w-full py-16 max-w-[400px]">
-        <div className="flex flex-col items-center w-full space-y-9 mt-4 text-center">
-          <h1 className="text-h1-semi text-gray-900 tracking-tight leading-none">
-            Reset password
-          </h1>
+      <div className="flex flex-col items-center gap-2 w-full py-16 max-w-[500px]">
+        {isSuccess ? (
+          <div className="flex flex-col items-center w-full space-y-6 mt-4 text-center">
+            <h1 className="text-h1-semi text-gray-900 tracking-tight leading-none">
+              Check your email
+            </h1>
 
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col w-full space-y-6"
-          >
-            {firebaseError && (
-              <div className="p-3 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-100 rounded-md text-sm text-center">
-                {firebaseError}
-              </div>
-            )}
-            {isSuccess && (
-              <div className="p-3 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-100 rounded-md text-sm text-center">
-                Password reset link has been sent to your email.
-              </div>
-            )}
-
-            <div className="flex flex-col w-full space-y-4">
-              <div className="relative flex flex-col">
-                <div className="flex items-center w-full px-5 py-3.5 rounded-full border border-gray-300 bg-white focus-within:border-[#5B3EE5] focus-within:ring-1 focus-within:ring-[#5B3EE5] transition-all">
-                  <input
-                    type="email"
-                    placeholder="Enter your email"
-                    {...register('email')}
-                    className="w-full bg-transparent text-gray-800 placeholder-gray-400 outline-none text-sm font-medium"
-                  />
-                </div>
-                {errors.email && (
-                  <span className="text-[10px] text-red-500 absolute -bottom-4 left-4">
-                    {errors.email.message}
-                  </span>
-                )}
-              </div>
+            <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-2">
+              <LuCircleCheck className="w-12 h-12 text-green-500" />
             </div>
 
-            <button
-              type="submit"
-              disabled={authLoading || isSuccess}
-              className="w-full py-3 mt-2 bg-[#5B3EE5] hover:bg-opacity-90 disabled:opacity-70 transition-all rounded-full text-white text-sm flex justify-center items-center shadow-md shadow-[#5B3EE5]/20 font-medium"
-            >
-              {authLoading ? 'Sending...' : 'Next'}
-            </button>
-          </form>
+            <p className="text-gray-500 text-sm leading-relaxed pb-4">
+              Password reset link has been sent to your email. Please check your
+              inbox and follow the instructions to set a new password.
+            </p>
 
-          <div className="flex items-center gap-1 mt-2 text-xs md:text-sm">
-            <span className="text-gray-800">Already a member?</span>
             <Link
               to={ROUTES.V2.LOGIN}
-              className="text-[#5B3EE5] hover:underline"
+              className="w-[400px] py-3 mt-2 bg-[#5B3EE5] hover:bg-opacity-90 transition-all rounded-full text-white text-sm flex justify-center items-center shadow-md shadow-[#5B3EE5]/20 font-medium"
             >
-              Sign In
+              Return to Sign In
             </Link>
+
+            <div className="flex items-center gap-1 mt-6 text-sm">
+              <span className="text-gray-800">Didn't receive the email?</span>
+              <button
+                type="button"
+                onClick={handleSubmit(onSubmit)}
+                disabled={authLoading}
+                className="text-[#5B3EE5] hover:underline disabled:opacity-70 disabled:hover:no-underline"
+              >
+                Click to resend
+              </button>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="flex flex-col items-center w-full space-y-9 mt-4 text-center">
+            <h1 className="text-h1-semi text-gray-900 tracking-tight leading-none">
+              Reset password
+            </h1>
+
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="flex flex-col w-full space-y-6"
+            >
+              {firebaseError && (
+                <div className="p-3 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-100 rounded-md text-sm text-center">
+                  {firebaseError}
+                </div>
+              )}
+
+              <div className="flex flex-col w-full space-y-4">
+                <div className="relative flex flex-col">
+                  <div className="flex items-center w-full px-5 py-3.5 rounded-full border border-gray-300 bg-white focus-within:border-[#5B3EE5] focus-within:ring-1 focus-within:ring-[#5B3EE5] transition-all">
+                    <input
+                      type="email"
+                      placeholder="Enter your email"
+                      {...register('email')}
+                      className="w-full bg-transparent text-gray-800 placeholder-gray-400 outline-none text-sm font-medium"
+                    />
+                  </div>
+                  {errors.email && (
+                    <span className="text-[10px] text-red-500 absolute -bottom-4 left-4">
+                      {errors.email.message}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={authLoading}
+                className="max-w-[400px] py-3 mt-2 bg-[#5B3EE5] hover:bg-opacity-90 disabled:opacity-70 transition-all rounded-full text-white text-sm flex justify-center items-center shadow-md shadow-[#5B3EE5]/20 font-medium"
+              >
+                {authLoading ? 'Sending...' : 'Next'}
+              </button>
+            </form>
+
+            <div className="flex items-center gap-1 mt-2 text-xs md:text-sm">
+              <span className="text-gray-800">Remember your password?</span>
+              <Link
+                to={ROUTES.V2.LOGIN}
+                className="text-[#5B3EE5] hover:underline"
+              >
+                Sign In
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

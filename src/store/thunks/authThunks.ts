@@ -9,6 +9,7 @@ import {
   GithubAuthProvider,
   signInWithPopup,
   sendPasswordResetEmail,
+  confirmPasswordReset,
 } from 'firebase/auth';
 import {
   LoginCredentials,
@@ -433,3 +434,26 @@ export const forgotPasswordThunk = createAsyncThunk<
     return rejectWithValue(errorMessage);
   }
 });
+
+// Reset password thunk (using oobCode from email link)
+export const resetPasswordThunk = createAsyncThunk<
+  void,
+  { oobCode: string; newPassword: string },
+  { rejectValue: string }
+>(
+  'auth/resetPassword',
+  async ({ oobCode, newPassword }, { rejectWithValue }) => {
+    if (!auth) {
+      const error =
+        'Firebase is not configured. Please set up Firebase in .env file.';
+      return rejectWithValue(error);
+    }
+
+    try {
+      await confirmPasswordReset(auth, oobCode, newPassword);
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error, 'Failed to reset password');
+      return rejectWithValue(errorMessage);
+    }
+  }
+);

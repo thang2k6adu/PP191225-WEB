@@ -15,6 +15,7 @@ export const ROUTES = {
     LOGIN: '/v2/login',
     SIGNUP: '/v2/signup',
     FORGOT_PASSWORD: '/v2/forgot-password',
+    RESET_PASSWORD: '/v2/reset-password',
 
     DASHBOARD: '/v2',
     TASKS: '/v2/tasks',
