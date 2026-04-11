@@ -79,7 +79,7 @@ export function Header({ user }: HeaderProps) {
                   </div>
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-56 p-2 mr-6" align="end">
+              <PopoverContent className="w-56 p-2 mr-6" align="start">
                 <div className="flex flex-col gap-1">
                   <div className="px-2 py-1.5 text-sm font-medium text-slate-500">
                     My Account

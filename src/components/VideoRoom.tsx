@@ -10,8 +10,8 @@ import {
   TrackPublication,
 } from 'livekit-client';
 import { rtcManager } from '@/lib/rtcManager';
-import { ParticipantsGridSection } from '@/pages/focus-room/sections/ParticipantsGridSection';
-import { Participant } from '@/pages/focus-room/types';
+import { ParticipantsGridSection } from '@/pages/FocusRoomV2/sections/ParticipantsGridSection';
+import { Participant } from '@/pages/FocusRoomV2/types';
 
 interface VideoRoomProps {
   livekitUrl: string;

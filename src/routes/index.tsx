@@ -3,10 +3,10 @@ import type { RouteConfig } from './type';
 import { Layout } from '@/layout/AppLayout';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
-const DashboardV2 = React.lazy(() => import('@/pages/dashboard/DashboardV2'));
-const TaskV2 = React.lazy(() => import('@/pages/task/TasksV2'));
-const FocusV2 = React.lazy(() => import('@/pages/focus/FocusV2'));
-const FocusRoomV2 = React.lazy(() => import('@/pages/focus-room/FocusRoomV2'));
+const DashboardV2 = React.lazy(() => import('@/pages/DashboardV2/DashboardV2'));
+const TaskV2 = React.lazy(() => import('@/pages/TaskV2/TasksV2'));
+const FocusV2 = React.lazy(() => import('@/pages/FocusV2/FocusV2'));
+const FocusRoomV2 = React.lazy(() => import('@/pages/FocusRoomV2/FocusRoomV2'));
 const LoginV2 = React.lazy(() => import('@/pages/LoginV2/LoginV2'));
 const RegisterV2 = React.lazy(() => import('@/pages/RegisterV2'));
 const ForgotPasswordV2 = React.lazy(() => import('@/pages/ForgotPasswordV2'));
