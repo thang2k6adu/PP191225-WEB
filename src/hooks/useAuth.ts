@@ -56,7 +56,8 @@ export const useAuth = () => {
       toast.success('Login successful!');
       navigate('/dashboard');
     } else if (signInWithGoogleThunk.rejected.match(result)) {
-      toast.error('Google sign in failed');
+      const msg = result.payload || 'Google sign in failed';
+      toast.error(msg);
     }
   };
 
@@ -66,7 +67,8 @@ export const useAuth = () => {
       toast.success('Login successful!');
       navigate('/dashboard');
     } else if (signInWithFacebookThunk.rejected.match(result)) {
-      toast.error('Facebook sign in failed');
+      const msg = result.payload || 'Facebook sign in failed';
+      toast.error(msg);
     }
   };
 
@@ -76,7 +78,8 @@ export const useAuth = () => {
       toast.success('Login successful!');
       navigate('/dashboard');
     } else if (signInWithGitHubThunk.rejected.match(result)) {
-      toast.error('GitHub sign in failed');
+      const msg = result.payload || 'GitHub sign in failed';
+      toast.error(msg);
     }
   };
 

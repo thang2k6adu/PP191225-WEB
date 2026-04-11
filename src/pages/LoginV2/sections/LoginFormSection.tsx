@@ -21,6 +21,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export function LoginFormSection() {
   const [showPassword, setShowPassword] = useState(false);
+  const [socialLoading, setSocialLoading] = useState<string | null>(null);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { isLoading: authLoading, error: authError } = useAppSelector(
@@ -66,17 +67,24 @@ export function LoginFormSection() {
     }
   };
 
-  const handleProviderClick = (id: string) => {
-    switch (id) {
-      case 'google':
-        signInWithGoogle();
-        break;
-      case 'facebook':
-        signInWithFacebook();
-        break;
-      case 'github':
-        signInWithGitHub();
-        break;
+  const handleProviderClick = async (id: string) => {
+    if (socialLoading) return; // prevent double-click
+    setSocialLoading(id);
+    setFirebaseError(null);
+    try {
+      switch (id) {
+        case 'google':
+          await signInWithGoogle();
+          break;
+        case 'facebook':
+          await signInWithFacebook();
+          break;
+        case 'github':
+          await signInWithGitHub();
+          break;
+      }
+    } finally {
+      setSocialLoading(null);
     }
   };
 
@@ -162,7 +170,7 @@ export function LoginFormSection() {
 
             <button
               type="submit"
-              disabled={authLoading}
+              disabled={authLoading || !!socialLoading}
               className="w-full py-4 mt-2 bg-[#5B3EE5] hover:bg-opacity-90 disabled:opacity-70 transition-all rounded-full text-white text-body-regular flex justify-center items-center shadow-md shadow-[#5B3EE5]/20"
             >
               {authLoading ? 'Logging in...' : 'Login'}
@@ -184,11 +192,15 @@ export function LoginFormSection() {
                 type="button"
                 onClick={() => handleProviderClick(provider.id)}
                 aria-label={provider.label}
-                disabled={authLoading}
+                disabled={authLoading || !!socialLoading}
                 className="flex items-center justify-center w-12 h-12 bg-[#5B3EE5] hover:bg-opacity-90 disabled:opacity-70 transition-opacity rounded-full shadow-md text-white"
               >
                 <div className="scale-90 flex items-center justify-center">
-                  {provider.icon}
+                  {socialLoading === provider.id ? (
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    provider.icon
+                  )}
                 </div>
               </button>
             ))}
