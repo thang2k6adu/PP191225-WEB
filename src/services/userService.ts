@@ -26,7 +26,12 @@ export const userService = {
    * Update the current user's profile.
    */
   updateProfile: async (
-    data: Partial<Pick<UserProfile, 'firstName' | 'lastName' | 'avatar'>>
+    data: Partial<
+      Pick<
+        UserProfile,
+        'firstName' | 'lastName' | 'avatar' | 'work' | 'major' | 'bio'
+      >
+    >
   ): Promise<ApiResponse<UserProfile>> => {
     const response = await apiClient.patch<ApiResponse<UserProfile>>(
       API_ENDPOINTS.USERS.UPDATE_PROFILE,

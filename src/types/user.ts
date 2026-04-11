@@ -4,6 +4,9 @@ export interface UserProfile {
   firstName: string | null;
   lastName: string | null;
   avatar: string | null;
+  work: string | null;
+  major: string | null;
+  bio: string | null;
   role: string;
   isActive: boolean;
   createdAt: string;
