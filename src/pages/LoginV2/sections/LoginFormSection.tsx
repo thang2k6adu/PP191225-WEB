@@ -112,7 +112,7 @@ export function LoginFormSection() {
             )}
 
             <div className="flex flex-col w-full space-y-4">
-              <div className="flex flex-col w-full space-y-4">
+              <div className="flex flex-col w-full space-y-6">
                 <div className="relative flex flex-col">
                   <div className="flex items-center w-full px-5 py-3.5 rounded-full border border-gray-300 bg-white focus-within:border-[#5B3EE5] focus-within:ring-1 focus-within:ring-[#5B3EE5] transition-all">
                     <input
@@ -123,7 +123,7 @@ export function LoginFormSection() {
                     />
                   </div>
                   {errors.email && (
-                    <span className="text-[10px] text-red-500 absolute -bottom-4 left-4">
+                    <span className="text-xs text-red-500 absolute -bottom-6 left-4">
                       {errors.email.message}
                     </span>
                   )}
@@ -151,7 +151,7 @@ export function LoginFormSection() {
                     </button>
                   </div>
                   {errors.password && (
-                    <span className="text-[10px] text-red-500 absolute -bottom-4 left-4">
+                    <span className="text-xs text-red-500 absolute -bottom-6 left-4">
                       {errors.password.message}
                     </span>
                   )}

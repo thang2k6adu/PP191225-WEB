@@ -111,7 +111,7 @@ export function RegisterFormSection() {
               </div>
             )}
 
-            <div className="flex flex-col w-full space-y-3">
+            <div className="flex flex-col w-full space-y-6">
               <div className="flex w-full gap-4">
                 <div className="relative flex flex-col flex-1">
                   <div className="flex items-center w-full px-5 py-3.5 rounded-full border border-gray-300 bg-white focus-within:border-[#5B3EE5] focus-within:ring-1 focus-within:ring-[#5B3EE5] transition-all">
@@ -123,7 +123,7 @@ export function RegisterFormSection() {
                     />
                   </div>
                   {errors.firstName && (
-                    <span className="text-[10px] text-red-500 absolute -bottom-4 left-4">
+                    <span className="text-xs text-red-500 absolute -bottom-6 left-4">
                       {errors.firstName.message}
                     </span>
                   )}
@@ -139,7 +139,7 @@ export function RegisterFormSection() {
                     />
                   </div>
                   {errors.lastName && (
-                    <span className="text-[10px] text-red-500 absolute -bottom-4 left-4">
+                    <span className="text-xs text-red-500 absolute -bottom-6 left-4">
                       {errors.lastName.message}
                     </span>
                   )}
@@ -156,7 +156,7 @@ export function RegisterFormSection() {
                   />
                 </div>
                 {errors.email && (
-                  <span className="text-[10px] text-red-500 absolute -bottom-4 left-4">
+                  <span className="text-xs text-red-500 absolute -bottom-6 left-4">
                     {errors.email.message}
                   </span>
                 )}
@@ -183,7 +183,7 @@ export function RegisterFormSection() {
                   </button>
                 </div>
                 {errors.password && (
-                  <span className="text-[10px] text-red-500 absolute -bottom-4 left-4">
+                  <span className="text-xs text-red-500 absolute -bottom-5 left-4">
                     {errors.password.message}
                   </span>
                 )}

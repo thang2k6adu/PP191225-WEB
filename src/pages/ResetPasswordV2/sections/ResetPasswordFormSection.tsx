@@ -134,7 +134,7 @@ export function ResetPasswordFormSection() {
                     </button>
                   </div>
                   {errors.password && (
-                    <span className="text-[10px] text-red-500 absolute -bottom-4 left-4">
+                    <span className="text-xs text-red-500 absolute -bottom-6 left-4">
                       {errors.password.message}
                     </span>
                   )}
@@ -162,7 +162,7 @@ export function ResetPasswordFormSection() {
                     </button>
                   </div>
                   {errors.confirmPassword && (
-                    <span className="text-[10px] text-red-500 absolute -bottom-4 left-4">
+                    <span className="text-xs text-red-500 absolute -bottom-6 left-4">
                       {errors.confirmPassword.message}
                     </span>
                   )}
