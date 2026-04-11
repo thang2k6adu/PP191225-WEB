@@ -118,8 +118,8 @@ export const useMatchmaking = () => {
     dispatch(clearError());
   }, [dispatch]);
 
-  // Setup event handlers - can be called manually if needed
-  const setupEventHandlers = useCallback(() => {
+  // Setup event handlers with cleanup to prevent listener accumulation
+  useEffect(() => {
     const handleMatchFound = (data: unknown): void => {
       const matchEvent = data as MatchFoundEvent;
       dispatch(setMatchData(matchEvent));
@@ -168,12 +168,20 @@ export const useMatchmaking = () => {
     matchmakingService.on('opponent_left', handleOpponentLeft);
     matchmakingService.on('disconnect', handleDisconnect);
     matchmakingService.on('error', handleError);
-  }, [dispatch]);
 
-  useEffect(() => {
-    // Auto setup event handlers
-    setupEventHandlers();
-  }, [setupEventHandlers]);
+    // Cleanup: remove ALL registered handlers when effect re-runs or component unmounts
+    return () => {
+      matchmakingService.off('match_found', handleMatchFound);
+      matchmakingService.off('room_joined', handleRoomJoined);
+      matchmakingService.off(
+        'opponent_disconnected',
+        handleOpponentDisconnected
+      );
+      matchmakingService.off('opponent_left', handleOpponentLeft);
+      matchmakingService.off('disconnect', handleDisconnect);
+      matchmakingService.off('error', handleError);
+    };
+  }, [dispatch]);
 
   return {
     ...matchmaking,
@@ -184,6 +192,5 @@ export const useMatchmaking = () => {
     cancelMatchmaking,
     leaveRoom,
     clearError: clearErrorMessage,
-    setupEventHandlers,
   };
 };

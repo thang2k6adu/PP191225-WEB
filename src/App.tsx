@@ -10,8 +10,7 @@ import { routes } from './routes';
 function App() {
   const { theme } = useTheme();
   const { isAuthenticated } = useAuth();
-  const { connect, disconnect, setupEventHandlers, isConnected, isConnecting } =
-    useMatchmaking();
+  const { connect, disconnect, isConnected, isConnecting } = useMatchmaking();
   const element = useRoutes(routes);
 
   // Connect to matchmaking socket when user is authenticated - eager connection
@@ -19,18 +18,9 @@ function App() {
     if (isAuthenticated && !isConnected && !isConnecting) {
       console.log('[App] User authenticated, connecting to matchmaking...');
 
-      // Connect immediately without waiting
-      const connectSocket = async () => {
-        try {
-          await connect();
-          setupEventHandlers();
-          console.log('[App] Matchmaking socket connected and ready');
-        } catch (error) {
-          console.error('[App] Failed to connect matchmaking socket:', error);
-        }
-      };
-
-      connectSocket();
+      connect().catch(error => {
+        console.error('[App] Failed to connect matchmaking socket:', error);
+      });
     }
 
     return () => {
@@ -39,14 +29,7 @@ function App() {
         disconnect();
       }
     };
-  }, [
-    isAuthenticated,
-    isConnected,
-    isConnecting,
-    connect,
-    disconnect,
-    setupEventHandlers,
-  ]);
+  }, [isAuthenticated, isConnected, isConnecting, connect, disconnect]);
 
   return (
     <>

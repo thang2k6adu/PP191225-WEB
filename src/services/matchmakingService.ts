@@ -15,6 +15,7 @@ const WEBSOCKET_URL = API_BASE_URL.replace('/api', '');
 class MatchmakingService {
   private socket: Socket | null = null;
   private eventHandlers: Map<string, ((data: unknown) => void)[]> = new Map();
+  private isManualDisconnect = false;
 
   connect(): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -94,13 +95,18 @@ class MatchmakingService {
 
       this.socket.on('disconnect', () => {
         console.log('[MatchmakingService] WebSocket disconnected');
-        this.emit('disconnect', {});
+        // Don't emit 'disconnect' event if this was intentional (e.g. logout)
+        if (!this.isManualDisconnect) {
+          this.emit('disconnect', {});
+        }
+        this.isManualDisconnect = false;
       });
     });
   }
 
   disconnect(): void {
     if (this.socket) {
+      this.isManualDisconnect = true;
       this.socket.disconnect();
       this.socket = null;
       this.eventHandlers.clear();
