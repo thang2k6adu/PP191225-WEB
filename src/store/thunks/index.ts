@@ -1,4 +1,6 @@
 export {
+  loginWithFirebaseThunk,
+  signUpWithFirebaseThunk,
   loginThunk,
   signUpThunk,
   logoutThunk,
@@ -6,6 +8,8 @@ export {
   signInWithFacebookThunk,
   signInWithGitHubThunk,
   forgotPasswordThunk,
+  resetPasswordThunk,
+  getUserProfileThunk,
 } from './authThunks';
 
 export {

@@ -21,6 +21,7 @@ import {
 type HeaderProps = {
   user?: {
     name: string;
+    initials?: string;
     role?: string;
     avatar?: string;
   };
@@ -60,7 +61,9 @@ export function Header({ user }: HeaderProps) {
                     <Avatar className="h-10 w-10">
                       <AvatarImage src={user?.avatar} alt={user?.name} />
                       <AvatarFallback>
-                        {user?.name?.[0]?.toUpperCase() ?? 'U'}
+                        {user?.initials ??
+                          user?.name?.[0]?.toUpperCase() ??
+                          'U'}
                       </AvatarFallback>
                     </Avatar>
 

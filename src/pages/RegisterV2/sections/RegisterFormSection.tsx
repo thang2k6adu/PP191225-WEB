@@ -249,7 +249,7 @@ export function RegisterFormSection() {
             Already a member?
           </span>
           <Link
-            to="/v2/login"
+            to={ROUTES.LOGIN}
             className="text-[#5B3EE5] text-body-regular hover:underline"
           >
             Sign In

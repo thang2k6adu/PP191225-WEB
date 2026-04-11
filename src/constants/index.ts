@@ -73,6 +73,10 @@ export const API_ENDPOINTS = {
     DETAIL: (roomId: string) => `/rooms/${roomId}`,
     LEAVE: (roomId: string) => `/rooms/${roomId}/leave`,
   },
+  USERS: {
+    PROFILE: '/users/profile',
+    UPDATE_PROFILE: '/users/profile',
+  },
 } as const;
 
 export const TOKEN_STORAGE_KEYS = {

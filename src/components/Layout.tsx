@@ -32,7 +32,7 @@ const Layout: React.FC = () => {
                   {t('pages.home')}
                 </Link>
                 <Link
-                  to={ROUTES.ABOUT}
+                  to={ROUTES.HOME}
                   className="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   {t('pages.about')}
@@ -78,7 +78,7 @@ const Layout: React.FC = () => {
               {isAuthenticated ? (
                 <div className="flex items-center space-x-4">
                   <span className="text-sm text-gray-700 dark:text-gray-300">
-                    {user?.displayName || user?.email}
+                    {user ? user.firstName || user.email : ''}
                   </span>
                   <Button variant="outline" size="sm" onClick={logout}>
                     {t('auth.logout')}

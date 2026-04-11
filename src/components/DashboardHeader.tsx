@@ -1,6 +1,7 @@
 import React from 'react';
 import { LuSearch as Search, LuBell as Bell } from 'react-icons/lu';
 import { useAuth } from '@/hooks/useAuth';
+import { getDisplayName, getInitials } from '@/types/user';
 
 const DashboardHeader: React.FC = () => {
   const { user } = useAuth();
@@ -32,12 +33,12 @@ const DashboardHeader: React.FC = () => {
           <div className="flex items-center space-x-3 pl-4 border-l border-gray-200">
             <div className="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center">
               <span className="text-white font-semibold text-sm">
-                {user?.displayName?.[0] || user?.email?.[0] || 'T'}
+                {user ? getInitials(user) : 'U'}
               </span>
             </div>
             <div className="flex flex-col">
               <span className="text-sm font-semibold text-gray-900">
-                {user?.displayName || 'Thangbro-Official'}
+                {user ? getDisplayName(user) : 'Guest'}
               </span>
               <span className="text-xs text-gray-500">Pro Plan</span>
             </div>
