@@ -13,23 +13,30 @@ function App() {
   const { connect, disconnect, isConnected, isConnecting } = useMatchmaking();
   const element = useRoutes(routes);
 
-  // Connect to matchmaking socket when user is authenticated - eager connection
   useEffect(() => {
-    if (isAuthenticated && !isConnected && !isConnecting) {
-      console.log('[App] User authenticated, connecting to matchmaking...');
-
-      connect().catch(error => {
-        console.error('[App] Failed to connect matchmaking socket:', error);
-      });
+    if (!isAuthenticated || isConnected || isConnecting) {
+      return;
     }
 
+    console.log('[App] User authenticated, connecting to matchmaking...');
+    connect().catch(error => {
+      console.error('[App] Failed to connect matchmaking socket:', error);
+    });
+  }, [isAuthenticated, isConnected, isConnecting, connect]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      return;
+    }
+
+    disconnect();
+  }, [isAuthenticated, disconnect]);
+
+  useEffect(() => {
     return () => {
-      if (isAuthenticated && isConnected) {
-        console.log('[App] Cleaning up matchmaking connection...');
-        disconnect();
-      }
+      disconnect();
     };
-  }, [isAuthenticated, isConnected, isConnecting, connect, disconnect]);
+  }, [disconnect]);
 
   return (
     <>

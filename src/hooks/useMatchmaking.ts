@@ -23,6 +23,9 @@ import {
 } from '@/store/slices/matchmakingSlice';
 import { MatchFoundEvent, RoomJoinedEvent } from '@/types/matchmaking';
 
+let activeSubscribers = 0;
+let cleanupGlobalListeners: (() => void) | null = null;
+
 export const useMatchmaking = () => {
   const dispatch = useDispatch<AppDispatch>();
   const matchmaking = useSelector((state: RootState) => state.matchmaking);
@@ -118,8 +121,21 @@ export const useMatchmaking = () => {
     dispatch(clearError());
   }, [dispatch]);
 
-  // Setup event handlers with cleanup to prevent listener accumulation
+  // Register one shared listener set for the singleton service.
   useEffect(() => {
+    activeSubscribers += 1;
+
+    if (activeSubscribers > 1) {
+      return () => {
+        activeSubscribers -= 1;
+
+        if (activeSubscribers === 0 && cleanupGlobalListeners) {
+          cleanupGlobalListeners();
+          cleanupGlobalListeners = null;
+        }
+      };
+    }
+
     const handleMatchFound = (data: unknown): void => {
       const matchEvent = data as MatchFoundEvent;
       dispatch(setMatchData(matchEvent));
@@ -169,8 +185,7 @@ export const useMatchmaking = () => {
     matchmakingService.on('disconnect', handleDisconnect);
     matchmakingService.on('error', handleError);
 
-    // Cleanup: remove ALL registered handlers when effect re-runs or component unmounts
-    return () => {
+    cleanupGlobalListeners = () => {
       matchmakingService.off('match_found', handleMatchFound);
       matchmakingService.off('room_joined', handleRoomJoined);
       matchmakingService.off(
@@ -180,6 +195,15 @@ export const useMatchmaking = () => {
       matchmakingService.off('opponent_left', handleOpponentLeft);
       matchmakingService.off('disconnect', handleDisconnect);
       matchmakingService.off('error', handleError);
+    };
+
+    return () => {
+      activeSubscribers -= 1;
+
+      if (activeSubscribers === 0 && cleanupGlobalListeners) {
+        cleanupGlobalListeners();
+        cleanupGlobalListeners = null;
+      }
     };
   }, [dispatch]);
 

@@ -14,22 +14,29 @@ const WEBSOCKET_URL = API_BASE_URL.replace('/api', '');
 
 class MatchmakingService {
   private socket: Socket | null = null;
+  private connectPromise: Promise<void> | null = null;
   private eventHandlers: Map<string, ((data: unknown) => void)[]> = new Map();
   private isManualDisconnect = false;
+  private connectionTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   connect(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      if (this.socket?.connected) {
-        resolve();
-        return;
-      }
+    if (this.socket?.connected) {
+      return Promise.resolve();
+    }
 
-      const token = localStorage.getItem(TOKEN_STORAGE_KEYS.ACCESS_TOKEN);
-      if (!token) {
-        reject(new Error('No authentication token found'));
-        return;
-      }
+    if (this.connectPromise) {
+      return this.connectPromise;
+    }
 
+    const token = localStorage.getItem(TOKEN_STORAGE_KEYS.ACCESS_TOKEN);
+    if (!token) {
+      return Promise.reject(new Error('No authentication token found'));
+    }
+
+    if (this.socket) {
+      this.socket.auth = { token };
+      this.socket.connect();
+    } else {
       this.socket = io(`${WEBSOCKET_URL}/matchmaking`, {
         auth: {
           token,
@@ -41,75 +48,62 @@ class MatchmakingService {
         reconnectionAttempts: 5,
       });
 
-      const connectionTimeout = setTimeout(() => {
-        if (this.socket && !this.socket.connected) {
-          this.socket.close();
+      this.registerSocketListeners(this.socket);
+    }
+
+    this.connectPromise = new Promise((resolve, reject) => {
+      if (!this.socket) {
+        this.connectPromise = null;
+        reject(new Error('Socket initialization failed'));
+        return;
+      }
+
+      if (this.socket.connected) {
+        this.connectPromise = null;
+        resolve();
+        return;
+      }
+
+      this.clearConnectionTimeout();
+      this.connectionTimeoutId = setTimeout(() => {
+        if (!this.socket?.connected) {
+          this.socket?.disconnect();
+          this.connectPromise = null;
           reject(new Error('Connection timeout'));
         }
       }, 10000);
-      this.socket.on('connect', () => {
-        clearTimeout(connectionTimeout);
+
+      const handleConnect = () => {
+        this.socket?.off('connect_error', handleConnectError);
+        this.clearConnectionTimeout();
+        this.connectPromise = null;
         console.log('[MatchmakingService] WebSocket connected');
         resolve();
-      });
+      };
 
-      this.socket.on('connected', (data: unknown) => {
-        console.log('[MatchmakingService] Connected event:', data);
-      });
-
-      this.socket.on('connect_error', (error: unknown) => {
-        clearTimeout(connectionTimeout);
+      const handleConnectError = (error: unknown) => {
+        this.socket?.off('connect', handleConnect);
+        this.clearConnectionTimeout();
+        this.connectPromise = null;
         console.error('[MatchmakingService] Connection error:', error);
         reject(error);
-      });
+      };
 
-      this.socket.on('error', (error: unknown) => {
-        console.error('[MatchmakingService] Error:', error);
-        this.emit('error', error);
-      });
-
-      this.socket.on('match_found', (data: unknown) => {
-        console.log('[MatchmakingService] Match found:', data);
-        this.emit('match_found', data);
-      });
-
-      this.socket.on('opponent_disconnected', (data: unknown) => {
-        console.log('[MatchmakingService] Opponent disconnected:', data);
-        this.emit('opponent_disconnected', data);
-      });
-
-      this.socket.on('opponent_left', (data: unknown) => {
-        console.log('[MatchmakingService] Opponent left:', data);
-        this.emit('opponent_left', data);
-      });
-
-      this.socket.on('room_joined', (data: unknown) => {
-        console.log('[MatchmakingService] Room joined:', data);
-        this.emit('room_joined', data);
-      });
-
-      this.socket.on('room_left', (data: unknown) => {
-        console.log('[MatchmakingService] Room left:', data);
-        this.emit('room_left', data);
-      });
-
-      this.socket.on('disconnect', () => {
-        console.log('[MatchmakingService] WebSocket disconnected');
-        // Don't emit 'disconnect' event if this was intentional (e.g. logout)
-        if (!this.isManualDisconnect) {
-          this.emit('disconnect', {});
-        }
-        this.isManualDisconnect = false;
-      });
+      this.socket.once('connect', handleConnect);
+      this.socket.once('connect_error', handleConnectError);
     });
+
+    return this.connectPromise;
   }
 
   disconnect(): void {
     if (this.socket) {
       this.isManualDisconnect = true;
+      this.clearConnectionTimeout();
+      this.connectPromise = null;
+      this.socket.removeAllListeners();
       this.socket.disconnect();
       this.socket = null;
-      this.eventHandlers.clear();
     }
   }
 
@@ -141,6 +135,59 @@ class MatchmakingService {
     const handlers = this.eventHandlers.get(event);
     if (handlers) {
       handlers.forEach(handler => handler(data));
+    }
+  }
+
+  private registerSocketListeners(socket: Socket): void {
+    socket.on('connected', (data: unknown) => {
+      console.log('[MatchmakingService] Connected event:', data);
+    });
+
+    socket.on('error', (error: unknown) => {
+      console.error('[MatchmakingService] Error:', error);
+      this.emit('error', error);
+    });
+
+    socket.on('match_found', (data: unknown) => {
+      console.log('[MatchmakingService] Match found:', data);
+      this.emit('match_found', data);
+    });
+
+    socket.on('opponent_disconnected', (data: unknown) => {
+      console.log('[MatchmakingService] Opponent disconnected:', data);
+      this.emit('opponent_disconnected', data);
+    });
+
+    socket.on('opponent_left', (data: unknown) => {
+      console.log('[MatchmakingService] Opponent left:', data);
+      this.emit('opponent_left', data);
+    });
+
+    socket.on('room_joined', (data: unknown) => {
+      console.log('[MatchmakingService] Room joined:', data);
+      this.emit('room_joined', data);
+    });
+
+    socket.on('room_left', (data: unknown) => {
+      console.log('[MatchmakingService] Room left:', data);
+      this.emit('room_left', data);
+    });
+
+    socket.on('disconnect', () => {
+      console.log('[MatchmakingService] WebSocket disconnected');
+      this.connectPromise = null;
+      this.clearConnectionTimeout();
+      if (!this.isManualDisconnect) {
+        this.emit('disconnect', {});
+      }
+      this.isManualDisconnect = false;
+    });
+  }
+
+  private clearConnectionTimeout(): void {
+    if (this.connectionTimeoutId) {
+      clearTimeout(this.connectionTimeoutId);
+      this.connectionTimeoutId = null;
     }
   }
 
