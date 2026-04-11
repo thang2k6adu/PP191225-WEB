@@ -12,6 +12,7 @@ const RegisterV2 = React.lazy(() => import('@/pages/RegisterV2'));
 const ForgotPasswordV2 = React.lazy(() => import('@/pages/ForgotPasswordV2'));
 const ResetPasswordV2 = React.lazy(() => import('@/pages/ResetPasswordV2'));
 const VerifyEmailV2 = React.lazy(() => import('@/pages/VerifyEmailV2'));
+const ProfileV2 = React.lazy(() => import('@/pages/ProfileV2'));
 const NotFound = React.lazy(() => import('@/pages/NotFound'));
 
 export const routes: RouteConfig[] = [
@@ -34,6 +35,7 @@ export const routes: RouteConfig[] = [
               { path: 'dashboard', element: <DashboardV2 /> },
               { path: 'tasks', element: <TaskV2 /> },
               { path: 'focus', element: <FocusV2 /> },
+              { path: 'profile', element: <ProfileV2 /> },
             ],
           },
         ],
