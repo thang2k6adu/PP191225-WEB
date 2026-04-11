@@ -11,24 +11,18 @@ export default function VerifyEmailV2() {
   const [isResending, setIsResending] = useState(false);
 
   const handleResend = async () => {
-    if (!auth.currentUser) {
-      toast.error('Unable to find current session. Please log in again.');
+    const email = auth?.currentUser?.email;
+    if (!email) {
+      toast.error('Unable to find current session. Please register again.');
       return;
     }
 
     setIsResending(true);
     try {
-      await authService.sendVerificationEmail(auth.currentUser.email!);
+      await authService.sendVerificationEmail(email);
       toast.success('Verification email resent successfully!');
     } catch (error: unknown) {
-      const err = error as { code?: string };
-      if (err?.code === 'auth/too-many-requests') {
-        toast.error(
-          'Too many requests. Please wait a moment before trying again.'
-        );
-      } else {
-        toast.error('Failed to resend verification email.');
-      }
+      toast.error('Failed to resend verification email.');
       console.error(error);
     } finally {
       setIsResending(false);

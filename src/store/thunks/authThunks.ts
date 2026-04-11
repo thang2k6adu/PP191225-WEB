@@ -93,7 +93,7 @@ export const loginWithFirebaseThunk = createAsyncThunk<
 
 export const signUpWithFirebaseThunk = createAsyncThunk<
   void,
-  { email: string; password: string; displayName?: string },
+  { email: string; password: string; firstName?: string; lastName?: string },
   { rejectValue: string }
 >('auth/signUpWithFirebase', async (credentials, { rejectWithValue }) => {
   if (!auth) return rejectWithValue('Firebase is not configured.');
@@ -104,7 +104,15 @@ export const signUpWithFirebaseThunk = createAsyncThunk<
       credentials.email,
       credentials.password
     );
-    await authService.sendVerificationEmail(credentials.email);
+
+    // Pass firstName/lastName so the backend creates the user record in DB right now.
+    // When the user verifies email and logs in, the name is already saved — no need
+    // to carry it around in Redux state.
+    await authService.sendVerificationEmail(credentials.email, {
+      firstName: credentials.firstName,
+      lastName: credentials.lastName,
+    });
+
     return rejectWithValue('email_not_verified');
   } catch (error: unknown) {
     return rejectWithValue(getErrorMessage(error, 'Sign up failed'));

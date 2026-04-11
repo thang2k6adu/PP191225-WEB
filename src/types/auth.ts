@@ -38,6 +38,10 @@ export interface FirebaseLoginRequest {
   idToken: string;
   deviceId: string;
   platform: 'web' | 'mobile' | 'desktop';
+  /** Passed when Firebase token has no display name (e.g. email/password registration) */
+  firstName?: string;
+  /** Passed when Firebase token has no display name (e.g. email/password registration) */
+  lastName?: string;
 }
 
 export interface TokenData {

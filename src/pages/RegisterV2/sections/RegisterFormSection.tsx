@@ -50,12 +50,12 @@ export function RegisterFormSection() {
   const onSubmit = async (data: RegisterFormData) => {
     setFirebaseError(null);
     try {
-      const displayName = `${data.firstName} ${data.lastName}`.trim();
       await dispatch(
         signUpWithFirebaseThunk({
           email: data.email,
           password: data.password,
-          displayName,
+          firstName: data.firstName,
+          lastName: data.lastName,
         })
       ).unwrap();
 

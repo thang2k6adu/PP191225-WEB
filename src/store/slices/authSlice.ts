@@ -14,7 +14,6 @@ import {
 import { TOKEN_STORAGE_KEYS } from '@/constants';
 
 interface AuthState {
-  /** User profile fetched from the backend. This is the single source of truth. */
   user: UserProfile | null;
   accessToken: string | null;
   refreshToken: string | null;
@@ -38,6 +37,7 @@ const initialState: AuthState = {
   error: null,
 };
 
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 const persistTokens = (tokens: TokenData, expiresAt: number) => {
   localStorage.setItem(TOKEN_STORAGE_KEYS.ACCESS_TOKEN, tokens.accessToken);
   localStorage.setItem(TOKEN_STORAGE_KEYS.REFRESH_TOKEN, tokens.refreshToken);
@@ -53,6 +53,7 @@ const clearTokens = () => {
   localStorage.removeItem(TOKEN_STORAGE_KEYS.TOKEN_EXPIRES_AT);
 };
 
+// ─── Slice ────────────────────────────────────────────────────────────────────
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -105,6 +106,7 @@ const authSlice = createSlice({
       persistTokens(tokens, expiresAt);
     };
 
+    // ── Email/password Login ─────────────────────────────────────────────────
     builder
       .addCase(loginWithFirebaseThunk.pending, state => {
         state.isLoading = true;
@@ -122,6 +124,7 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
       });
 
+    // ── Email/password Sign-up ───────────────────────────────────────────────
     builder
       .addCase(signUpWithFirebaseThunk.pending, state => {
         state.isLoading = true;
@@ -138,6 +141,7 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
       });
 
+    // ── Logout ───────────────────────────────────────────────────────────────
     builder
       .addCase(logoutThunk.pending, state => {
         state.isLoading = true;
@@ -217,7 +221,7 @@ const authSlice = createSlice({
         state.error = action.payload || 'Failed to send reset email';
       });
 
-    // ── Get User Profile (from backend) ─────────────────────────────────────
+    // ── Get User Profile ─────────────────────────────────────────────────────
     builder
       .addCase(getUserProfileThunk.pending, state => {
         state.isLoadingProfile = true;
@@ -227,7 +231,6 @@ const authSlice = createSlice({
         state.user = action.payload;
       })
       .addCase(getUserProfileThunk.rejected, state => {
-        // Non-blocking — profile fetch failure should not break the app
         state.isLoadingProfile = false;
       });
   },

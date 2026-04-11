@@ -42,8 +42,14 @@ export const authService = {
     await apiClient.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, { email });
   },
 
-  sendVerificationEmail: async (email: string): Promise<void> => {
-    await apiClient.post(API_ENDPOINTS.AUTH.SEND_VERIFICATION_EMAIL, { email });
+  sendVerificationEmail: async (
+    email: string,
+    name?: { firstName?: string; lastName?: string }
+  ): Promise<void> => {
+    await apiClient.post(API_ENDPOINTS.AUTH.SEND_VERIFICATION_EMAIL, {
+      email,
+      ...name,
+    });
   },
 
   // resetPassword is now handled directly by Firebase Client SDK in thunks

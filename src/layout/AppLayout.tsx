@@ -10,8 +10,9 @@ export const Layout: React.FC = () => {
   const dispatch = useAppDispatch();
   const { isAuthenticated, user } = useAppSelector(state => state.auth);
 
-  // Fetch backend profile whenever the user is authenticated but profile not loaded yet
   useEffect(() => {
+    console.log('user', user);
+
     if (isAuthenticated && !user) {
       dispatch(getUserProfileThunk());
     }

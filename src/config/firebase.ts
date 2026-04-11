@@ -1,7 +1,9 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
+import {
+  getAuth,
+  browserSessionPersistence,
+  setPersistence,
+} from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -19,30 +21,32 @@ const isFirebaseConfigured =
   firebaseConfig.projectId &&
   firebaseConfig.projectId !== 'dummy-project-id';
 
-// Initialize Firebase only if configured
-let app: ReturnType<typeof initializeApp> | undefined;
+// Only initialize Auth — Firestore and Storage are not used on the frontend.
+// Firebase is purely a "bridge" for authentication: we get an idToken from
+// Firebase and exchange it for our own backend JWT. All user data comes from
+// our backend (GET /users/profile), not from Firebase.
 let auth: ReturnType<typeof getAuth> | null = null;
-let db: ReturnType<typeof getFirestore> | null = null;
-let storage: ReturnType<typeof getStorage> | null = null;
 
 if (isFirebaseConfigured) {
   try {
-    app = initializeApp(firebaseConfig);
+    const app = initializeApp(firebaseConfig);
     auth = getAuth(app);
-    db = getFirestore(app);
-    storage = getStorage(app);
+
+    // Use session persistence: auth.currentUser survives page refresh within the
+    // same tab but is cleared when the tab/browser closes. Firebase will NOT make
+    // background calls to securetoken.googleapis.com across browser restarts like
+    // browserLocalPersistence does. Our backend JWT (in localStorage) is the real
+    // session — Firebase is only needed transiently for idToken exchange.
+    setPersistence(auth, browserSessionPersistence).catch(() => {
+      // Non-critical — auth still works for sign-in
+    });
   } catch (error) {
     console.warn('Firebase initialization failed:', error);
-    console.warn(
-      'Using placeholder Firebase services. Please configure Firebase in .env file.'
-    );
   }
 } else {
-  console.warn('Firebase is not configured. Using placeholder values.');
   console.warn(
-    'To enable Firebase, please update .env file with your Firebase configuration.'
+    'Firebase is not configured. Please update .env with your Firebase credentials.'
   );
 }
 
-export { auth, db, storage };
-export default app;
+export { auth };
