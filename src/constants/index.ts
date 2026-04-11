@@ -78,6 +78,9 @@ export const API_ENDPOINTS = {
     PROFILE: '/users/profile',
     UPDATE_PROFILE: '/users/profile',
   },
+  STORAGE: {
+    UPLOAD: '/storage/upload',
+  },
 } as const;
 
 export const TOKEN_STORAGE_KEYS = {

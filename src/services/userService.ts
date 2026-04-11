@@ -11,20 +11,15 @@ export interface ApiResponse<T> {
 }
 
 export const userService = {
-  /**
-   * Fetch the current user's profile from the backend.
-   * Requires a valid Bearer token (handled automatically by the apiClient interceptor).
-   */
   getProfile: async (): Promise<ApiResponse<UserProfile>> => {
     const response = await apiClient.get<ApiResponse<UserProfile>>(
       API_ENDPOINTS.USERS.PROFILE
     );
+
+    console.log('getProfile response:', response.data);
     return response.data;
   },
 
-  /**
-   * Update the current user's profile.
-   */
   updateProfile: async (
     data: Partial<
       Pick<

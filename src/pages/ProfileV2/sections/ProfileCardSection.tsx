@@ -1,3 +1,4 @@
+import { ChangeEvent, useRef, useState } from 'react';
 import {
   LuCamera,
   LuCheck,
@@ -7,8 +8,11 @@ import {
   LuPen,
 } from 'react-icons/lu';
 import { GiAchievement } from 'react-icons/gi';
-import { useAppSelector } from '@/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { getDisplayName } from '@/types/user';
+import { storageService } from '@/services/storageService';
+import { userService } from '@/services/userService';
+import { updateUser } from '@/store/slices/authSlice';
 
 interface ProfileCardSectionProps {
   onEditClick: () => void;
@@ -19,14 +23,91 @@ export function ProfileCardSection({
   onEditClick,
   isEditing,
 }: ProfileCardSectionProps) {
+  const dispatch = useAppDispatch();
   const user = useAppSelector(state => state.auth.user);
   const displayName = user ? getDisplayName(user) : 'Unknown User';
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+
+  const normalizeAvatarUrl = (url: string): string => {
+    if (/^https?:\/\//i.test(url)) {
+      return url;
+    }
+
+    const assetBaseUrl = import.meta.env.VITE_ASSET_BASE_URL;
+    if (assetBaseUrl) {
+      const normalizedAssetBase = assetBaseUrl.replace(/\/$/, '');
+      const normalizedPath = url.startsWith('/') ? url : `/${url}`;
+      return `${normalizedAssetBase}${normalizedPath}`;
+    }
+
+    const apiBaseUrl =
+      import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+    const backendOrigin = apiBaseUrl.replace(/\/api\/?$/, '');
+    const normalizedPath = url.startsWith('/') ? url : `/${url}`;
+
+    return `${backendOrigin}${normalizedPath}`;
+  };
+
+  const triggerAvatarPicker = () => {
+    if (isUploadingAvatar) return;
+    fileInputRef.current?.click();
+  };
+
+  const handleAvatarSelected = async (event: ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = event.target.files?.[0];
+    if (!selectedFile) return;
+
+    if (!selectedFile.type.startsWith('image/')) {
+      setAvatarError('Please select a valid image file.');
+      event.target.value = '';
+      return;
+    }
+
+    setAvatarError(null);
+    setIsUploadingAvatar(true);
+
+    try {
+      const uploadResponse = await storageService.uploadAvatar(selectedFile);
+
+      if (uploadResponse.error || !uploadResponse.data?.url) {
+        setAvatarError(uploadResponse.message || 'Failed to upload avatar.');
+        return;
+      }
+
+      const normalizedAvatarUrl = normalizeAvatarUrl(uploadResponse.data.url);
+      const updateResponse = await userService.updateProfile({
+        avatar: normalizedAvatarUrl,
+      });
+
+      if (updateResponse.error) {
+        setAvatarError(updateResponse.message || 'Failed to update avatar.');
+        return;
+      }
+
+      dispatch(
+        updateUser({
+          avatar: updateResponse.data?.avatar || normalizedAvatarUrl,
+        })
+      );
+    } catch {
+      setAvatarError('An unexpected error occurred while uploading avatar.');
+    } finally {
+      event.target.value = '';
+      setIsUploadingAvatar(false);
+    }
+  };
 
   return (
     <section className="flex flex-col w-full lg:w-[480px] bg-white rounded-[24px] shadow-md overflow-hidden border border-gray-100 flex-shrink-0 relative">
       {/* Cover & Avatar Area */}
       <div className="relative w-full h-[180px] bg-gradient-to-r from-blue-400 to-indigo-500">
-        <button className="absolute bottom-4 right-4 p-2 bg-white/80 backdrop-blur-sm rounded-lg hover:bg-white text-gray-700 transition-all shadow-sm">
+        <button
+          onClick={triggerAvatarPicker}
+          disabled={isUploadingAvatar}
+          className="absolute bottom-4 right-4 p-2 bg-white/80 backdrop-blur-sm rounded-lg hover:bg-white text-gray-700 transition-all shadow-sm disabled:opacity-60"
+        >
           <LuCamera className="w-5 h-5" />
         </button>
       </div>
@@ -45,10 +126,33 @@ export function ProfileCardSection({
               <LuUser className="w-14 h-14 text-indigo-400" />
             </div>
           )}
-          <button className="absolute bottom-1 right-1 p-2 bg-white rounded-full shadow border border-gray-100 text-gray-600 hover:text-gray-900 transition-all">
+          <button
+            onClick={triggerAvatarPicker}
+            disabled={isUploadingAvatar}
+            className="absolute bottom-1 right-1 p-2 bg-white rounded-full shadow border border-gray-100 text-gray-600 hover:text-gray-900 transition-all disabled:opacity-60"
+          >
             <LuCamera className="w-4 h-4" />
           </button>
         </div>
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleAvatarSelected}
+          disabled={isUploadingAvatar}
+        />
+
+        {avatarError && (
+          <p className="mt-3 text-sm text-red-500 text-center">{avatarError}</p>
+        )}
+
+        {isUploadingAvatar && (
+          <p className="mt-3 text-sm text-blue-600 text-center">
+            Uploading avatar...
+          </p>
+        )}
 
         {/* Name & Bio */}
         <div className="text-center mt-4 mb-4">
