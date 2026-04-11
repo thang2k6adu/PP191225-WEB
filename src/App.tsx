@@ -5,6 +5,7 @@ import LoadingSpinner from './components/LoadingSpinner';
 import { useTheme } from './hooks/useTheme';
 import { useAuth } from './hooks/useAuth';
 import { useMatchmaking } from './hooks/useMatchmaking';
+import { matchmakingService } from './services/matchmakingService';
 import { routes } from './routes';
 
 function App() {
@@ -14,7 +15,12 @@ function App() {
   const element = useRoutes(routes);
 
   useEffect(() => {
-    if (!isAuthenticated || isConnected || isConnecting) {
+    if (
+      !isAuthenticated ||
+      isConnected ||
+      isConnecting ||
+      matchmakingService.hasSocket()
+    ) {
       return;
     }
 

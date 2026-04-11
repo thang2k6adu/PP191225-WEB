@@ -143,6 +143,10 @@ export const useMatchmaking = () => {
       matchmakingService.joinRoom(matchEvent.roomId);
     };
 
+    const handleConnect = (): void => {
+      dispatch(setConnected(true));
+    };
+
     const handleRoomJoined = (data: unknown): void => {
       const roomEvent = data as RoomJoinedEvent;
       dispatch(
@@ -179,6 +183,7 @@ export const useMatchmaking = () => {
     };
 
     matchmakingService.on('match_found', handleMatchFound);
+    matchmakingService.on('connect', handleConnect);
     matchmakingService.on('room_joined', handleRoomJoined);
     matchmakingService.on('opponent_disconnected', handleOpponentDisconnected);
     matchmakingService.on('opponent_left', handleOpponentLeft);
@@ -187,6 +192,7 @@ export const useMatchmaking = () => {
 
     cleanupGlobalListeners = () => {
       matchmakingService.off('match_found', handleMatchFound);
+      matchmakingService.off('connect', handleConnect);
       matchmakingService.off('room_joined', handleRoomJoined);
       matchmakingService.off(
         'opponent_disconnected',

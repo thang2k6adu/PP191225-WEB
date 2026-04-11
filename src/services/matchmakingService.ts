@@ -111,6 +111,10 @@ class MatchmakingService {
     return this.socket?.connected || false;
   }
 
+  hasSocket(): boolean {
+    return this.socket !== null;
+  }
+
   on(event: string, handler: (data: unknown) => void): void {
     if (!this.eventHandlers.has(event)) {
       this.eventHandlers.set(event, []);
@@ -139,6 +143,11 @@ class MatchmakingService {
   }
 
   private registerSocketListeners(socket: Socket): void {
+    socket.on('connect', () => {
+      console.log('[MatchmakingService] Socket connected:', socket.id);
+      this.emit('connect', { socketId: socket.id });
+    });
+
     socket.on('connected', (data: unknown) => {
       console.log('[MatchmakingService] Connected event:', data);
     });
