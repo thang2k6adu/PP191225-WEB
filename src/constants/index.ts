@@ -10,6 +10,7 @@ export const ROUTES = {
   TASKS: '/tasks',
   FOCUS: '/focus',
   FOCUS_ROOM: '/focus-room',
+  PROFILE: '/profile',
 
   V2: {
     HOME: '/',

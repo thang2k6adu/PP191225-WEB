@@ -1,12 +1,12 @@
 import {
   LuCamera,
-  LuStar,
   LuCheck,
   LuCalendar,
   LuFacebook,
   LuUser,
   LuPen,
 } from 'react-icons/lu';
+import { GiAchievement } from 'react-icons/gi';
 import { useAppSelector } from '@/store/hooks';
 import { getDisplayName } from '@/types/user';
 
@@ -23,7 +23,7 @@ export function ProfileCardSection({
   const displayName = user ? getDisplayName(user) : 'Unknown User';
 
   return (
-    <section className="flex flex-col w-full lg:w-[480px] bg-white rounded-[24px] shadow-sm overflow-hidden border border-gray-100 flex-shrink-0 relative">
+    <section className="flex flex-col w-full lg:w-[480px] bg-white rounded-[24px] shadow-md overflow-hidden border border-gray-100 flex-shrink-0 relative">
       {/* Cover & Avatar Area */}
       <div className="relative w-full h-[180px] bg-gradient-to-r from-blue-400 to-indigo-500">
         <button className="absolute bottom-4 right-4 p-2 bg-white/80 backdrop-blur-sm rounded-lg hover:bg-white text-gray-700 transition-all shadow-sm">
@@ -52,7 +52,7 @@ export function ProfileCardSection({
 
         {/* Name & Bio */}
         <div className="text-center mt-4 mb-4">
-          <h2 className="text-xl font-bold text-gray-900">{displayName}</h2>
+          <h2 className="text-h5-medium text-gray-900">{displayName}</h2>
           {user?.bio?.trim() && (
             <p className="text-sm text-gray-500 mt-1 italic max-w-[300px]">
               {user.bio}
@@ -73,12 +73,14 @@ export function ProfileCardSection({
         <div className="w-full h-[1px] bg-gray-200 my-6" />
 
         {/* Level & Progress */}
-        <div className="w-full mb-6">
-          <h3 className="text-base font-bold text-gray-900 mb-3">Level 56</h3>
-          <div className="flex items-center gap-2 mb-2 text-blue-600 text-sm font-semibold">
-            <div className="w-5 h-5 bg-blue-100 text-blue-600 rounded flex items-center justify-center">
-              <LuStar className="w-3.5 h-3.5" />
-            </div>
+        <div className="w-full">
+          <h3 className="text-h6-medium text-gray-900 mb-3">Level 56</h3>
+          <div className="flex items-center gap-2 mb-2 text-blue-600 text-base-medium">
+            <img
+              src="/icons/project-experience.svg"
+              alt="Star"
+              className="w-7 h-7"
+            />
             2,000,000
           </div>
           <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
@@ -89,26 +91,26 @@ export function ProfileCardSection({
           </div>
         </div>
 
+        <div className="w-full h-[1px] bg-gray-200 my-6" />
+
         {/* Achievements */}
         <div className="w-full">
-          <h3 className="text-base font-bold text-gray-900 mb-4">
-            Achievements
-          </h3>
+          <h3 className="text-h6-medium text-gray-900 mb-4">Achievements</h3>
           <div className="grid grid-cols-2 gap-y-6 gap-x-4">
             <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-2 text-gray-500 text-xs font-semibold">
-                <LuCheck className="w-4 h-4" />
+              <div className="flex items-center gap-1 text-gray-500 text-caption-lg-regular">
+                <GiAchievement className="w-5 h-5" />
                 Total spent hours
               </div>
-              <span className="text-gray-900 font-bold text-base">100</span>
+              <span className="text-gray-900 text-base-regular">100</span>
             </div>
 
             <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-2 text-gray-500 text-xs font-semibold">
-                <LuCalendar className="w-4 h-4" />
+              <div className="flex items-center gap-2 text-gray-500 text-caption-lg-regular">
+                <LuCalendar className="w-5 h-5" />
                 Member since
               </div>
-              <span className="text-gray-900 font-bold text-base">
+              <span className="text-gray-900 text-base-regular">
                 {user?.createdAt
                   ? new Date(user.createdAt).toLocaleDateString('en-US', {
                       month: 'long',
@@ -120,26 +122,27 @@ export function ProfileCardSection({
             </div>
 
             <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-2 text-gray-500 text-xs font-semibold">
-                <LuCheck className="w-4 h-4" />
+              <div className="flex items-center gap-1 text-gray-500 text-caption-lg-regular">
+                <LuCheck className="w-5 h-5" />
                 Total finished tasks
               </div>
-              <span className="text-gray-900 font-bold text-base">50</span>
+              <span className="text-gray-900 text-base-regular">50</span>
             </div>
 
             <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-2 text-gray-500 text-xs font-semibold">
-                <LuFacebook className="w-4 h-4" />
+              <div className="flex items-center gap-1 text-gray-500 text-caption-lg-regular">
+                <LuFacebook className="w-5 h-5" />
                 Facebook
               </div>
               <a
                 href="#"
-                className="text-blue-600 hover:underline font-bold text-sm"
+                className="text-blue-600 hover:underline text-base-regular"
               >
                 Go to page &gt;
               </a>
             </div>
           </div>
+          <div className="w-full h-[1px] bg-gray-200 my-6" />
         </div>
       </div>
     </section>

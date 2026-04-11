@@ -90,7 +90,9 @@ export function Header({ user }: HeaderProps) {
                   <Button
                     variant="ghost"
                     className="w-full justify-start text-sm font-normal"
-                    onClick={() => {}}
+                    onClick={() => {
+                      navigate(ROUTES.PROFILE);
+                    }}
                   >
                     <UserIcon className="mr-2 h-4 w-4" />
                     Profile

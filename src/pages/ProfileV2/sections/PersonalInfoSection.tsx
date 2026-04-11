@@ -35,7 +35,6 @@ export function PersonalInfoSection({
     bio: user?.bio ?? '',
   });
 
-  // Sync form when editing starts — parent triggers re-mount via key or this effect
   const handleCancel = () => {
     setFormData({
       firstName: user?.firstName ?? '',
@@ -75,12 +74,9 @@ export function PersonalInfoSection({
 
   return (
     <section className="flex flex-col flex-1 gap-6 min-w-0">
-      {/* Personal Information */}
-      <div className="bg-white rounded-[24px] p-8 shadow-sm border border-gray-100 w-full">
+      <div className="bg-white rounded-md p-8 shadow-md border border-gray-100 w-full">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-bold text-gray-900">
-            Personal information
-          </h2>
+          <h2 className="text-h6-medium text-gray-900">Personal information</h2>
 
           {isEditing && (
             <div className="flex items-center gap-2">
@@ -113,7 +109,7 @@ export function PersonalInfoSection({
         <div className="flex flex-col gap-5">
           {/* Email — always read-only */}
           <div className="flex flex-col gap-2">
-            <span className="text-sm font-semibold text-gray-900">
+            <span className="text-base-medium text-gray-900">
               Email address
             </span>
             <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl">
@@ -126,7 +122,7 @@ export function PersonalInfoSection({
 
           {/* Work */}
           <div className="flex flex-col gap-2">
-            <span className="text-sm font-semibold text-gray-900">Work</span>
+            <span className="text-base-medium text-gray-900">Work</span>
             {isEditing ? (
               <div className="flex items-center gap-3 px-4 py-3 bg-white border border-blue-300 rounded-xl focus-within:ring-2 focus-within:ring-blue-200 transition-all">
                 <LuBriefcase className="w-5 h-5 text-gray-400 flex-shrink-0" />
@@ -154,7 +150,7 @@ export function PersonalInfoSection({
 
           {/* Major */}
           <div className="flex flex-col gap-2">
-            <span className="text-sm font-semibold text-gray-900">Major</span>
+            <span className="text-base-medium text-gray-900">Major</span>
             {isEditing ? (
               <div className="flex items-center gap-3 px-4 py-3 bg-white border border-blue-300 rounded-xl focus-within:ring-2 focus-within:ring-blue-200 transition-all">
                 <LuGraduationCap className="w-5 h-5 text-gray-400 flex-shrink-0" />
@@ -182,7 +178,7 @@ export function PersonalInfoSection({
 
           {/* Bio */}
           <div className="flex flex-col gap-2">
-            <span className="text-sm font-semibold text-gray-900">Bio</span>
+            <span className="text-base-medium text-gray-900">Bio</span>
             {isEditing ? (
               <textarea
                 value={formData.bio}
@@ -197,7 +193,7 @@ export function PersonalInfoSection({
             ) : (
               <div className="px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl min-h-[72px]">
                 {user?.bio ? (
-                  <p className="text-gray-700 text-sm font-medium italic">
+                  <p className="text-gray-700 text-sm font-medium">
                     {user.bio}
                   </p>
                 ) : (
@@ -209,11 +205,8 @@ export function PersonalInfoSection({
         </div>
       </div>
 
-      {/* Recent Activities */}
-      <div className="bg-white rounded-[24px] p-8 shadow-sm border border-gray-100 flex-1 w-full flex flex-col">
-        <h2 className="text-lg font-bold text-gray-900 mb-6">
-          Recent activities
-        </h2>
+      <div className="bg-white rounded-[24px] p-8 shadow-md border border-gray-100 flex-1 w-full flex flex-col">
+        <h2 className="text-h6-medium text-gray-900 mb-6">Recent activities</h2>
         <div className="flex flex-col gap-3 flex-1 overflow-y-auto min-h-0">
           {RECENT_ACTIVITIES.map((activity, index) => (
             <div
