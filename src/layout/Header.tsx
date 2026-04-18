@@ -59,7 +59,11 @@ export function Header({ user }: HeaderProps) {
                 >
                   <div className="flex items-center gap-4">
                     <Avatar className="h-10 w-10">
-                      <AvatarImage src={user?.avatar} alt={user?.name} />
+                      <AvatarImage
+                        src={user?.avatar}
+                        alt={user?.name}
+                        className="w-full h-full object-cover"
+                      />
                       <AvatarFallback>
                         {user?.initials ??
                           user?.name?.[0]?.toUpperCase() ??
