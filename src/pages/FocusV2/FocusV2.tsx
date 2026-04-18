@@ -57,7 +57,7 @@ export default function FocusV2() {
     // Check if join was successful (thunk returns fulfilled result with payload)
     if (result.meta.requestStatus === 'fulfilled' && result.payload) {
       // Navigate to focus room page with roomId in URL
-      navigate(`/v2/focus-room/${roomId}`);
+      navigate(`${ROUTES.FOCUS_ROOM}/${roomId}`);
     }
   };
 

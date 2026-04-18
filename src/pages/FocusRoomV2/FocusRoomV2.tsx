@@ -10,6 +10,7 @@ import { VideoRoom } from '@/components/VideoRoom';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { Helmet } from 'react-helmet-async';
 import { rtcManager } from '@/lib/rtcManager';
+import { ROUTES } from '@/constants';
 
 const LIVEKIT_URL =
   import.meta.env.VITE_LIVEKIT_URL || 'wss://your-livekit-server.com';
@@ -63,7 +64,7 @@ const FocusRoom: React.FC = () => {
   useEffect(() => {
     if (!roomId && !isLeavingRef.current) {
       console.log('[FocusRoom] No roomId, redirecting...');
-      navigate('/v2/focus', { replace: true });
+      navigate(ROUTES.FOCUS, { replace: true });
     }
   }, [roomId, navigate]);
 
@@ -168,7 +169,7 @@ const FocusRoom: React.FC = () => {
 
     rtcManager.markManualLeave();
     rtcManager.disconnect();
-    window.location.href = '/v2/focus';
+    window.location.href = ROUTES.FOCUS;
   };
 
   const handleMoreOptions = () => {
