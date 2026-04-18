@@ -3,6 +3,11 @@ import { formatDurationHYM } from '@/utils/date';
 import { useTasks } from '@/hooks/useTasks';
 import { useMemo } from 'react';
 
+export type RecentActivity = {
+  title: string;
+  estimated: number; // in seconds
+};
+
 export function RecentActivities() {
   const { tasks } = useTasks();
 

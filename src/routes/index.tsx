@@ -1,7 +1,7 @@
 import React from 'react';
-import type { RouteConfig } from './type';
 import { Layout } from '@/layout/AppLayout';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import { type RouteObject } from 'react-router-dom';
 
 const DashboardV2 = React.lazy(() => import('@/pages/DashboardV2/DashboardV2'));
 const TaskV2 = React.lazy(() => import('@/pages/TaskV2/TasksV2'));
@@ -15,7 +15,7 @@ const VerifyEmailV2 = React.lazy(() => import('@/pages/VerifyEmailV2'));
 const ProfileV2 = React.lazy(() => import('@/pages/ProfileV2'));
 const NotFound = React.lazy(() => import('@/pages/NotFound'));
 
-export const routes: RouteConfig[] = [
+export const routes: RouteObject[] = [
   {
     path: '/',
     children: [

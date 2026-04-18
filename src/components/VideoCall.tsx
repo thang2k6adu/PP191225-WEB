@@ -104,7 +104,7 @@ const VideoCall: React.FC<VideoCallProps> = ({
   const handleTrackSubscribed = useCallback(
     (
       track: RemoteTrackPublication['track'],
-      publication: RemoteTrackPublication,
+      _publication: RemoteTrackPublication,
       participant: RemoteParticipant
     ) => {
       console.log('📹 TrackSubscribed:', participant.identity, track?.kind);
@@ -181,14 +181,15 @@ const VideoCall: React.FC<VideoCallProps> = ({
       setIsConnecting(true);
       setConnectionError(null);
 
-      // Create room instance with reconnection config
-      room.current = new Room({
-        adaptiveStream: true, // Enable adaptive streaming
-        dynacast: true, // Optimize bandwidth
+      const roomOptions = {
+        adaptiveStream: true,
+        dynacast: true,
         videoCaptureDefaults: {
           resolution: { width: 1280, height: 720 },
         },
-        // Add public STUN servers for better connectivity
+      };
+
+      const connectOptions = {
         rtcConfig: {
           iceServers: [
             {
@@ -199,7 +200,10 @@ const VideoCall: React.FC<VideoCallProps> = ({
             },
           ],
         },
-      });
+      };
+
+      // Create room instance with reconnection config
+      room.current = new Room(roomOptions);
 
       // Set up event listeners
       room.current
@@ -213,7 +217,7 @@ const VideoCall: React.FC<VideoCallProps> = ({
         .on(RoomEvent.ConnectionStateChanged, handleConnectionStateChange);
 
       // Connect to room
-      await room.current.connect(wsUrl, token);
+      await room.current.connect(wsUrl, token, connectOptions);
       console.log('✅ Connected to LiveKit room:', roomName);
 
       // Enable camera and microphone

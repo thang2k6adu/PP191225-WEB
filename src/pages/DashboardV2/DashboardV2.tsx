@@ -3,11 +3,7 @@ import { StatsSection } from './sections/StatsSection';
 import { ChartsSection } from './sections/ChartsSection';
 import { WorkProgressSection } from './sections/WorkProgressSection';
 import { SidebarSection } from './sections/SidebarSection';
-import {
-  DASHBOARD_STATS,
-  WORK_PROGRESS_TASKS,
-  UPCOMING_TASKS,
-} from './constants';
+import { DASHBOARD_STATS, WORK_PROGRESS_TASKS } from './constants';
 
 function DashboardV2() {
   return (
@@ -32,7 +28,7 @@ function DashboardV2() {
           flex flex-col gap-6
         "
       >
-        <SidebarSection upcomingTasks={UPCOMING_TASKS} />
+        <SidebarSection />
       </section>
     </>
   );

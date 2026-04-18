@@ -1,16 +1,11 @@
 import { Calendar } from '../components/Calendar';
 import { RecentActivities } from '@/components/RecentActivities';
-import { RecentActivity } from '@/components/RecentActivities';
 
-type SidebarSectionProps = {
-  upcomingTasks: RecentActivity[];
-};
-
-export function SidebarSection({ upcomingTasks }: SidebarSectionProps) {
+export function SidebarSection() {
   return (
     <>
       <Calendar />
-      <RecentActivities tasks={upcomingTasks} />
+      <RecentActivities />
     </>
   );
 }
