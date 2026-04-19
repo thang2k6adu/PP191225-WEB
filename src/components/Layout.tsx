@@ -22,7 +22,7 @@ const Layout: React.FC = () => {
                 to={ROUTES.HOME}
                 className="text-xl font-bold text-primary-600 dark:text-primary-400"
               >
-                React Boilerplate
+                Focus Hub
               </Link>
               <div className="hidden md:flex space-x-4">
                 <Link
@@ -112,7 +112,7 @@ const Layout: React.FC = () => {
       <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <p className="text-center text-sm text-gray-600 dark:text-gray-400">
-            © {new Date().getFullYear()} React Boilerplate. All rights reserved.
+            © {new Date().getFullYear()} Focus Hub. All rights reserved.
           </p>
         </div>
       </footer>

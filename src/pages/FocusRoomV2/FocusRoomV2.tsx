@@ -190,7 +190,7 @@ const FocusRoom: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>{`${roomName} - React Boilerplate`}</title>
+        <title>{`${roomName} - Focus Hub`}</title>
         <meta name="description" content="Focus room video call" />
       </Helmet>
 

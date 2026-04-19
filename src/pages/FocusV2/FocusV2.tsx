@@ -68,7 +68,7 @@ export default function FocusV2() {
   return (
     <>
       <Helmet>
-        <title>Focus Rooms - React Boilerplate</title>
+        <title>Focus Rooms - Focus Hub</title>
         <meta
           name="description"
           content="Join study rooms and focus together"
