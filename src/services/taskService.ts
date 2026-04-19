@@ -6,6 +6,8 @@ import {
   TaskResponse,
   ActiveTaskResponse,
   TaskActionResponse,
+  TaskStatsPeriod,
+  TaskStatsResponse,
 } from '@/types/task';
 import { API_ENDPOINTS } from '@/constants';
 
@@ -72,5 +74,16 @@ export const taskService = {
 
   deleteTask: async (id: string): Promise<void> => {
     await apiClient.delete(API_ENDPOINTS.TASKS.DELETE(id));
+  },
+
+  getTaskStats: async (params?: {
+    period?: TaskStatsPeriod;
+    anchorDate?: string;
+  }): Promise<TaskStatsResponse> => {
+    const response = await apiClient.get<TaskStatsResponse>(
+      API_ENDPOINTS.TASKS.STATS,
+      { params }
+    );
+    return response.data;
   },
 };

@@ -1,69 +1,49 @@
 import { Card, CardContent } from '@/components/ui/card';
 import TotalWorkChart from '@/components/TotalWorkChart';
 import TaskPercentageChart from '@/components/TaskPercentageChart';
-import { useTasks } from '@/hooks/useTasks';
-import { useMemo } from 'react';
+import { taskService } from '@/services/taskService';
+import { TaskStatsPeriod, TaskStatsResponse } from '@/types/task';
+import { useEffect, useMemo, useState } from 'react';
+import { toTaskChartData } from '@/utils/task-stats';
 
 type ChartsSectionProps = {
   referenceX?: string;
 };
 
 export function ChartsSection({ referenceX }: ChartsSectionProps) {
-  const { tasks } = useTasks();
+  const [period, setPeriod] = useState<TaskStatsPeriod>('month');
+  const [stats, setStats] = useState<NonNullable<
+    TaskStatsResponse['data']
+  > | null>(null);
 
-  // Calculate task percentages from real data
-  const taskPercentage = useMemo(() => {
-    const planning = tasks.filter(t => t.status === 'PLANNED').length;
-    const inProgress = tasks.filter(t => t.status === 'ACTIVE').length;
-    const finished = tasks.filter(t => t.status === 'DONE').length;
+  useEffect(() => {
+    let mounted = true;
 
-    return {
-      planning,
-      inProgress,
-      finished,
+    const fetchStats = async () => {
+      const response = await taskService.getTaskStats({ period });
+      if (!mounted || response.error || !response.data) return;
+      setStats(response.data);
     };
-  }, [tasks]);
 
-  // Calculate chart data (tasks created per month)
+    fetchStats();
+
+    return () => {
+      mounted = false;
+    };
+  }, [period]);
+
+  const taskPercentage = useMemo(() => {
+    return {
+      planning: stats?.summary.planned || 0,
+      inProgress: stats?.summary.inProgress || 0,
+      finished: stats?.summary.completed || 0,
+    };
+  }, [stats]);
+
   const chartData = useMemo(() => {
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    const currentYear = new Date().getFullYear();
-    const tasksByMonth: { [key: string]: number } = {};
-
-    // Initialize all months with 0
-    months.forEach(month => {
-      tasksByMonth[month] = 0;
-    });
-
-    // Count tasks by month
-    tasks.forEach(task => {
-      const date = new Date(task.createdAt);
-      if (date.getFullYear() === currentYear) {
-        const monthIndex = date.getMonth();
-        const month = months[monthIndex];
-        tasksByMonth[month]++;
-      }
-    });
-
-    // Convert to chart format
-    return months.map(month => ({
-      month,
-      Tasks: tasksByMonth[month],
-    }));
-  }, [tasks]);
+    if (!stats) return [];
+    return toTaskChartData(stats, period);
+  }, [stats, period]);
 
   return (
     <section className="w-full grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -72,7 +52,12 @@ export function ChartsSection({ referenceX }: ChartsSectionProps) {
 
         <Card className="w-full shadow-md">
           <CardContent className="p-4">
-            <TotalWorkChart data={chartData} referenceX={referenceX} />
+            <TotalWorkChart
+              data={chartData}
+              referenceX={referenceX}
+              period={period}
+              onPeriodChange={setPeriod}
+            />
           </CardContent>
         </Card>
       </div>

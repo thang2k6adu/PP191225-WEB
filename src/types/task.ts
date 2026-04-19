@@ -70,3 +70,27 @@ export interface TaskActionResponse {
   };
   traceId: string;
 }
+
+export type TaskStatsPeriod = 'day' | 'month' | 'year';
+
+export interface TaskStatsResponse {
+  error: boolean;
+  code: number;
+  message: string;
+  data: {
+    range: {
+      from: string;
+      to: string;
+    };
+    summary: {
+      planned: number;
+      inProgress: number;
+      completed: number;
+    };
+    series: Array<{
+      timestamp: string;
+      count: number;
+    }>;
+  } | null;
+  traceId: string;
+}

@@ -9,6 +9,7 @@ import {
   ReferenceLine,
 } from 'recharts';
 import { LuChevronDown as ChevronDown } from 'react-icons/lu';
+import { TaskStatsPeriod } from '@/types/task';
 
 type TaskChartData = {
   month: string;
@@ -19,28 +20,34 @@ type TotalWorkChartProps = {
   data: TaskChartData[];
   yLabel?: string;
   referenceX?: string;
+  period?: TaskStatsPeriod;
+  onPeriodChange?: (period: TaskStatsPeriod) => void;
 };
 
 export default function TotalWorkChart({
   data,
   yLabel = 'Tasks',
   referenceX,
+  period = 'month',
+  onPeriodChange,
 }: TotalWorkChartProps) {
   return (
     <div className="flex flex-col gap-4 w-full">
       <div className="flex justify-end">
-        <button
-          className="flex items-center gap-1.5
-                     px-2.5 py-1
-                     border border-slate-200
-                     rounded-md
-                     text-caption-sm-regular
-                     text-muted-foreground
-                     hover:bg-slate-50"
-        >
-          Monthly
-          <ChevronDown size={14} />
-        </button>
+        <div className="relative">
+          <select
+            value={period}
+            onChange={e => onPeriodChange?.(e.target.value as TaskStatsPeriod)}
+            className="appearance-none flex items-center gap-1.5 px-2.5 py-1 pr-7 border border-slate-200 rounded-md text-caption-sm-regular text-muted-foreground hover:bg-slate-50 bg-white"
+          >
+            <option value="day">Daily</option>
+            <option value="month">Monthly</option>
+            <option value="year">Yearly</option>
+          </select>
+          <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-slate-500">
+            <ChevronDown size={14} />
+          </span>
+        </div>
       </div>
 
       <div className="h-[260px]">

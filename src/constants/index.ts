@@ -48,6 +48,7 @@ export const API_ENDPOINTS = {
   TASKS: {
     LIST: '/tasks',
     CREATE: '/tasks',
+    STATS: '/tasks/stats',
     DETAIL: (id: string) => `/tasks/${id}`,
     UPDATE: (id: string) => `/tasks/${id}`,
     DELETE: (id: string) => `/tasks/${id}`,

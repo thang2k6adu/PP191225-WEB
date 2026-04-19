@@ -1,18 +1,25 @@
 import { Card, CardContent } from '@/components/ui/card';
 import TotalWorkChart from '@/components/TotalWorkChart';
 import TaskPercentageChart from '@/components/TaskPercentageChart';
+import { TaskStatsPeriod } from '@/types/task';
 
-export function ChartsSection() {
-  const data = [
-    { month: 'Jan', Tasks: 30 },
-    { month: 'Feb', Tasks: 45 },
-    { month: 'Mar', Tasks: 35 },
-    { month: 'Apr', Tasks: 55 },
-    { month: 'May', Tasks: 72 },
-    { month: 'Jun', Tasks: 55 },
-    { month: 'Jul', Tasks: 55 },
-  ];
+type ChartsSectionProps = {
+  chartData: Array<{ month: string; Tasks: number }>;
+  donut: {
+    planning: number;
+    inProgress: number;
+    completed: number;
+  };
+  period: TaskStatsPeriod;
+  onPeriodChange: (period: TaskStatsPeriod) => void;
+};
 
+export function ChartsSection({
+  chartData,
+  donut,
+  period,
+  onPeriodChange,
+}: ChartsSectionProps) {
   return (
     <section className="w-full grid grid-cols-1 md:grid-cols-2 gap-8">
       <div className="w-full h-full flex flex-col gap-3">
@@ -20,7 +27,11 @@ export function ChartsSection() {
 
         <Card className="w-full shadow-md">
           <CardContent className="p-4">
-            <TotalWorkChart data={data} referenceX="May" />
+            <TotalWorkChart
+              data={chartData}
+              period={period}
+              onPeriodChange={onPeriodChange}
+            />
           </CardContent>
         </Card>
       </div>
@@ -32,9 +43,9 @@ export function ChartsSection() {
           <CardContent className="p-4">
             <TaskPercentageChart
               data={{
-                planning: 12,
-                inProgress: 8,
-                finished: 20,
+                planning: donut.planning,
+                inProgress: donut.inProgress,
+                finished: donut.completed,
               }}
             />{' '}
           </CardContent>
