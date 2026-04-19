@@ -10,7 +10,8 @@ import {
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { userService } from '@/services/userService';
 import { updateUser } from '@/store/slices/authSlice';
-import { EditFormData, RECENT_ACTIVITIES } from '../constants';
+import { EditFormData } from '../constants';
+import { RecentActivities } from '@/components/RecentActivities';
 
 interface PersonalInfoSectionProps {
   isEditing: boolean;
@@ -281,23 +282,7 @@ export function PersonalInfoSection({
       </div>
 
       <div className="bg-white rounded-[24px] p-8 shadow-md border border-gray-100 flex-1 w-full flex flex-col">
-        <h2 className="text-h6-medium text-gray-900 mb-6">Recent activities</h2>
-        <div className="flex flex-col gap-3 flex-1 overflow-y-auto min-h-0">
-          {RECENT_ACTIVITIES.map((activity, index) => (
-            <div
-              key={index}
-              className="flex flex-col justify-center px-5 py-4 bg-white rounded-xl shadow-[0_2px_8px_-2px_rgba(0,0,0,0.08)] border border-gray-50 relative overflow-hidden"
-            >
-              <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#5F33E1] to-purple-400" />
-              <h4 className="text-sm font-bold text-gray-900 mb-1">
-                {activity.title}
-              </h4>
-              <span className="text-xs font-semibold text-gray-500">
-                {activity.duration}
-              </span>
-            </div>
-          ))}
-        </div>
+        <RecentActivities />
       </div>
     </section>
   );
