@@ -24,7 +24,13 @@ export const userService = {
     data: Partial<
       Pick<
         UserProfile,
-        'firstName' | 'lastName' | 'avatar' | 'work' | 'major' | 'bio'
+        | 'firstName'
+        | 'lastName'
+        | 'contactEmail'
+        | 'avatar'
+        | 'work'
+        | 'major'
+        | 'bio'
       >
     >
   ): Promise<ApiResponse<UserProfile>> => {

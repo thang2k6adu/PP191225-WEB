@@ -31,6 +31,7 @@ export function PersonalInfoSection({
   const [formData, setFormData] = useState<EditFormData>({
     firstName: user?.firstName ?? '',
     lastName: user?.lastName ?? '',
+    contactEmail: user?.contactEmail ?? '',
     work: user?.work ?? '',
     major: user?.major ?? '',
     bio: user?.bio ?? '',
@@ -40,6 +41,7 @@ export function PersonalInfoSection({
     setFormData({
       firstName: user?.firstName ?? '',
       lastName: user?.lastName ?? '',
+      contactEmail: user?.contactEmail ?? '',
       work: user?.work ?? '',
       major: user?.major ?? '',
       bio: user?.bio ?? '',
@@ -50,6 +52,7 @@ export function PersonalInfoSection({
     setFormData({
       firstName: user?.firstName ?? '',
       lastName: user?.lastName ?? '',
+      contactEmail: user?.contactEmail ?? '',
       work: user?.work ?? '',
       major: user?.major ?? '',
       bio: user?.bio ?? '',
@@ -65,6 +68,7 @@ export function PersonalInfoSection({
       const response = await userService.updateProfile({
         firstName: formData.firstName || undefined,
         lastName: formData.lastName || undefined,
+        contactEmail: formData.contactEmail || undefined,
         work: formData.work || undefined,
         major: formData.major || undefined,
         bio: formData.bio || undefined,
@@ -158,17 +162,37 @@ export function PersonalInfoSection({
             </div>
           )}
 
-          {/* Email — always read-only */}
+          {/* Contact Email */}
           <div className="flex flex-col gap-2">
             <span className="text-base-medium text-gray-900">
-              Email address
+              Contact email
             </span>
-            <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl">
-              <LuMail className="w-5 h-5 text-gray-500 flex-shrink-0" />
-              <span className="text-gray-700 text-sm font-medium truncate">
-                {user?.email ?? '—'}
-              </span>
-            </div>
+            {isEditing ? (
+              <div className="flex items-center gap-3 px-4 py-3 bg-white border border-blue-300 rounded-xl focus-within:ring-2 focus-within:ring-blue-200 transition-all">
+                <LuMail className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                <input
+                  type="email"
+                  value={formData.contactEmail}
+                  onChange={e =>
+                    setFormData(prev => ({
+                      ...prev,
+                      contactEmail: e.target.value,
+                    }))
+                  }
+                  placeholder="contact@example.com"
+                  className="flex-1 text-sm font-medium text-gray-800 bg-transparent outline-none placeholder:text-gray-400"
+                />
+              </div>
+            ) : (
+              <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl">
+                <LuMail className="w-5 h-5 text-gray-500 flex-shrink-0" />
+                <span className="text-gray-700 text-sm font-medium truncate">
+                  {user?.contactEmail || (
+                    <span className="text-gray-400 italic">Not set</span>
+                  )}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Work */}

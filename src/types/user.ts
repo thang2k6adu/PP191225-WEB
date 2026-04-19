@@ -1,6 +1,7 @@
 export interface UserProfile {
   id: string;
   email: string;
+  contactEmail: string | null;
   firstName: string | null;
   lastName: string | null;
   avatar: string | null;
@@ -15,7 +16,7 @@ export interface UserProfile {
 
 export const getDisplayName = (profile: UserProfile): string => {
   const parts = [profile.firstName, profile.lastName].filter(Boolean);
-  return parts.length > 0 ? parts.join(' ') : profile.email;
+  return parts.length > 0 ? parts.join(' ') : profile.contactEmail || 'User';
 };
 
 export const getInitials = (profile: UserProfile): string => {
@@ -23,5 +24,6 @@ export const getInitials = (profile: UserProfile): string => {
     return `${profile.firstName[0]}${profile.lastName[0]}`.toUpperCase();
   }
   if (profile.firstName) return profile.firstName[0].toUpperCase();
-  return profile.email[0].toUpperCase();
+  if (profile.contactEmail) return profile.contactEmail[0].toUpperCase();
+  return 'U';
 };

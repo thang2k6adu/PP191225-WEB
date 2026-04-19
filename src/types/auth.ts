@@ -53,6 +53,7 @@ export interface TokenData {
 export interface FirebaseUserData {
   id: string;
   email: string;
+  contactEmail?: string | null;
   name?: string;
   avatar?: string;
   role: 'admin' | 'user' | 'basic';
