@@ -8,9 +8,10 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { forgotPasswordThunk } from '@/store/thunks/authThunks';
 import { useState } from 'react';
 import { LuCircleCheck } from 'react-icons/lu';
+import { FORM_ERROR_MESSAGES } from '@/constants';
 
 const forgotPasswordSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  email: z.string().email(FORM_ERROR_MESSAGES.INVALID_EMAIL_ADDRESS),
 });
 
 type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
@@ -38,7 +39,9 @@ export function ForgotPasswordFormSection() {
     } catch (err) {
       console.error(err);
       const errorMessage =
-        typeof err === 'string' ? err : 'Failed to send reset email';
+        typeof err === 'string'
+          ? err
+          : FORM_ERROR_MESSAGES.FORGOT_PASSWORD_FAILED;
       setFirebaseError(errorMessage);
       toast.error(errorMessage);
     }

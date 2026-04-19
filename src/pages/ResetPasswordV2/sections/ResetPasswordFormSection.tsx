@@ -8,16 +8,21 @@ import toast from 'react-hot-toast';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { resetPasswordThunk } from '@/store/thunks/authThunks';
 import { LuEye, LuEyeOff, LuCircleCheck } from 'react-icons/lu';
+import {
+  PASSWORD_MIN_LENGTH,
+  PASSWORD_MIN_LENGTH_MESSAGE,
+} from '@/constants/password';
+import { FORM_ERROR_MESSAGES } from '@/constants';
 
 const resetPasswordSchema = z
   .object({
-    password: z.string().min(6, 'Password must be at least 6 characters'),
+    password: z.string().min(PASSWORD_MIN_LENGTH, PASSWORD_MIN_LENGTH_MESSAGE),
     confirmPassword: z
       .string()
-      .min(6, 'Confirm password must be at least 6 characters'),
+      .min(PASSWORD_MIN_LENGTH, PASSWORD_MIN_LENGTH_MESSAGE),
   })
   .refine(data => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
+    message: FORM_ERROR_MESSAGES.PASSWORDS_DO_NOT_MATCH,
     path: ['confirmPassword'],
   });
 
@@ -43,9 +48,7 @@ export function ResetPasswordFormSection() {
 
   const onSubmit = async (data: ResetPasswordFormData) => {
     if (!oobCode) {
-      toast.error(
-        'Invalid or missing action code. Please request a new password reset link.'
-      );
+      toast.error(FORM_ERROR_MESSAGES.INVALID_OR_MISSING_ACTION_CODE);
       return;
     }
 
@@ -58,7 +61,9 @@ export function ResetPasswordFormSection() {
     } catch (err) {
       console.error(err);
       const errorMessage =
-        typeof err === 'string' ? err : 'Failed to reset password';
+        typeof err === 'string'
+          ? err
+          : FORM_ERROR_MESSAGES.RESET_PASSWORD_FAILED;
       setFirebaseError(errorMessage);
       toast.error(errorMessage);
     }

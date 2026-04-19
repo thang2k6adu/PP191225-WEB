@@ -11,14 +11,19 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { signUpWithFirebaseThunk } from '@/store/thunks/authThunks';
 import { clearError } from '@/store/slices/authSlice';
 import { useAuth } from '@/hooks/useAuth';
+import {
+  PASSWORD_MIN_LENGTH,
+  PASSWORD_MIN_LENGTH_MESSAGE,
+} from '@/constants/password';
+import { FORM_ERROR_MESSAGES } from '@/constants';
 
 const registerSchema = z.object({
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().min(1, 'Last name is required'),
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  firstName: z.string().min(1, FORM_ERROR_MESSAGES.FIRST_NAME_REQUIRED),
+  lastName: z.string().min(1, FORM_ERROR_MESSAGES.LAST_NAME_REQUIRED),
+  email: z.string().email(FORM_ERROR_MESSAGES.INVALID_EMAIL_ADDRESS),
+  password: z.string().min(PASSWORD_MIN_LENGTH, PASSWORD_MIN_LENGTH_MESSAGE),
   terms: z.literal(true, {
-    errorMap: () => ({ message: 'You must accept the terms' }),
+    errorMap: () => ({ message: FORM_ERROR_MESSAGES.ACCEPT_TERMS }),
   }),
 });
 
@@ -68,7 +73,7 @@ export function RegisterFormSection() {
         return;
       }
       const errorMessage =
-        typeof err === 'string' ? err : 'Registration failed';
+        typeof err === 'string' ? err : FORM_ERROR_MESSAGES.REGISTRATION_FAILED;
       setFirebaseError(errorMessage);
       toast.error(errorMessage);
     }

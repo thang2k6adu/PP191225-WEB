@@ -11,10 +11,15 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { loginWithFirebaseThunk } from '@/store/thunks/authThunks';
 import { clearError } from '@/store/slices/authSlice';
 import { useAuth } from '@/hooks/useAuth';
+import {
+  PASSWORD_MIN_LENGTH,
+  PASSWORD_MIN_LENGTH_MESSAGE,
+} from '@/constants/password';
+import { FORM_ERROR_MESSAGES } from '@/constants';
 
 const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  email: z.string().email(FORM_ERROR_MESSAGES.INVALID_EMAIL_ADDRESS),
+  password: z.string().min(PASSWORD_MIN_LENGTH, PASSWORD_MIN_LENGTH_MESSAGE),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
@@ -61,7 +66,8 @@ export function LoginFormSection() {
         navigate(ROUTES.VERIFY_EMAIL);
         return;
       }
-      const errorMessage = typeof err === 'string' ? err : 'Login failed';
+      const errorMessage =
+        typeof err === 'string' ? err : FORM_ERROR_MESSAGES.LOGIN_FAILED;
       setFirebaseError(errorMessage);
       toast.error(errorMessage);
     }
