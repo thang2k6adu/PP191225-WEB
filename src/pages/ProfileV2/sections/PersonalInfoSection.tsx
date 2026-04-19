@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
+  LuUser,
   LuMail,
   LuBriefcase,
   LuGraduationCap,
@@ -34,6 +35,16 @@ export function PersonalInfoSection({
     major: user?.major ?? '',
     bio: user?.bio ?? '',
   });
+
+  useEffect(() => {
+    setFormData({
+      firstName: user?.firstName ?? '',
+      lastName: user?.lastName ?? '',
+      work: user?.work ?? '',
+      major: user?.major ?? '',
+      bio: user?.bio ?? '',
+    });
+  }, [user]);
 
   const handleCancel = () => {
     setFormData({
@@ -107,6 +118,46 @@ export function PersonalInfoSection({
         )}
 
         <div className="flex flex-col gap-5">
+          {/* Name */}
+          {isEditing && (
+            <div className="flex flex-col gap-2">
+              <span className="text-base-medium text-gray-900">Name</span>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="flex items-center gap-3 px-4 py-3 bg-white border border-blue-300 rounded-xl focus-within:ring-2 focus-within:ring-blue-200 transition-all">
+                  <LuUser className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                  <input
+                    type="text"
+                    value={formData.firstName}
+                    onChange={e =>
+                      setFormData(prev => ({
+                        ...prev,
+                        firstName: e.target.value,
+                      }))
+                    }
+                    placeholder="First name"
+                    className="flex-1 text-sm font-medium text-gray-800 bg-transparent outline-none placeholder:text-gray-400"
+                  />
+                </div>
+
+                <div className="flex items-center gap-3 px-4 py-3 bg-white border border-blue-300 rounded-xl focus-within:ring-2 focus-within:ring-blue-200 transition-all">
+                  <LuUser className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                  <input
+                    type="text"
+                    value={formData.lastName}
+                    onChange={e =>
+                      setFormData(prev => ({
+                        ...prev,
+                        lastName: e.target.value,
+                      }))
+                    }
+                    placeholder="Last name"
+                    className="flex-1 text-sm font-medium text-gray-800 bg-transparent outline-none placeholder:text-gray-400"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Email — always read-only */}
           <div className="flex flex-col gap-2">
             <span className="text-base-medium text-gray-900">

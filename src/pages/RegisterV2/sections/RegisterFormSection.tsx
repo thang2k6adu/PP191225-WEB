@@ -17,15 +17,23 @@ import {
 } from '@/constants/password';
 import { FORM_ERROR_MESSAGES } from '@/constants';
 
-const registerSchema = z.object({
-  firstName: z.string().min(1, FORM_ERROR_MESSAGES.FIRST_NAME_REQUIRED),
-  lastName: z.string().min(1, FORM_ERROR_MESSAGES.LAST_NAME_REQUIRED),
-  email: z.string().email(FORM_ERROR_MESSAGES.INVALID_EMAIL_ADDRESS),
-  password: z.string().min(PASSWORD_MIN_LENGTH, PASSWORD_MIN_LENGTH_MESSAGE),
-  terms: z.literal(true, {
-    errorMap: () => ({ message: FORM_ERROR_MESSAGES.ACCEPT_TERMS }),
-  }),
-});
+const registerSchema = z
+  .object({
+    firstName: z.string().min(1, FORM_ERROR_MESSAGES.FIRST_NAME_REQUIRED),
+    lastName: z.string().min(1, FORM_ERROR_MESSAGES.LAST_NAME_REQUIRED),
+    email: z.string().email(FORM_ERROR_MESSAGES.INVALID_EMAIL_ADDRESS),
+    password: z.string().min(PASSWORD_MIN_LENGTH, PASSWORD_MIN_LENGTH_MESSAGE),
+    confirmPassword: z
+      .string()
+      .min(PASSWORD_MIN_LENGTH, PASSWORD_MIN_LENGTH_MESSAGE),
+    terms: z.literal(true, {
+      errorMap: () => ({ message: FORM_ERROR_MESSAGES.ACCEPT_TERMS }),
+    }),
+  })
+  .refine(data => data.password === data.confirmPassword, {
+    message: FORM_ERROR_MESSAGES.PASSWORDS_DO_NOT_MATCH,
+    path: ['confirmPassword'],
+  });
 
 type RegisterFormData = z.infer<typeof registerSchema>;
 
@@ -190,6 +198,22 @@ export function RegisterFormSection() {
                 {errors.password && (
                   <span className="text-xs text-red-500 absolute -bottom-5 left-4">
                     {errors.password.message}
+                  </span>
+                )}
+              </div>
+
+              <div className="relative flex flex-col w-full pt-1">
+                <div className="flex items-center w-full px-5 py-3.5 rounded-full border border-gray-300 bg-white focus-within:border-[#5B3EE5] focus-within:ring-1 focus-within:ring-[#5B3EE5] transition-all">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Confirm Password"
+                    {...register('confirmPassword')}
+                    className="w-full bg-transparent text-gray-800 placeholder-gray-400 outline-none text-sm font-medium"
+                  />
+                </div>
+                {errors.confirmPassword && (
+                  <span className="text-xs text-red-500 absolute -bottom-5 left-4">
+                    {errors.confirmPassword.message}
                   </span>
                 )}
               </div>
