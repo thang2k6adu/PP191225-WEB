@@ -1,9 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import {
-  getAuth,
-  browserSessionPersistence,
-  setPersistence,
-} from 'firebase/auth';
+import { getAuth, inMemoryPersistence, setPersistence } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -32,12 +28,7 @@ if (isFirebaseConfigured) {
     const app = initializeApp(firebaseConfig);
     auth = getAuth(app);
 
-    // Use session persistence: auth.currentUser survives page refresh within the
-    // same tab but is cleared when the tab/browser closes. Firebase will NOT make
-    // background calls to securetoken.googleapis.com across browser restarts like
-    // browserLocalPersistence does. Our backend JWT (in localStorage) is the real
-    // session — Firebase is only needed transiently for idToken exchange.
-    setPersistence(auth, browserSessionPersistence).catch(() => {
+    setPersistence(auth, inMemoryPersistence).catch(() => {
       // Non-critical — auth still works for sign-in
     });
   } catch (error) {

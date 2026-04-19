@@ -65,6 +65,15 @@ const exchangeFirebaseToken = async (idToken: string) => {
   return response.data.tokens;
 };
 
+const clearFirebaseSession = async () => {
+  if (!auth) return;
+  try {
+    await signOut(auth);
+  } catch {
+    // Best-effort cleanup. Backend JWT is the real app session.
+  }
+};
+
 export const loginWithFirebaseThunk = createAsyncThunk<
   TokensPayload,
   { email: string; password: string },
@@ -80,13 +89,16 @@ export const loginWithFirebaseThunk = createAsyncThunk<
     );
 
     if (!userCredential.user.emailVerified) {
+      await clearFirebaseSession();
       return rejectWithValue('email_not_verified');
     }
 
     const idToken = await userCredential.user.getIdToken();
     const tokens = await exchangeFirebaseToken(idToken);
+    await clearFirebaseSession();
     return { tokens };
   } catch (error: unknown) {
+    await clearFirebaseSession();
     return rejectWithValue(getErrorMessage(error, 'Login failed'));
   }
 });
@@ -113,8 +125,10 @@ export const signUpWithFirebaseThunk = createAsyncThunk<
       lastName: credentials.lastName,
     });
 
+    await clearFirebaseSession();
     return rejectWithValue('email_not_verified');
   } catch (error: unknown) {
+    await clearFirebaseSession();
     return rejectWithValue(getErrorMessage(error, 'Sign up failed'));
   }
 });
@@ -145,8 +159,10 @@ export const signInWithGoogleThunk = createAsyncThunk<
     const { user } = await signInWithPopup(auth, provider);
     const idToken = await user.getIdToken();
     const tokens = await exchangeFirebaseToken(idToken);
+    await clearFirebaseSession();
     return { tokens };
   } catch (error: unknown) {
+    await clearFirebaseSession();
     return rejectWithValue(getErrorMessage(error, 'Google sign in failed'));
   }
 });
@@ -164,8 +180,10 @@ export const signInWithFacebookThunk = createAsyncThunk<
     const { user } = await signInWithPopup(auth, provider);
     const idToken = await user.getIdToken();
     const tokens = await exchangeFirebaseToken(idToken);
+    await clearFirebaseSession();
     return { tokens };
   } catch (error: unknown) {
+    await clearFirebaseSession();
     return rejectWithValue(getErrorMessage(error, 'Facebook sign in failed'));
   }
 });
@@ -183,8 +201,10 @@ export const signInWithGitHubThunk = createAsyncThunk<
     const { user } = await signInWithPopup(auth, provider);
     const idToken = await user.getIdToken();
     const tokens = await exchangeFirebaseToken(idToken);
+    await clearFirebaseSession();
     return { tokens };
   } catch (error: unknown) {
+    await clearFirebaseSession();
     return rejectWithValue(getErrorMessage(error, 'GitHub sign in failed'));
   }
 });
@@ -257,8 +277,10 @@ export const loginThunk = createAsyncThunk<
     );
     const idToken = await userCredential.user.getIdToken();
     const tokens = await exchangeFirebaseToken(idToken);
+    await clearFirebaseSession();
     return { tokens };
   } catch (error: unknown) {
+    await clearFirebaseSession();
     return rejectWithValue(getErrorMessage(error, 'Login failed'));
   }
 });
@@ -276,8 +298,10 @@ export const signUpThunk = createAsyncThunk<
       credentials.password
     );
     await authService.sendVerificationEmail(credentials.email);
+    await clearFirebaseSession();
     return rejectWithValue('email_not_verified');
   } catch (error: unknown) {
+    await clearFirebaseSession();
     return rejectWithValue(getErrorMessage(error, 'Sign up failed'));
   }
 });
