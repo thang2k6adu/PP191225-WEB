@@ -3,6 +3,19 @@ export type RoomVisibility = 'PUBLIC' | 'PRIVATE';
 export type RoomStatus = 'WAITING' | 'ACTIVE' | 'CLOSED';
 export type RoomMemberStatus = 'JOINED' | 'READY' | 'LEFT';
 
+export interface PaginationMeta {
+  itemCount: number;
+  totalItems: number;
+  itemsPerPage: number;
+  totalPages: number;
+  currentPage: number;
+}
+
+export interface PaginatedResponse<T> {
+  items: T[];
+  meta: PaginationMeta;
+}
+
 export interface Room {
   id: string;
   type: RoomType;
@@ -59,7 +72,7 @@ export interface PublicRoomsResponse {
   code: number;
   message: string;
   data: {
-    rooms: PublicRoom[];
+    rooms: PaginatedResponse<PublicRoom>;
   };
   traceId: string;
 }

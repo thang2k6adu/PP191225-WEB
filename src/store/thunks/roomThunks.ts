@@ -1,6 +1,12 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { roomService } from '@/services/roomService';
-import { PublicRoom, JoinRoomResponse, RoomDetail } from '@/types/room';
+import type { RootState } from '@/store';
+import {
+  JoinRoomResponse,
+  RoomDetail,
+  PaginatedResponse,
+  PublicRoom,
+} from '@/types/room';
 
 const getErrorMessage = (error: unknown, fallback: string): string => {
   if (error && typeof error === 'object' && 'response' in error) {
@@ -11,20 +17,67 @@ const getErrorMessage = (error: unknown, fallback: string): string => {
   return fallback;
 };
 
+export interface FetchPublicRoomsArgs {
+  page?: number;
+  limit?: number;
+  force?: boolean;
+  ttlMs?: number;
+}
+
+const getPublicRoomsParamsKey = (args?: FetchPublicRoomsArgs): string =>
+  JSON.stringify({
+    page: args?.page ?? 1,
+    limit: args?.limit ?? 10,
+  });
+
 // Fetch public rooms
 export const fetchPublicRoomsThunk = createAsyncThunk<
-  PublicRoom[],
-  undefined,
-  { rejectValue: string }
->('room/fetchPublicRooms', async (_, { rejectWithValue }) => {
-  try {
-    return await roomService.getPublicRooms();
-  } catch (error: unknown) {
-    return rejectWithValue(
-      getErrorMessage(error, 'Failed to fetch public rooms')
-    );
+  PaginatedResponse<PublicRoom>,
+  FetchPublicRoomsArgs | undefined,
+  { rejectValue: string; state: RootState }
+>(
+  'room/fetchPublicRooms',
+  async (args, { rejectWithValue }) => {
+    try {
+      return await roomService.getPublicRooms({
+        page: args?.page,
+        limit: args?.limit,
+      });
+    } catch (error: unknown) {
+      return rejectWithValue(
+        getErrorMessage(error, 'Failed to fetch public rooms')
+      );
+    }
+  },
+  {
+    condition: (args, { getState }) => {
+      const state = getState().room;
+      const force = args?.force ?? false;
+      const requestedTtlMs = args?.ttlMs;
+
+      if (force || state.isInvalidated) {
+        return true;
+      }
+
+      if (state.isLoading) {
+        return false;
+      }
+
+      if (state.publicRooms.length === 0 || !state.lastFetchedAt) {
+        return true;
+      }
+
+      if (state.lastParamsKey !== getPublicRoomsParamsKey(args)) {
+        return true;
+      }
+
+      const effectiveTtlMs = requestedTtlMs ?? state.ttlMs;
+      const isExpired = Date.now() - state.lastFetchedAt >= effectiveTtlMs;
+
+      return isExpired;
+    },
   }
-});
+);
 
 // Join room
 export const joinRoomThunk = createAsyncThunk<

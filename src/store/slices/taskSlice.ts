@@ -10,6 +10,19 @@ import {
   deleteTaskThunk,
 } from '../thunks/taskThunks';
 
+const DEFAULT_TASK_TTL_MS = 60_000;
+
+const getTaskParamsKey = (args?: {
+  page?: number;
+  limit?: number;
+  force?: boolean;
+  ttlMs?: number;
+}): string =>
+  JSON.stringify({
+    page: args?.page ?? 1,
+    limit: args?.limit ?? 10,
+  });
+
 interface TaskState {
   tasks: Task[];
   activeTask: Task | null;
@@ -18,6 +31,10 @@ interface TaskState {
   total: number;
   page: number;
   limit: number;
+  lastFetchedAt: number | null;
+  lastParamsKey: string | null;
+  ttlMs: number;
+  isInvalidated: boolean;
 }
 
 const initialState: TaskState = {
@@ -28,6 +45,10 @@ const initialState: TaskState = {
   total: 0,
   page: 1,
   limit: 10,
+  lastFetchedAt: null,
+  lastParamsKey: null,
+  ttlMs: DEFAULT_TASK_TTL_MS,
+  isInvalidated: false,
 };
 
 const taskSlice = createSlice({
@@ -64,6 +85,10 @@ const taskSlice = createSlice({
         state.total = action.payload.data.meta.totalItems;
         state.page = action.payload.data.meta.currentPage;
         state.limit = action.payload.data.meta.itemsPerPage;
+        state.lastFetchedAt = Date.now();
+        state.lastParamsKey = getTaskParamsKey(action.meta.arg);
+        state.ttlMs = action.meta.arg?.ttlMs ?? state.ttlMs;
+        state.isInvalidated = false;
       })
       .addCase(fetchTasksThunk.rejected, (state, action) => {
         state.isLoading = false;
@@ -95,6 +120,7 @@ const taskSlice = createSlice({
         state.isLoading = false;
         state.tasks.unshift(action.payload);
         state.total += 1;
+        state.isInvalidated = true;
       })
       .addCase(createTaskThunk.rejected, (state, action) => {
         state.isLoading = false;
@@ -113,6 +139,7 @@ const taskSlice = createSlice({
         if (index !== -1) {
           state.tasks[index] = action.payload;
         }
+        state.isInvalidated = true;
       })
       .addCase(updateTaskThunk.rejected, (state, action) => {
         state.isLoading = false;
@@ -138,6 +165,7 @@ const taskSlice = createSlice({
         if (activatedTask) {
           state.activeTask = activatedTask;
         }
+        state.isInvalidated = true;
       })
       .addCase(activateTaskThunk.rejected, (state, action) => {
         state.isLoading = false;
@@ -160,6 +188,7 @@ const taskSlice = createSlice({
         if (state.activeTask?.id === action.payload.id) {
           state.activeTask = null;
         }
+        state.isInvalidated = true;
       })
       .addCase(completeTaskThunk.rejected, (state, action) => {
         state.isLoading = false;
@@ -179,6 +208,7 @@ const taskSlice = createSlice({
         if (state.activeTask?.id === action.payload) {
           state.activeTask = null;
         }
+        state.isInvalidated = true;
       })
       .addCase(deleteTaskThunk.rejected, (state, action) => {
         state.isLoading = false;

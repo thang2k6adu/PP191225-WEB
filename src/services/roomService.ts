@@ -4,6 +4,7 @@ import {
   JoinRoomApiResponse,
   RoomDetailResponse,
   LeaveRoomResponse,
+  PaginatedResponse,
   PublicRoom,
   JoinRoomResponse,
   RoomDetail,
@@ -12,9 +13,13 @@ import { API_ENDPOINTS } from '@/constants';
 
 export const roomService = {
   // Get all public rooms
-  getPublicRooms: async (): Promise<PublicRoom[]> => {
+  getPublicRooms: async (params?: {
+    page?: number;
+    limit?: number;
+  }): Promise<PaginatedResponse<PublicRoom>> => {
     const response = await apiClient.get<PublicRoomsResponse>(
-      API_ENDPOINTS.ROOMS.PUBLIC
+      API_ENDPOINTS.ROOMS.PUBLIC,
+      { params }
     );
     return response.data.data.rooms;
   },

@@ -8,18 +8,34 @@ import {
 } from '@/store/thunks/roomThunks';
 import toast from 'react-hot-toast';
 
+interface FetchPublicRoomsOptions {
+  page?: number;
+  limit?: number;
+  force?: boolean;
+  ttlMs?: number;
+}
+
+const isConditionSkip = (action: { meta?: { condition?: boolean } }) =>
+  Boolean(action.meta?.condition);
+
 export const useRooms = () => {
   const dispatch = useAppDispatch();
   const { publicRooms, currentRoom, roomDetail, isLoading, error } =
     useAppSelector(state => state.room);
 
-  const fetchPublicRooms = useCallback(async () => {
-    const result = await dispatch(fetchPublicRoomsThunk(undefined));
-    if (fetchPublicRoomsThunk.rejected.match(result)) {
-      toast.error(result.payload || 'Failed to fetch public rooms');
-    }
-    return result;
-  }, [dispatch]);
+  const fetchPublicRooms = useCallback(
+    async (options?: FetchPublicRoomsOptions) => {
+      const result = await dispatch(fetchPublicRoomsThunk(options));
+      if (
+        fetchPublicRoomsThunk.rejected.match(result) &&
+        !isConditionSkip(result)
+      ) {
+        toast.error(result.payload || 'Failed to fetch public rooms');
+      }
+      return result;
+    },
+    [dispatch]
+  );
 
   const joinRoom = useCallback(
     async (roomId: string) => {

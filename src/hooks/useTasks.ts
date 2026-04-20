@@ -12,15 +12,25 @@ import {
 import { CreateTaskData, UpdateTaskData } from '@/types/task';
 import toast from 'react-hot-toast';
 
+interface FetchTasksOptions {
+  page?: number;
+  limit?: number;
+  force?: boolean;
+  ttlMs?: number;
+}
+
+const isConditionSkip = (action: { meta?: { condition?: boolean } }) =>
+  Boolean(action.meta?.condition);
+
 export const useTasks = () => {
   const dispatch = useAppDispatch();
   const { tasks, activeTask, isLoading, error, total, page, limit } =
     useAppSelector(state => state.task);
 
   const fetchTasks = useCallback(
-    async (params?: { page?: number; limit?: number }) => {
+    async (params?: FetchTasksOptions) => {
       const result = await dispatch(fetchTasksThunk(params));
-      if (fetchTasksThunk.rejected.match(result)) {
+      if (fetchTasksThunk.rejected.match(result) && !isConditionSkip(result)) {
         toast.error(result.payload || 'Failed to fetch tasks');
       }
       return result;

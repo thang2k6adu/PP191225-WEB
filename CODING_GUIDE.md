@@ -25,6 +25,8 @@ Khi implement một feature mới, hãy làm theo thứ tự sau:
    ↓
 4. Redux Thunks (Async Actions)
    ↓
+4.5 Redux Cache Strategy
+  ↓
 5. Redux Slice (State Management)
    ↓
 6. Custom Hooks (Optional - để dùng dễ hơn)
@@ -209,23 +211,59 @@ export const userService = {
 
 ```typescript
 import { createAsyncThunk } from '@reduxjs/toolkit';
+import type { RootState } from '@/store';
 import { userService } from '@/services/userService';
 import { CreateUserData, UpdateUserData, UserListResponse } from '@/types/user';
 
-// Fetch users
+export interface FetchUsersArgs {
+  page?: number;
+  limit?: number;
+  search?: string;
+  force?: boolean;
+  ttlMs?: number;
+}
+
+const getUsersParamsKey = (args?: FetchUsersArgs): string =>
+  JSON.stringify({
+    page: args?.page ?? 1,
+    limit: args?.limit ?? 10,
+    search: args?.search ?? '',
+  });
+
+// Fetch users with TTL cache guard
 export const fetchUsersThunk = createAsyncThunk<
   UserListResponse,
-  { page?: number; limit?: number; search?: string } | undefined,
-  { rejectValue: string }
->('user/fetchUsers', async (params, { rejectWithValue }) => {
-  try {
-    return await userService.getUsers(params);
-  } catch (error: any) {
-    return rejectWithValue(
-      error.response?.data?.message || 'Failed to fetch users'
-    );
+  FetchUsersArgs | undefined,
+  { rejectValue: string; state: RootState }
+>(
+  'user/fetchUsers',
+  async (args, { rejectWithValue }) => {
+    try {
+      return await userService.getUsers({
+        page: args?.page,
+        limit: args?.limit,
+        search: args?.search,
+      });
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || 'Failed to fetch users'
+      );
+    }
+  },
+  {
+    condition: (args, { getState }) => {
+      const state = getState().user;
+
+      if (args?.force || state.isInvalidated) return true;
+      if (state.isLoading) return false;
+      if (state.users.length === 0 || !state.lastFetchedAt) return true;
+      if (state.lastParamsKey !== getUsersParamsKey(args)) return true;
+
+      const effectiveTtlMs = args?.ttlMs ?? state.ttlMs;
+      return Date.now() - state.lastFetchedAt >= effectiveTtlMs;
+    },
   }
-});
+);
 
 // Create user
 export const createUserThunk = createAsyncThunk<
@@ -283,6 +321,31 @@ export * from './authThunks';
 export * from './userThunks'; // Thêm dòng này
 ```
 
+- Với mọi thunk fetch list, luôn có args phân trang (`page`, `limit`) và cache control (`force`, `ttlMs`)
+- Sử dụng `condition` của `createAsyncThunk` để skip network call khi cache còn hạn
+- Normalize params key bằng giá trị default (`page = 1`, `limit = 10`) để tránh cache miss giả
+
+---
+
+### BƯỚC 4.5: Chuẩn Cache Ở Redux (Bắt buộc cho list fetch)
+
+**Mục đích:** Tránh gọi API lại khi navigate trong SPA nhưng vẫn đảm bảo dữ liệu mới khi cần
+
+**4 trường chuẩn phải có trong state list:**
+
+- `lastFetchedAt`: thời điểm fetch thành công gần nhất
+- `lastParamsKey`: key của bộ query gần nhất (page/limit/search...)
+- `ttlMs`: thời gian cache sống
+- `isInvalidated`: cờ đánh dấu cần fetch lại sau mutation
+
+**Cơ chế hoạt động:**
+
+1. Page/component vẫn có thể gọi `fetchList()` khi mount
+2. Thunk `condition` quyết định có gọi API thật hay không
+3. Nếu cache hit trong TTL, thunk bị skip (không gọi API)
+4. Mutation (create/update/delete/activate/complete...) phải set `isInvalidated = true`
+5. Fetch thành công sẽ reset `isInvalidated = false` và cập nhật metadata cache
+
 ---
 
 ### BƯỚC 5: Tạo Redux Slice (State Management)
@@ -312,6 +375,10 @@ interface UserState {
   total: number;
   page: number;
   limit: number;
+  lastFetchedAt: number | null;
+  lastParamsKey: string | null;
+  ttlMs: number;
+  isInvalidated: boolean;
 }
 
 const initialState: UserState = {
@@ -322,6 +389,10 @@ const initialState: UserState = {
   total: 0,
   page: 1,
   limit: 10,
+  lastFetchedAt: null,
+  lastParamsKey: null,
+  ttlMs: 60_000,
+  isInvalidated: false,
 };
 
 const userSlice = createSlice({
@@ -344,8 +415,18 @@ const userSlice = createSlice({
       })
       .addCase(fetchUsersThunk.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.users = action.payload.data;
-        state.total = action.payload.total;
+        state.users = action.payload.data.items;
+        state.total = action.payload.data.meta.totalItems;
+        state.page = action.payload.data.meta.currentPage;
+        state.limit = action.payload.data.meta.itemsPerPage;
+        state.lastFetchedAt = Date.now();
+        state.lastParamsKey = JSON.stringify({
+          page: action.meta.arg?.page ?? 1,
+          limit: action.meta.arg?.limit ?? 10,
+          search: action.meta.arg?.search ?? '',
+        });
+        state.ttlMs = action.meta.arg?.ttlMs ?? state.ttlMs;
+        state.isInvalidated = false;
       })
       .addCase(fetchUsersThunk.rejected, (state, action) => {
         state.isLoading = false;
@@ -355,6 +436,7 @@ const userSlice = createSlice({
     // Create user
     builder.addCase(createUserThunk.fulfilled, (state, action) => {
       state.users.push(action.payload.data);
+      state.isInvalidated = true;
     });
 
     // Update user
@@ -363,11 +445,13 @@ const userSlice = createSlice({
       if (index !== -1) {
         state.users[index] = action.payload.data;
       }
+      state.isInvalidated = true;
     });
 
     // Delete user
     builder.addCase(deleteUserThunk.fulfilled, (state, action) => {
       state.users = state.users.filter(u => u.id !== action.payload);
+      state.isInvalidated = true;
     });
   },
 });
@@ -420,10 +504,13 @@ export const useUsers = () => {
   const { users, currentUser, isLoading, error, total, page, limit } =
     useAppSelector(state => state.user);
 
+  const isConditionSkip = (action: { meta?: { condition?: boolean } }) =>
+    Boolean(action.meta?.condition);
+
   const fetchUsers = useCallback(
     async (params?: { page?: number; limit?: number; search?: string }) => {
       const result = await dispatch(fetchUsersThunk(params));
-      if (fetchUsersThunk.rejected.match(result)) {
+      if (fetchUsersThunk.rejected.match(result) && !isConditionSkip(result)) {
         toast.error(result.payload || 'Failed to fetch users');
       }
       return result;
@@ -505,6 +592,7 @@ export const useUsers = () => {
 - Sử dụng `useCallback` để tránh re-render không cần thiết
 - **Xử lý toast notifications trong hook** để hiển thị success/error messages cho user
 - Sử dụng `.fulfilled.match()` và `.rejected.match()` để check kết quả của thunk
+- Với thunk có `condition`, không hiển thị toast lỗi khi action bị skip do cache hit (`meta.condition === true`)
 - Toast messages nên user-friendly và informative
 
 ---
@@ -1284,6 +1372,8 @@ const Users = React.lazy(() => import('@/pages/Users'));
 - Sử dụng lazy loading cho pages
 - Sử dụng `useCallback` và `useMemo` khi cần
 - Tránh unnecessary re-renders
+- Với list APIs, ưu tiên cache ở Redux bằng `ttlMs` + `condition` thay vì gọi lại mỗi lần navigate
+- Chỉ force fetch khi user chủ động refresh hoặc khi state đã bị invalidated
 
 ### 5. **Testing**
 
@@ -1325,6 +1415,12 @@ Khi implement một feature mới, đảm bảo:
 - [ ] ✅ Đã test feature hoạt động đúng
 - [ ] ✅ Đã handle loading và error states
 - [ ] ✅ Code đã pass linting và type checking
+- [ ] ✅ Thunk fetch list có args phân trang (`page`, `limit`)
+- [ ] ✅ Thunk fetch list có cache control (`force`, `ttlMs`) và `condition`
+- [ ] ✅ Slice có 4 field cache: `lastFetchedAt`, `lastParamsKey`, `ttlMs`, `isInvalidated`
+- [ ] ✅ Mutation đã set `isInvalidated = true` cho list liên quan
+- [ ] ✅ Hook không toast fail khi thunk bị skip do cache hit
+- [ ] ✅ Đã test cache hit/miss: navigate trong TTL không gọi lại API
 
 ---
 

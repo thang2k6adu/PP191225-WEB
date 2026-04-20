@@ -1,5 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { taskService } from '@/services/taskService';
+import type { RootState } from '@/store';
 import {
   CreateTaskData,
   UpdateTaskData,
@@ -17,18 +18,67 @@ const getErrorMessage = (error: unknown, fallback: string): string => {
   return fallback;
 };
 
+export interface FetchTasksArgs {
+  page?: number;
+  limit?: number;
+  force?: boolean;
+  ttlMs?: number;
+}
+
+const getTaskParamsKey = (args?: FetchTasksArgs): string =>
+  JSON.stringify({
+    page: args?.page ?? 1,
+    limit: args?.limit ?? 10,
+  });
+
 // Fetch tasks
 export const fetchTasksThunk = createAsyncThunk<
   TaskListResponse,
-  { page?: number; limit?: number } | undefined,
-  { rejectValue: string }
->('task/fetchTasks', async (params, { rejectWithValue }) => {
-  try {
-    return await taskService.getTasks(params);
-  } catch (error: unknown) {
-    return rejectWithValue(getErrorMessage(error, 'Failed to fetch tasks'));
+  FetchTasksArgs | undefined,
+  { rejectValue: string; state: RootState }
+>(
+  'task/fetchTasks',
+  async (args, { rejectWithValue }) => {
+    try {
+      const params = {
+        page: args?.page,
+        limit: args?.limit,
+      };
+      return await taskService.getTasks(params);
+    } catch (error: unknown) {
+      return rejectWithValue(getErrorMessage(error, 'Failed to fetch tasks'));
+    }
+  },
+  {
+    condition: (args, { getState }) => {
+      const state = getState().task;
+      const force = args?.force ?? false;
+      const requestedTtlMs = args?.ttlMs;
+
+      if (force || state.isInvalidated) {
+        return true;
+      }
+
+      if (state.isLoading) {
+        return false;
+      }
+
+      if (state.tasks.length === 0 || !state.lastFetchedAt) {
+        return true;
+      }
+
+      const paramsKey = getTaskParamsKey(args);
+      if (state.lastParamsKey !== paramsKey) {
+        return true;
+      }
+
+      const effectiveTtlMs = requestedTtlMs ?? state.ttlMs;
+      const isExpired = Date.now() - state.lastFetchedAt >= effectiveTtlMs;
+
+      return isExpired;
+    },
   }
-});
+);
 
 // Fetch active task
 export const fetchActiveTaskThunk = createAsyncThunk<
