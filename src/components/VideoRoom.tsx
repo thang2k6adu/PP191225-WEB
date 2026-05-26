@@ -15,6 +15,7 @@ import {
   getParticipantMediaState,
   shouldAttachVideoPublication,
 } from '@/lib/livekitMediaState';
+import { getParticipantDisplayProfile } from '@/lib/livekitParticipantProfile';
 import { ParticipantsGridSection } from '@/pages/FocusRoomV2/sections/ParticipantsGridSection';
 import { Participant } from '@/pages/FocusRoomV2/types';
 
@@ -62,11 +63,14 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
       const localParticipant = room.localParticipant;
       const localId = localParticipant.identity || 'local';
       const localMedia = getParticipantMediaState(localParticipant);
+      const localProfile = getParticipantDisplayProfile(localParticipant, {
+        isLocal: true,
+      });
 
       newParticipants.push({
         id: localId,
-        name: localParticipant.identity || 'You',
-        avatar: `https://i.pravatar.cc/150?u=${localParticipant.identity}`,
+        name: localProfile.name,
+        avatar: localProfile.avatar,
         isMuted: localMedia.isMuted,
         isVideoOff: localMedia.isVideoOff,
         isActive: true,
@@ -76,11 +80,12 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
 
       room.remoteParticipants.forEach(participant => {
         const remoteMedia = getParticipantMediaState(participant);
+        const remoteProfile = getParticipantDisplayProfile(participant);
 
         newParticipants.push({
           id: participant.identity,
-          name: participant.identity || 'Guest',
-          avatar: `https://i.pravatar.cc/150?u=${participant.identity}`,
+          name: remoteProfile.name,
+          avatar: remoteProfile.avatar,
           isMuted: remoteMedia.isMuted,
           isVideoOff: remoteMedia.isVideoOff,
           isActive: true,
