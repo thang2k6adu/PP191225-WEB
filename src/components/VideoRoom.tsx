@@ -142,24 +142,20 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
 
   const renderLocalVideo = useCallback(() => {
     if (!room) return;
-    const localVideoPublication = Array.from(
-      room.localParticipant.videoTrackPublications.values()
-    )[0];
-    const localVideoTrack = localVideoPublication?.track;
-    if (localVideoTrack && localVideoPublication) {
+    const cameraPublication = room.localParticipant.getTrackPublication(
+      Track.Source.Camera
+    );
+    const localVideoTrack = cameraPublication?.track;
+    if (localVideoTrack && cameraPublication) {
       const element = localVideoTrack.attach();
       const localId = room.localParticipant.identity || 'local';
       console.log(
         '[VideoRoom] Rendering local video for identity:',
         localId,
         'trackSid:',
-        localVideoPublication.trackSid
+        cameraPublication.trackSid
       );
-      attachVideoToParticipant(
-        localId,
-        localVideoPublication.trackSid,
-        element
-      );
+      attachVideoToParticipant(localId, cameraPublication.trackSid, element);
     }
   }, [room, attachVideoToParticipant]);
 
@@ -345,8 +341,6 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
 
       setStatus('connected');
 
-      // ✅ Senior pattern: enableCameraAndMicrophone tự động publish tracks
-      // Only call if tracks not already published
       const hasCamera = room.localParticipant.getTrackPublication(
         Track.Source.Camera
       );
@@ -390,7 +384,6 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
       updateParticipants();
       setTimeout(() => renderLocalVideo(), 100);
 
-      // 🔥 FIX: Attach existing remote tracks (already published before we joined)
       console.log('[VideoRoom] Attaching existing remote tracks...');
       room.remoteParticipants.forEach(participant => {
         participant.videoTrackPublications.forEach(pub => {
@@ -509,7 +502,7 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
         <div className="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-90">
           <div className="text-white text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-            <p>🔌 Connecting...</p>
+            <p>Connecting...</p>
           </div>
         </div>
       );
@@ -519,7 +512,7 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
         <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50">
           <div className="bg-yellow-500 text-gray-900 px-4 py-2 rounded-lg shadow-lg flex items-center gap-2">
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
-            <span className="font-medium">🔄 Reconnecting...</span>
+            <span className="font-medium">Reconnecting...</span>
           </div>
         </div>
       );

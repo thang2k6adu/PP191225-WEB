@@ -22,7 +22,6 @@ class RTCManager {
     this.currentRoomName = name;
   }
 
-  // Idempotent connect - Gọi 10 lần vẫn chỉ connect 1 lần
   async connect(url: string, token: string): Promise<void> {
     const room = this.getRoom();
 
@@ -54,7 +53,7 @@ class RTCManager {
     console.log('[RTC] Connecting to room...', { state: room.state });
     await room.connect(url, token);
     console.log('[RTC] Connected successfully');
-    this.manualLeave = false; // Reset on new connection
+    this.manualLeave = false;
   }
 
   // Mark for manual leave (user clicked Leave button)
