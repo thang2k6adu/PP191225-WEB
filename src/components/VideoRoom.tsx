@@ -10,6 +10,10 @@ import {
   TrackPublication,
 } from 'livekit-client';
 import { rtcManager } from '@/lib/rtcManager';
+import {
+  getParticipantMediaState,
+  shouldAttachVideoPublication,
+} from '@/lib/livekitMediaState';
 import { ParticipantsGridSection } from '@/pages/FocusRoomV2/sections/ParticipantsGridSection';
 import { Participant } from '@/pages/FocusRoomV2/types';
 
@@ -40,17 +44,6 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [participants, setParticipants] = useState<Participant[]>([]);
 
-  useEffect(() => {
-    console.log(
-      '[VideoRoom] Participants state updated:',
-      participants.map(p => ({
-        id: p.id,
-        isVideoOff: p.isVideoOff,
-        isMuted: p.isMuted,
-      }))
-    );
-  }, [participants]);
-
   const isMountedRef = useRef(true);
   const videoRefsMap = useRef<Map<string, HTMLDivElement>>(new Map());
   const trackElementsMap = useRef<
@@ -67,31 +60,28 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
       const newParticipants: Participant[] = [];
       const localParticipant = room.localParticipant;
       const localId = localParticipant.identity || 'local';
+      const localMedia = getParticipantMediaState(localParticipant);
 
-      const camPub = localParticipant.getTrackPublication(Track.Source.Camera);
-      const isLocalVideoMuted = camPub ? camPub.isMuted : false;
       newParticipants.push({
         id: localId,
         name: localParticipant.identity || 'You',
         avatar: `https://i.pravatar.cc/150?u=${localParticipant.identity}`,
-        isMuted: !localParticipant.isMicrophoneEnabled,
-        isVideoOff: isLocalVideoMuted,
+        isMuted: localMedia.isMuted,
+        isVideoOff: localMedia.isVideoOff,
         isActive: true,
         taskTitle: 'Working...',
         progress: 0,
       });
 
       room.remoteParticipants.forEach(participant => {
-        const hasActiveVideo = Array.from(
-          participant.videoTrackPublications.values()
-        ).some(pub => pub.track && pub.isSubscribed && !pub.isMuted);
+        const remoteMedia = getParticipantMediaState(participant);
 
         newParticipants.push({
           id: participant.identity,
           name: participant.identity || 'Guest',
           avatar: `https://i.pravatar.cc/150?u=${participant.identity}`,
-          isMuted: true,
-          isVideoOff: !hasActiveVideo,
+          isMuted: remoteMedia.isMuted,
+          isVideoOff: remoteMedia.isVideoOff,
           isActive: true,
           taskTitle: 'Working...',
           progress: 0,
@@ -141,21 +131,21 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
 
   const renderLocalVideo = useCallback(() => {
     if (!room) return;
-    const cameraPublication = room.localParticipant.getTrackPublication(
+
+    const localParticipant = room.localParticipant;
+
+    const cameraPublication = localParticipant.getTrackPublication(
       Track.Source.Camera
     );
-    const localVideoTrack = cameraPublication?.track;
-    if (localVideoTrack && cameraPublication) {
-      const element = localVideoTrack.attach();
-      const localId = room.localParticipant.identity || 'local';
-      console.log(
-        '[VideoRoom] Rendering local video for identity:',
-        localId,
-        'trackSid:',
-        cameraPublication.trackSid
-      );
-      attachVideoToParticipant(localId, cameraPublication.trackSid, element);
+
+    if (!cameraPublication?.track || cameraPublication.isMuted) {
+      return;
     }
+
+    const element = cameraPublication.track.attach();
+    const localId = localParticipant.identity || 'local';
+
+    attachVideoToParticipant(localId, cameraPublication.trackSid, element);
   }, [room, attachVideoToParticipant]);
 
   // Attach video immediately when trackSubscribed event fires
@@ -176,9 +166,10 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
       if (track.kind === Track.Kind.Video) {
         const element = track.attach();
         attachVideoToParticipant(participant.identity, pub.trackSid, element);
+        updateParticipants();
       }
     },
-    [attachVideoToParticipant]
+    [attachVideoToParticipant, updateParticipants]
   );
 
   const handleTrackUnsubscribed = useCallback(
@@ -259,7 +250,7 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
     (participant: LiveKitParticipant) => {
       if (participant && participant.videoTrackPublications) {
         participant.videoTrackPublications.forEach(pub => {
-          if (pub.track && pub.isSubscribed && !pub.isMuted) {
+          if (shouldAttachVideoPublication(pub) && pub.track) {
             const element = pub.track.attach();
             attachVideoToParticipant(
               participant.identity,
@@ -279,45 +270,17 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
   );
 
   const handleTrackMuted = useCallback(
-    (publication: TrackPublication, participant: LiveKitParticipant) => {
-      console.log('[VideoRoom] Track muted event', {
-        source: publication.source,
-        kind: publication.kind,
-        participant: participant.identity,
-        isMuted: publication.isMuted,
-      });
-
-      // DIRECTLY set state when video track muted - don't read pub.isMuted (timing bug)
-      if (publication.source === Track.Source.Camera) {
-        setParticipants(prev =>
-          prev.map(p =>
-            p.id === participant.identity ? { ...p, isVideoOff: true } : p
-          )
-        );
-      }
+    (_publication: TrackPublication, _participant: LiveKitParticipant) => {
+      updateParticipants();
     },
-    []
+    [updateParticipants]
   );
 
   const handleTrackUnmuted = useCallback(
-    (publication: TrackPublication, participant: LiveKitParticipant) => {
-      console.log('[VideoRoom] Track unmuted event', {
-        source: publication.source,
-        kind: publication.kind,
-        participant: participant.identity,
-        isMuted: publication.isMuted,
-      });
-
-      // DIRECTLY set state when video track unmuted - don't read pub.isMuted (timing bug)
-      if (publication.source === Track.Source.Camera) {
-        setParticipants(prev =>
-          prev.map(p =>
-            p.id === participant.identity ? { ...p, isVideoOff: false } : p
-          )
-        );
-      }
+    (_publication: TrackPublication, _participant: LiveKitParticipant) => {
+      updateParticipants();
     },
-    []
+    [updateParticipants]
   );
 
   const connectToRoom = useCallback(async () => {
@@ -342,22 +305,6 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
 
       const localParticipant = room.localParticipant;
 
-      const cameraPub = localParticipant.getTrackPublication(
-        Track.Source.Camera
-      );
-
-      const micPub = localParticipant.getTrackPublication(
-        Track.Source.Microphone
-      );
-
-      if (!cameraPub) {
-        await localParticipant.setCameraEnabled(true);
-      }
-
-      if (!micPub) {
-        await localParticipant.setMicrophoneEnabled(true);
-      }
-
       // Apply initial states
       await localParticipant.setCameraEnabled(!initialVideoOff);
       await localParticipant.setMicrophoneEnabled(!initialAudioOff);
@@ -368,7 +315,7 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
       console.log('[VideoRoom] Attaching existing remote tracks...');
       room.remoteParticipants.forEach(participant => {
         participant.videoTrackPublications.forEach(pub => {
-          if (pub.track && pub.isSubscribed && !pub.isMuted) {
+          if (shouldAttachVideoPublication(pub) && pub.track) {
             console.log(
               '[VideoRoom] Attaching existing video track from:',
               participant.identity
@@ -407,6 +354,7 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
     renderLocalVideo,
     updateParticipants,
     initialVideoOff,
+    initialAudioOff,
     attachVideoToParticipant,
     status,
   ]);

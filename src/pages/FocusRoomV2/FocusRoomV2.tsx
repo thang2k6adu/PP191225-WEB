@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Track } from 'livekit-client';
 import { HeaderSection } from './sections/HeaderSection';
 import { ControlsSection } from './sections/ControlsSection';
 import { FocusRoomState } from './types';
 import { useRooms } from '@/hooks/useRooms';
 import { useMatchmaking } from '@/hooks/useMatchmaking';
+import { useLocalMediaState } from '@/hooks/useLocalMediaState';
 import { VideoRoom } from '@/components/VideoRoom';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { Helmet } from 'react-helmet-async';
@@ -20,15 +20,26 @@ const FocusRoom: React.FC = () => {
   const params = useParams<{ roomId: string }>();
   const { currentRoom, fetchRoomDetail, joinRoom, leaveRoom } = useRooms();
   const { matchData } = useMatchmaking();
-  const [state, setState] = useState<FocusRoomState>({
-    isMuted: true,
-    isVideoOff: false,
+
+  const roomId = params.roomId;
+  const livekitToken = currentRoom?.token || matchData?.token;
+
+  const { isMuted, isVideoOff, toggleMic, toggleVideo } = useLocalMediaState({
+    enabled: Boolean(livekitToken),
+  });
+
+  const [uiState, setUiState] = useState({
     isScreenSharing: false,
     showSettings: false,
   });
 
-  const roomId = params.roomId;
-  const livekitToken = currentRoom?.token || matchData?.token;
+  const controlsState: FocusRoomState = {
+    isMuted,
+    isVideoOff,
+    isScreenSharing: uiState.isScreenSharing,
+    showSettings: uiState.showSettings,
+  };
+
   const roomName =
     currentRoom?.topic ||
     (matchData?.opponentName
@@ -68,89 +79,8 @@ const FocusRoom: React.FC = () => {
     }
   }, [roomId, navigate]);
 
-  // Sync state with LiveKit tracks after connection
-  useEffect(() => {
-    const syncStateWithTracks = () => {
-      const room = rtcManager.getRoom();
-      if (!room) return;
-
-      const lp = room.localParticipant;
-      const camPub = lp.getTrackPublication(Track.Source.Camera);
-      const micPub = lp.getTrackPublication(Track.Source.Microphone);
-
-      if (camPub) {
-        setState(prev => ({ ...prev, isVideoOff: camPub.isMuted }));
-      }
-      if (micPub) {
-        setState(prev => ({ ...prev, isMuted: micPub.isMuted }));
-      }
-    };
-
-    // Sync after room connects and tracks are published
-    const timer = setTimeout(syncStateWithTracks, 1000);
-    return () => clearTimeout(timer);
-  }, [livekitToken]);
-
-  const handleToggleMute = async () => {
-    const room = rtcManager.getRoom();
-    if (!room) return;
-
-    const lp = room.localParticipant;
-    const micPub = lp.getTrackPublication(Track.Source.Microphone);
-
-    // 🚀 LẦN ĐẦU: chưa có track → publish
-    if (!micPub) {
-      console.log('[FocusRoom] Publishing microphone track for the first time');
-      await lp.setMicrophoneEnabled(true);
-      setState(prev => ({ ...prev, isMuted: false }));
-      return;
-    }
-
-    // ✅ ĐÃ CÓ TRACK: toggle mute/unmute
-    const newMutedState = !state.isMuted;
-
-    if (micPub.track) {
-      if (newMutedState) {
-        await micPub.track.mute();
-      } else {
-        await micPub.track.unmute();
-      }
-    }
-
-    setState(prev => ({ ...prev, isMuted: newMutedState }));
-  };
-
-  const handleToggleVideo = async () => {
-    const room = rtcManager.getRoom();
-    if (!room) return;
-
-    const lp = room.localParticipant;
-    const camPub = lp.getTrackPublication(Track.Source.Camera);
-
-    // 🚀 LẦN ĐẦU: chưa có track → publish
-    if (!camPub) {
-      console.log('[FocusRoom] Publishing camera track for the first time');
-      await lp.setCameraEnabled(true);
-      setState(prev => ({ ...prev, isVideoOff: false }));
-      return;
-    }
-
-    // ✅ ĐÃ CÓ TRACK: toggle mute/unmute
-    const newVideoOffState = !state.isVideoOff;
-
-    if (camPub.track) {
-      if (newVideoOffState) {
-        await camPub.track.mute();
-      } else {
-        await camPub.track.unmute();
-      }
-    }
-
-    setState(prev => ({ ...prev, isVideoOff: newVideoOffState }));
-  };
-
   const handleToggleScreenShare = () => {
-    setState(prev => ({ ...prev, isScreenSharing: !prev.isScreenSharing }));
+    setUiState(prev => ({ ...prev, isScreenSharing: !prev.isScreenSharing }));
   };
 
   // Leave room
@@ -177,12 +107,9 @@ const FocusRoom: React.FC = () => {
   };
 
   const handleSettingsClick = () => {
-    setState(prev => ({ ...prev, showSettings: !prev.showSettings }));
+    setUiState(prev => ({ ...prev, showSettings: !prev.showSettings }));
   };
 
-  // (removed unused participants variable)
-
-  // Show loading if we don't have required data
   if (!livekitToken) {
     return <LoadingSpinner />;
   }
@@ -205,13 +132,15 @@ const FocusRoom: React.FC = () => {
             livekitUrl={LIVEKIT_URL}
             token={livekitToken}
             onDisconnect={handleLeave}
+            initialVideoOff={isVideoOff}
+            initialAudioOff={isMuted}
           />
         </div>
 
         <ControlsSection
-          state={state}
-          onToggleMute={handleToggleMute}
-          onToggleVideo={handleToggleVideo}
+          state={controlsState}
+          onToggleMute={toggleMic}
+          onToggleVideo={toggleVideo}
           onToggleScreenShare={handleToggleScreenShare}
           onLeave={handleLeave}
           onMoreOptions={handleMoreOptions}
