@@ -260,21 +260,13 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
     }
   }, [onDisconnect]);
 
-  const handleReconnecting = useCallback(() => {
-    if (isMountedRef.current) setStatus('reconnecting');
-  }, []);
-  const handleReconnected = useCallback(() => {
-    if (isMountedRef.current) {
-      setStatus('connected');
-      setError(null);
-    }
-  }, []);
   // Attach all video tracks for a participant when they connect
   const handleParticipantConnected = useCallback(() => {
     updateParticipants();
   }, [updateParticipants]);
+
   const handleParticipantDisconnected = useCallback(
-    (_p: LiveKitParticipant) => updateParticipants(),
+    () => updateParticipants(),
     [updateParticipants]
   );
 
@@ -415,8 +407,6 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
     room.on(RoomEvent.TrackMuted, handleTrackMuted);
     room.on(RoomEvent.TrackUnmuted, handleTrackUnmuted);
     room.on(RoomEvent.Disconnected, handleDisconnected);
-    room.on(RoomEvent.Reconnecting, handleReconnecting);
-    room.on(RoomEvent.Reconnected, handleReconnected);
     room.on(RoomEvent.ConnectionStateChanged, handleConnectionStateChanged);
     room.on(RoomEvent.ParticipantConnected, handleParticipantConnected);
     room.on(RoomEvent.ParticipantDisconnected, handleParticipantDisconnected);
@@ -434,8 +424,6 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
       room.off(RoomEvent.TrackMuted, handleTrackMuted);
       room.off(RoomEvent.TrackUnmuted, handleTrackUnmuted);
       room.off(RoomEvent.Disconnected, handleDisconnected);
-      room.off(RoomEvent.Reconnecting, handleReconnecting);
-      room.off(RoomEvent.Reconnected, handleReconnected);
       room.off(RoomEvent.ConnectionStateChanged, handleConnectionStateChanged);
       room.off(RoomEvent.ParticipantConnected, handleParticipantConnected);
       room.off(
@@ -452,8 +440,6 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
     handleTrackMuted,
     handleTrackUnmuted,
     handleDisconnected,
-    handleReconnecting,
-    handleReconnected,
     handleConnectionStateChanged,
     handleParticipantConnected,
     handleParticipantDisconnected,
