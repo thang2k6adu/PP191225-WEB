@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { RoomEvent } from 'livekit-client';
 import { rtcManager } from '@/lib/rtcManager';
-import { getParticipantMediaState } from '@/lib/livekitMediaState';
+import {
+  getNextCameraEnabled,
+  getNextMicrophoneEnabled,
+  getParticipantMediaState,
+} from '@/lib/livekitMediaState';
 
 interface UseLocalMediaStateOptions {
   /** When false, skips event subscriptions (e.g. before token is available). */
@@ -32,7 +36,9 @@ export function useLocalMediaState(options: UseLocalMediaStateOptions = {}) {
     }
 
     const lp = room.localParticipant;
-    await lp.setMicrophoneEnabled(!lp.isMicrophoneEnabled);
+    const nextEnabled = getNextMicrophoneEnabled(lp);
+
+    await lp.setMicrophoneEnabled(nextEnabled);
     syncFromRoom();
   }, [syncFromRoom]);
 
@@ -43,8 +49,14 @@ export function useLocalMediaState(options: UseLocalMediaStateOptions = {}) {
     }
 
     const lp = room.localParticipant;
-    await lp.setCameraEnabled(!lp.isCameraEnabled);
+    const nextEnabled = getNextCameraEnabled(lp);
+
+    await lp.setCameraEnabled(nextEnabled);
     syncFromRoom();
+
+    if (nextEnabled) {
+      rtcManager.requestLocalCameraPreview();
+    }
   }, [syncFromRoom]);
 
   useEffect(() => {

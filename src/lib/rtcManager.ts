@@ -5,6 +5,15 @@ class RTCManager {
   private room: Room | null = null;
   private currentRoomName: string | null = null;
   private manualLeave: boolean = false;
+  private localCameraPreviewHandler: (() => void) | null = null;
+
+  setLocalCameraPreviewHandler(handler: (() => void) | null): void {
+    this.localCameraPreviewHandler = handler;
+  }
+
+  requestLocalCameraPreview(): void {
+    this.localCameraPreviewHandler?.();
+  }
 
   getRoom(): Room {
     if (!this.room) {

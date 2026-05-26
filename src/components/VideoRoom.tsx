@@ -8,6 +8,7 @@ import {
   ConnectionState,
   Participant as LiveKitParticipant,
   TrackPublication,
+  LocalTrackPublication,
 } from 'livekit-client';
 import { rtcManager } from '@/lib/rtcManager';
 import {
@@ -129,6 +130,23 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
     []
   );
 
+  const clearLocalVideoPreview = useCallback(() => {
+    if (!room) return;
+
+    const localId = room.localParticipant.identity || 'local';
+    const container = videoRefsMap.current.get(localId);
+    if (!container) return;
+
+    Array.from(trackElementsMap.current.entries()).forEach(
+      ([trackSid, element]) => {
+        if (container.contains(element)) {
+          element.remove();
+          trackElementsMap.current.delete(trackSid);
+        }
+      }
+    );
+  }, [room]);
+
   const renderLocalVideo = useCallback(() => {
     if (!room) return;
 
@@ -142,11 +160,13 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
       return;
     }
 
+    clearLocalVideoPreview();
+
     const element = cameraPublication.track.attach();
     const localId = localParticipant.identity || 'local';
 
     attachVideoToParticipant(localId, cameraPublication.trackSid, element);
-  }, [room, attachVideoToParticipant]);
+  }, [room, attachVideoToParticipant, clearLocalVideoPreview]);
 
   // Attach video immediately when trackSubscribed event fires
   const handleTrackSubscribed = useCallback(
@@ -269,18 +289,40 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
     [updateParticipants]
   );
 
-  const handleTrackMuted = useCallback(
-    (_publication: TrackPublication, _participant: LiveKitParticipant) => {
+  const handleLocalTrackPublished = useCallback(
+    (publication: LocalTrackPublication) => {
+      if (publication.source === Track.Source.Camera) {
+        renderLocalVideo();
+      }
       updateParticipants();
     },
-    [updateParticipants]
+    [renderLocalVideo, updateParticipants]
+  );
+
+  const handleTrackMuted = useCallback(
+    (publication: TrackPublication, participant: LiveKitParticipant) => {
+      if (
+        publication.source === Track.Source.Camera &&
+        participant.identity === room.localParticipant.identity
+      ) {
+        clearLocalVideoPreview();
+      }
+      updateParticipants();
+    },
+    [room, clearLocalVideoPreview, updateParticipants]
   );
 
   const handleTrackUnmuted = useCallback(
-    (_publication: TrackPublication, _participant: LiveKitParticipant) => {
+    (publication: TrackPublication, participant: LiveKitParticipant) => {
+      if (
+        publication.source === Track.Source.Camera &&
+        participant.identity === room.localParticipant.identity
+      ) {
+        renderLocalVideo();
+      }
       updateParticipants();
     },
-    [updateParticipants]
+    [room, renderLocalVideo, updateParticipants]
   );
 
   const connectToRoom = useCallback(async () => {
@@ -360,11 +402,24 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
   ]);
 
   useEffect(() => {
+    rtcManager.setLocalCameraPreviewHandler(() => {
+      if (isMountedRef.current) {
+        renderLocalVideo();
+      }
+    });
+
+    return () => {
+      rtcManager.setLocalCameraPreviewHandler(null);
+    };
+  }, [renderLocalVideo]);
+
+  useEffect(() => {
     console.log('[VideoRoom] Component mounted');
     isMountedRef.current = true;
 
     room.on(RoomEvent.TrackSubscribed, handleTrackSubscribed);
     room.on(RoomEvent.TrackUnsubscribed, handleTrackUnsubscribed);
+    room.on(RoomEvent.LocalTrackPublished, handleLocalTrackPublished);
     room.on(RoomEvent.TrackMuted, handleTrackMuted);
     room.on(RoomEvent.TrackUnmuted, handleTrackUnmuted);
     room.on(RoomEvent.Disconnected, handleDisconnected);
@@ -383,6 +438,7 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
       // Clean up listeners only, DO NOT disconnect room
       room.off(RoomEvent.TrackSubscribed, handleTrackSubscribed);
       room.off(RoomEvent.TrackUnsubscribed, handleTrackUnsubscribed);
+      room.off(RoomEvent.LocalTrackPublished, handleLocalTrackPublished);
       room.off(RoomEvent.TrackMuted, handleTrackMuted);
       room.off(RoomEvent.TrackUnmuted, handleTrackUnmuted);
       room.off(RoomEvent.Disconnected, handleDisconnected);
@@ -400,6 +456,7 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
     connectToRoom,
     handleTrackSubscribed,
     handleTrackUnsubscribed,
+    handleLocalTrackPublished,
     handleTrackMuted,
     handleTrackUnmuted,
     handleDisconnected,
