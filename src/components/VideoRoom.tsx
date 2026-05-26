@@ -265,24 +265,11 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
     }
   }, []);
   // Attach all video tracks for a participant when they connect
-  // Attach all video tracks for a participant when they connect
   const handleParticipantConnected = useCallback(
-    (participant: LiveKitParticipant) => {
-      if (participant && participant.videoTrackPublications) {
-        participant.videoTrackPublications.forEach(pub => {
-          if (shouldAttachVideoPublication(pub) && pub.track) {
-            const element = pub.track.attach();
-            attachVideoToParticipant(
-              participant.identity,
-              pub.trackSid,
-              element
-            );
-          }
-        });
-      }
+    (_participant: LiveKitParticipant) => {
       updateParticipants();
     },
-    [attachVideoToParticipant, updateParticipants]
+    [updateParticipants]
   );
   const handleParticipantDisconnected = useCallback(
     (_p: LiveKitParticipant) => updateParticipants(),
