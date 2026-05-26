@@ -17,7 +17,8 @@ interface VideoRoomProps {
   livekitUrl: string;
   token: string;
   onDisconnect?: () => void;
-  initialVideoOff?: boolean; // Default camera state
+  initialVideoOff?: boolean;
+  initialAudioOff?: boolean;
 }
 
 type ConnectionStatus =
@@ -32,13 +33,13 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
   livekitUrl,
   token,
   onDisconnect,
-  initialVideoOff = false,
+  initialVideoOff = true,
+  initialAudioOff = true,
 }) => {
   const [status, setStatus] = useState<ConnectionStatus>('idle');
   const [error, setError] = useState<string | null>(null);
   const [participants, setParticipants] = useState<Participant[]>([]);
 
-  // Debug state changes
   useEffect(() => {
     console.log(
       '[VideoRoom] Participants state updated:',
@@ -67,9 +68,8 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
       const localParticipant = room.localParticipant;
       const localId = localParticipant.identity || 'local';
 
-      // Always use actual camera track mute state for local participant
       const camPub = localParticipant.getTrackPublication(Track.Source.Camera);
-      const isLocalVideoMuted = camPub ? camPub.isMuted : true;
+      const isLocalVideoMuted = camPub ? camPub.isMuted : false;
       newParticipants.push({
         id: localId,
         name: localParticipant.identity || 'You',
@@ -82,7 +82,6 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
       });
 
       room.remoteParticipants.forEach(participant => {
-        // Check if participant has active video track
         const hasActiveVideo = Array.from(
           participant.videoTrackPublications.values()
         ).some(pub => pub.track && pub.isSubscribed && !pub.isMuted);
@@ -92,7 +91,7 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
           name: participant.identity || 'Guest',
           avatar: `https://i.pravatar.cc/150?u=${participant.identity}`,
           isMuted: true,
-          isVideoOff: !hasActiveVideo, // ✅ Set based on actual track state
+          isVideoOff: !hasActiveVideo,
           isActive: true,
           taskTitle: 'Working...',
           progress: 0,
@@ -341,45 +340,27 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
 
       setStatus('connected');
 
-      const hasCamera = room.localParticipant.getTrackPublication(
+      const localParticipant = room.localParticipant;
+
+      const cameraPub = localParticipant.getTrackPublication(
         Track.Source.Camera
       );
-      const hasMic = room.localParticipant.getTrackPublication(
+
+      const micPub = localParticipant.getTrackPublication(
         Track.Source.Microphone
       );
 
-      if (!hasCamera || !hasMic) {
-        await room.localParticipant.enableCameraAndMicrophone();
-        console.log('[VideoRoom] Camera and microphone enabled');
-
-        // Disable camera if initialVideoOff is true
-        if (initialVideoOff) {
-          const cameraTrack = room.localParticipant.getTrackPublication(
-            Track.Source.Camera
-          );
-          if (cameraTrack?.track) {
-            await cameraTrack.track.mute();
-            console.log('[VideoRoom] Camera disabled (initialVideoOff)');
-          }
-        }
-      } else {
-        console.log(
-          '[VideoRoom] Tracks already published, skipping enableCameraAndMicrophone'
-        );
-
-        // Also handle initialVideoOff for already published tracks
-        if (initialVideoOff) {
-          const cameraTrack = room.localParticipant.getTrackPublication(
-            Track.Source.Camera
-          );
-          if (cameraTrack?.track && !cameraTrack.isMuted) {
-            await cameraTrack.track.mute();
-            console.log(
-              '[VideoRoom] Camera disabled (initialVideoOff) for existing track'
-            );
-          }
-        }
+      if (!cameraPub) {
+        await localParticipant.setCameraEnabled(true);
       }
+
+      if (!micPub) {
+        await localParticipant.setMicrophoneEnabled(true);
+      }
+
+      // Apply initial states
+      await localParticipant.setCameraEnabled(!initialVideoOff);
+      await localParticipant.setMicrophoneEnabled(!initialAudioOff);
 
       updateParticipants();
       setTimeout(() => renderLocalVideo(), 100);
