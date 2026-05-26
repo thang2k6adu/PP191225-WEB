@@ -7,6 +7,10 @@ import axios, {
 } from 'axios';
 import toast from 'react-hot-toast';
 import { TOKEN_STORAGE_KEYS } from '@/constants';
+import {
+  handleSessionExpired,
+  isAuthRefreshRequest,
+} from '@/utils/authSession';
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
@@ -72,6 +76,15 @@ class ApiClient {
         };
 
         if (error.response?.status === 401 && !originalRequest._retry) {
+          const requestUrl = originalRequest.url ?? '';
+
+          if (isAuthRefreshRequest(requestUrl)) {
+            this.isRefreshing = false;
+            this.failedQueue = [];
+            await handleSessionExpired();
+            return Promise.reject(error);
+          }
+
           if (this.isRefreshing) {
             // Queue request while refreshing
             return new Promise(resolve => {
@@ -98,7 +111,8 @@ class ApiClient {
               data: { accessToken: string; expiresIn: number } | null;
             }>('/auth/refresh', { refreshToken });
 
-            if (response.data?.data?.accessToken) {
+            const refreshed = response.data?.data?.accessToken;
+            if (refreshed && response.data?.data) {
               const { accessToken, expiresIn } = response.data.data;
               localStorage.setItem(
                 TOKEN_STORAGE_KEYS.ACCESS_TOKEN,
@@ -109,16 +123,26 @@ class ApiClient {
                 (Date.now() + expiresIn * 1000).toString()
               );
 
+              try {
+                const { store } = await import('@/store');
+                const { updateAccessToken } =
+                  await import('@/store/slices/authSlice');
+                store.dispatch(updateAccessToken({ accessToken, expiresIn }));
+              } catch {
+                // Redux sync is best-effort
+              }
+
               originalRequest.headers.Authorization = `Bearer ${accessToken}`;
               this.processQueue(null, accessToken);
               return this.client(originalRequest);
             }
+
+            throw new Error('Refresh token response missing access token');
           } catch (_err) {
             this.processQueue(error as AxiosError, null);
-            localStorage.removeItem(TOKEN_STORAGE_KEYS.ACCESS_TOKEN);
-            localStorage.removeItem(TOKEN_STORAGE_KEYS.REFRESH_TOKEN);
-            window.location.href = '/login';
-            toast.error('Session expired. Please login again.');
+            await handleSessionExpired();
+          } finally {
+            this.isRefreshing = false;
           }
 
           return Promise.reject(error);
@@ -133,10 +157,7 @@ class ApiClient {
 
           switch (status) {
             case 401:
-              localStorage.removeItem(TOKEN_STORAGE_KEYS.ACCESS_TOKEN);
-              localStorage.removeItem(TOKEN_STORAGE_KEYS.REFRESH_TOKEN);
-              window.location.href = '/login';
-              toast.error('Session expired. Please login again.');
+              void handleSessionExpired();
               break;
             case 403:
               toast.error('You do not have permission to perform this action.');
