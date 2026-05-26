@@ -188,6 +188,14 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
         attachVideoToParticipant(participant.identity, pub.trackSid, element);
         updateParticipants();
       }
+      if (track.kind === Track.Kind.Audio) {
+        const audioElement = track.attach();
+        audioElement.setAttribute('data-participant', participant.identity);
+        audioElement.setAttribute('data-track-sid', pub.trackSid);
+        trackElementsMap.current.set(pub.trackSid, audioElement);
+        document.body.appendChild(audioElement);
+        updateParticipants();
+      }
     },
     [attachVideoToParticipant, updateParticipants]
   );
@@ -205,7 +213,6 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
         trackSid: pub.trackSid,
       });
 
-      // Remove ONLY this specific track element by trackSid
       const element = trackElementsMap.current.get(pub.trackSid);
       if (element) {
         element.remove();
@@ -213,12 +220,10 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
         console.log('[VideoRoom] Removed track element:', pub.trackSid);
       }
 
-      // Also call track.detach() for cleanup
       track.detach().forEach((el: Element) => {
-        if (el !== element) el.remove(); // Remove any other attached elements
+        if (el !== element) el.remove();
       });
 
-      // Delay update to batch multiple unsubscribes (e.g., during toggle)
       setTimeout(() => {
         if (isMountedRef.current) {
           updateParticipants();
@@ -265,12 +270,9 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
     }
   }, []);
   // Attach all video tracks for a participant when they connect
-  const handleParticipantConnected = useCallback(
-    (_participant: LiveKitParticipant) => {
-      updateParticipants();
-    },
-    [updateParticipants]
-  );
+  const handleParticipantConnected = useCallback(() => {
+    updateParticipants();
+  }, [updateParticipants]);
   const handleParticipantDisconnected = useCallback(
     (_p: LiveKitParticipant) => updateParticipants(),
     [updateParticipants]
@@ -339,7 +341,10 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
       await localParticipant.setMicrophoneEnabled(!initialAudioOff);
 
       updateParticipants();
-      setTimeout(() => renderLocalVideo(), 100);
+
+      if (!initialVideoOff) {
+        setTimeout(() => renderLocalVideo(), 100);
+      }
 
       console.log('[VideoRoom] Attaching existing remote tracks...');
       room.remoteParticipants.forEach(participant => {
