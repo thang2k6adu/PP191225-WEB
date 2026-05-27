@@ -18,8 +18,8 @@ import {
 import {
   getParticipantDisplayProfile,
   getParticipantTaskInfo,
-} from '@/lib/livekitParticipantProfile';
-import { syncRoomParticipantTask } from '@/lib/roomParticipantMetadata';
+  syncRoomParticipantTask,
+} from '@/lib/roomParticipantMetadata';
 import { taskService } from '@/services/taskService';
 import { ParticipantsGridSection } from '@/pages/FocusRoomV2/sections/ParticipantsGridSection';
 import { Participant } from '@/pages/FocusRoomV2/types';
