@@ -1,6 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { taskService } from '@/services/taskService';
 import type { RootState } from '@/store';
+import { ActivateTaskResponse } from '@/types/trackingSession';
 import {
   CreateTaskData,
   UpdateTaskData,
@@ -126,13 +127,13 @@ export const updateTaskThunk = createAsyncThunk<
 
 // Activate task
 export const activateTaskThunk = createAsyncThunk<
-  TaskActionResponse['data'],
+  ActivateTaskResponse['data']['task'],
   string,
   { rejectValue: string }
 >('task/activateTask', async (id, { rejectWithValue }) => {
   try {
     const response = await taskService.activateTask(id);
-    return response.data;
+    return response.data.task;
   } catch (error: unknown) {
     return rejectWithValue(getErrorMessage(error, 'Failed to activate task'));
   }

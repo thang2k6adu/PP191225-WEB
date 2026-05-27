@@ -63,11 +63,6 @@ export const API_ENDPOINTS = {
     STATUS: '/matchmaking/status',
     STATS: '/matchmaking/stats',
   },
-  TRACKING_SESSIONS: {
-    ACTIVATE: (taskId: string) => `/tasks/${taskId}/activate`,
-    STOP: (sessionId: string) => `/tracking-sessions/${sessionId}/stop`,
-    PROGRESS: '/tracking-sessions/progress',
-  },
   ROOMS: {
     PUBLIC: '/rooms/public',
     JOIN: (roomId: string) => `/rooms/${roomId}/join`,

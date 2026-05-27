@@ -10,6 +10,7 @@ import {
   TaskStatsPeriod,
   TaskStatsResponse,
 } from '@/types/task';
+import { ActivateTaskResponse } from '@/types/trackingSession';
 import { API_ENDPOINTS } from '@/constants';
 
 export const taskService = {
@@ -57,8 +58,8 @@ export const taskService = {
     return response.data;
   },
 
-  activateTask: async (id: string): Promise<TaskActionResponse> => {
-    const response = await apiClient.post<TaskActionResponse>(
+  activateTask: async (id: string): Promise<ActivateTaskResponse> => {
+    const response = await apiClient.post<ActivateTaskResponse>(
       API_ENDPOINTS.TASKS.ACTIVATE(id),
       {}
     );

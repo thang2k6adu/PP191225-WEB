@@ -1,6 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import type { AxiosError } from 'axios';
-import { trackingSessionService } from '@/services/trackingSessionService';
 import { taskService } from '@/services/taskService';
 import { ActivateTaskResponse } from '@/types/trackingSession';
 import { DeactivateTaskResponse } from '@/types/task';
@@ -11,7 +10,7 @@ export const activateTaskThunk = createAsyncThunk<
   { rejectValue: string }
 >('trackingSession/activate', async (taskId, { rejectWithValue }) => {
   try {
-    const response = await trackingSessionService.activateTask(taskId);
+    const response = await taskService.activateTask(taskId);
     return response.data;
   } catch (error: unknown) {
     const message = (error as AxiosError<{ message?: string }>).response?.data
