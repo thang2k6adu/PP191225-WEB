@@ -6,6 +6,7 @@ export const ControlButton: React.FC<ControlButtonProps> = ({
   onClick,
   variant = 'default',
   ariaLabel,
+  disabled = false,
 }) => {
   const baseClasses = 'p-4 rounded-full transition';
   const variantClasses =
@@ -16,7 +17,8 @@ export const ControlButton: React.FC<ControlButtonProps> = ({
   return (
     <button
       onClick={onClick}
-      className={`${baseClasses} ${variantClasses}`}
+      disabled={disabled}
+      className={`${baseClasses} ${variantClasses} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
       aria-label={ariaLabel}
     >
       {icon}

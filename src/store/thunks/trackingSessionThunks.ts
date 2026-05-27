@@ -1,15 +1,14 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import type { AxiosError } from 'axios';
 import { trackingSessionService } from '@/services/trackingSessionService';
+import { taskService } from '@/services/taskService';
 import {
   ActivateTaskResponse,
   SessionResponse,
   SessionsProgressResponse,
 } from '@/types/trackingSession';
+import { DeactivateTaskResponse } from '@/types/task';
 
-/**
- * Activate task and start tracking session
- */
 export const activateTaskThunk = createAsyncThunk<
   ActivateTaskResponse['data'],
   string,
@@ -25,9 +24,21 @@ export const activateTaskThunk = createAsyncThunk<
   }
 });
 
-/**
- * Stop tracking session
- */
+export const deactivateTaskThunk = createAsyncThunk<
+  DeactivateTaskResponse['data'],
+  string,
+  { rejectValue: string }
+>('trackingSession/deactivate', async (taskId, { rejectWithValue }) => {
+  try {
+    const response = await taskService.deactivateTask(taskId);
+    return response.data;
+  } catch (error: unknown) {
+    const message = (error as AxiosError<{ message?: string }>).response?.data
+      ?.message;
+    return rejectWithValue(message || 'Failed to deactivate task');
+  }
+});
+
 export const stopSessionThunk = createAsyncThunk<
   SessionResponse['data'],
   string,
@@ -43,9 +54,6 @@ export const stopSessionThunk = createAsyncThunk<
   }
 });
 
-/**
- * Get progress and all sessions of a task
- */
 export const getProgressThunk = createAsyncThunk<
   SessionsProgressResponse['data'],
   string,

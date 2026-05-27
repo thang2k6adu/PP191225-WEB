@@ -14,7 +14,7 @@ const TaskInfoPanel: React.FC<TaskInfoPanelProps> = ({ onStopSession }) => {
     currentSession,
     activeTask,
     currentTime,
-    stopSession,
+    deactivateTask,
     formatTime,
     isLoading,
   } = useTrackingSession();
@@ -24,13 +24,15 @@ const TaskInfoPanel: React.FC<TaskInfoPanelProps> = ({ onStopSession }) => {
   }
 
   const handleStop = async () => {
+    if (!activeTask?.id) return;
+
     try {
-      const result = await stopSession();
-      if (result) {
-        onStopSession?.(result);
+      const result = await deactivateTask(activeTask.id);
+      if (result?.session) {
+        onStopSession?.(result.session);
       }
     } catch (error) {
-      console.error('Failed to stop session:', error);
+      console.error('Failed to stop task:', error);
     }
   };
 

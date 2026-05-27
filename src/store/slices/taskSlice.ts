@@ -9,6 +9,7 @@ import {
   completeTaskThunk,
   deleteTaskThunk,
 } from '../thunks/taskThunks';
+import { deactivateTaskThunk } from '../thunks/trackingSessionThunks';
 
 const DEFAULT_TASK_TTL_MS = 60_000;
 
@@ -171,6 +172,23 @@ const taskSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload || 'Failed to activate task';
       });
+
+    // Deactivate task (stop tracking)
+    builder.addCase(deactivateTaskThunk.fulfilled, (state, action) => {
+      const taskId = action.payload.task.id;
+      const index = state.tasks.findIndex(t => t.id === taskId);
+      if (index !== -1) {
+        state.tasks[index] = {
+          ...state.tasks[index],
+          ...action.payload.task,
+          status: action.payload.task.status as Task['status'],
+        };
+      }
+      if (state.activeTask?.id === taskId) {
+        state.activeTask = null;
+      }
+      state.isInvalidated = true;
+    });
 
     // Complete task
     builder

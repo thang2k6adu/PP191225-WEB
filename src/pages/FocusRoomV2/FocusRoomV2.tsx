@@ -6,6 +6,7 @@ import { FocusRoomState } from './types';
 import { useRooms } from '@/hooks/useRooms';
 import { useMatchmaking } from '@/hooks/useMatchmaking';
 import { useLocalMediaState } from '@/hooks/useLocalMediaState';
+import { useTrackingSession } from '@/hooks/useTrackingSession';
 import { VideoRoom } from '@/components/VideoRoom';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { Helmet } from 'react-helmet-async';
@@ -13,17 +14,24 @@ import { rtcManager } from '@/lib/rtcManager';
 import { ROUTES } from '@/constants';
 import TaskSelectionDialog from '@/components/TaskSelectionDialog';
 import { Task } from '@/types/task';
-import { syncRoomParticipantTask } from '@/lib/roomParticipantMetadata';
+import {
+  syncRoomParticipantTask,
+  clearRoomParticipantTask,
+} from '@/lib/roomParticipantMetadata';
 import { taskService } from '@/services/taskService';
+import { useAppDispatch } from '@/store/hooks';
+import { fetchActiveTaskThunk } from '@/store/thunks/taskThunks';
 
 const LIVEKIT_URL =
   import.meta.env.VITE_LIVEKIT_URL || 'wss://your-livekit-server.com';
 
 const FocusRoom: React.FC = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const params = useParams<{ roomId: string }>();
   const { currentRoom, fetchRoomDetail, joinRoom, leaveRoom } = useRooms();
   const { matchData } = useMatchmaking();
+  const { deactivateTask, isLoading: isTrackingLoading } = useTrackingSession();
 
   const roomId = params.roomId;
   const livekitToken = currentRoom?.token || matchData?.token;
@@ -37,6 +45,7 @@ const FocusRoom: React.FC = () => {
     showSettings: false,
     showTaskDialog: false,
     selectedTaskName: undefined as string | undefined,
+    selectedTaskId: undefined as string | undefined,
   });
 
   const controlsState: FocusRoomState = {
@@ -56,13 +65,11 @@ const FocusRoom: React.FC = () => {
   const hasJoinedRef = useRef(false);
   const isLeavingRef = useRef(false);
 
-  // Join room on mount if not already joined
   useEffect(() => {
     if (isLeavingRef.current || !roomId) {
       return;
     }
 
-    // If no token, need to join/rejoin room
     if (!livekitToken && !hasJoinedRef.current) {
       console.log('[FocusRoom] No token, joining room:', roomId);
       hasJoinedRef.current = true;
@@ -70,14 +77,12 @@ const FocusRoom: React.FC = () => {
       return;
     }
 
-    // Fetch room details if we have currentRoom
     if (currentRoom && !hasFetchedRef.current) {
       fetchRoomDetail(roomId);
       hasFetchedRef.current = true;
     }
   }, [roomId, livekitToken, currentRoom, joinRoom, fetchRoomDetail]);
 
-  // Redirect if no roomId
   useEffect(() => {
     if (!roomId && !isLeavingRef.current) {
       console.log('[FocusRoom] No roomId, redirecting...');
@@ -88,27 +93,37 @@ const FocusRoom: React.FC = () => {
   useEffect(() => {
     if (!livekitToken) return;
 
-    taskService
-      .getActiveTask()
-      .then(response => {
+    let cancelled = false;
+
+    const loadActiveTask = async () => {
+      try {
+        const response = await taskService.getActiveTask();
+        if (cancelled) return;
+
         const activeTask = response.data;
-        if (activeTask?.name) {
-          setUiState(prev => ({
-            ...prev,
-            selectedTaskName: activeTask.name,
-          }));
-        }
-      })
-      .catch(error => {
+        if (!activeTask?.id) return;
+
+        setUiState(prev => ({
+          ...prev,
+          selectedTaskName: activeTask.name,
+          selectedTaskId: activeTask.id,
+        }));
+      } catch (error) {
         console.warn('[FocusRoom] Failed to load active task:', error);
-      });
+      }
+    };
+
+    loadActiveTask();
+
+    return () => {
+      cancelled = true;
+    };
   }, [livekitToken]);
 
   const handleToggleScreenShare = () => {
     setUiState(prev => ({ ...prev, isScreenSharing: !prev.isScreenSharing }));
   };
 
-  // Leave room
   const handleLeave = async () => {
     console.log('[FocusRoom] User leaving room');
     isLeavingRef.current = true;
@@ -145,10 +160,29 @@ const FocusRoom: React.FC = () => {
       setUiState(prev => ({
         ...prev,
         selectedTaskName: task.name,
+        selectedTaskId: task.id,
         showTaskDialog: false,
       }));
     } catch (error) {
       console.error('[FocusRoom] Failed to sync task to LiveKit:', error);
+    }
+  };
+
+  const handleStopTask = async () => {
+    if (!uiState.selectedTaskId) return;
+
+    try {
+      await deactivateTask(uiState.selectedTaskId);
+      await clearRoomParticipantTask();
+      await dispatch(fetchActiveTaskThunk());
+
+      setUiState(prev => ({
+        ...prev,
+        selectedTaskName: undefined,
+        selectedTaskId: undefined,
+      }));
+    } catch (error) {
+      console.error('[FocusRoom] Failed to stop task:', error);
     }
   };
 
@@ -189,9 +223,11 @@ const FocusRoom: React.FC = () => {
           onToggleVideo={toggleVideo}
           onToggleScreenShare={handleToggleScreenShare}
           onSelectTask={handleSelectTask}
+          onStopTask={handleStopTask}
           onLeave={handleLeave}
           onMoreOptions={handleMoreOptions}
           selectedTaskName={uiState.selectedTaskName}
+          isStoppingTask={isTrackingLoading}
         />
 
         <TaskSelectionDialog

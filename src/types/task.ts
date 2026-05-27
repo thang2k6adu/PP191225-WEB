@@ -71,6 +71,29 @@ export interface TaskActionResponse {
   traceId: string;
 }
 
+export interface DeactivateTaskResponse {
+  error: boolean;
+  code: number;
+  message: string;
+  data: {
+    task: Task;
+    session: {
+      id: string;
+      taskId: string;
+      userId: string;
+      startTime: string;
+      endTime: string | null;
+      duration: number;
+      status: string;
+      expEarned: number;
+      progress?: number;
+      createdAt: string;
+      updatedAt: string;
+    } | null;
+  };
+  traceId: string;
+}
+
 export type TaskStatsPeriod = 'day' | 'month' | 'year';
 
 export interface TaskStatsResponse {

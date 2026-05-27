@@ -53,6 +53,7 @@ export const API_ENDPOINTS = {
     UPDATE: (id: string) => `/tasks/${id}`,
     DELETE: (id: string) => `/tasks/${id}`,
     ACTIVATE: (id: string) => `/tasks/${id}/activate`,
+    DEACTIVATE: (id: string) => `/tasks/${id}/deactivate`,
     COMPLETE: (id: string) => `/tasks/${id}/complete`,
     ACTIVE: '/tasks/active',
   },

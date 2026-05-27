@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   activateTaskThunk,
+  deactivateTaskThunk,
   stopSessionThunk,
   getProgressThunk,
 } from '@/store/thunks/trackingSessionThunks';
@@ -71,20 +72,40 @@ export const useTrackingSession = () => {
     [dispatch]
   );
 
-  const stopSession = useCallback(async () => {
-    if (!currentSession) return;
+  const deactivateTask = useCallback(
+    async (taskId: string) => {
+      const result = await dispatch(deactivateTaskThunk(taskId));
 
-    const result = await dispatch(stopSessionThunk(currentSession.id));
+      if (deactivateTaskThunk.fulfilled.match(result)) {
+        toast.success('Task stopped!');
+        stopTimer();
+        return result.payload;
+      } else if (deactivateTaskThunk.rejected.match(result)) {
+        toast.error(result.payload || 'Failed to stop task');
+        throw new Error(result.payload);
+      }
+    },
+    [dispatch, stopTimer]
+  );
 
-    if (stopSessionThunk.fulfilled.match(result)) {
-      toast.success('Session stopped! Great work!');
-      stopTimer();
-      return result.payload;
-    } else if (stopSessionThunk.rejected.match(result)) {
-      toast.error(result.payload || 'Failed to stop session');
-      throw new Error(result.payload);
-    }
-  }, [dispatch, currentSession, stopTimer]);
+  const stopSession = useCallback(
+    async (sessionId?: string) => {
+      const id = sessionId ?? currentSession?.id;
+      if (!id) return;
+
+      const result = await dispatch(stopSessionThunk(id));
+
+      if (stopSessionThunk.fulfilled.match(result)) {
+        toast.success('Session stopped! Great work!');
+        stopTimer();
+        return result.payload;
+      } else if (stopSessionThunk.rejected.match(result)) {
+        toast.error(result.payload || 'Failed to stop session');
+        throw new Error(result.payload);
+      }
+    },
+    [dispatch, currentSession, stopTimer]
+  );
 
   const getProgress = useCallback(
     async (taskId: string) => {
@@ -137,6 +158,7 @@ export const useTrackingSession = () => {
     error,
     currentTime,
     activateTask,
+    deactivateTask,
     stopSession,
     getProgress,
     clearSessionError,

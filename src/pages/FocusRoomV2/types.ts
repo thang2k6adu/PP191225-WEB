@@ -16,6 +16,7 @@ export interface ControlButtonProps {
   onClick?: () => void;
   variant?: 'default' | 'danger';
   ariaLabel?: string;
+  disabled?: boolean;
 }
 
 export interface FocusRoomState {

@@ -3,6 +3,7 @@ import { TrackingSession, SessionsProgress } from '@/types/trackingSession';
 import { Task } from '@/types/task';
 import {
   activateTaskThunk,
+  deactivateTaskThunk,
   stopSessionThunk,
   getProgressThunk,
 } from '../thunks/trackingSessionThunks';
@@ -69,6 +70,24 @@ const trackingSessionSlice = createSlice({
       .addCase(activateTaskThunk.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload || 'Failed to activate task';
+      });
+
+    // Deactivate task
+    builder
+      .addCase(deactivateTaskThunk.pending, state => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(deactivateTaskThunk.fulfilled, state => {
+        state.isLoading = false;
+        state.currentSession = null;
+        state.activeTask = null;
+        localStorage.removeItem('activeSessionId');
+        localStorage.removeItem('sessionStartTime');
+      })
+      .addCase(deactivateTaskThunk.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload || 'Failed to deactivate task';
       });
 
     // Stop session

@@ -6,6 +6,7 @@ import {
   LuVideoOff as VideoOff,
   LuPhoneOff as PhoneOff,
   LuListChecks as ListChecks,
+  LuSquare as Square,
 } from 'react-icons/lu';
 import { ControlButton } from '../components/ControlButton';
 import { FocusRoomState } from '../types';
@@ -16,9 +17,11 @@ interface ControlsSectionProps {
   onToggleVideo: () => void;
   onToggleScreenShare: () => void;
   onSelectTask: () => void;
+  onStopTask?: () => void;
   onLeave: () => void;
   onMoreOptions: () => void;
   selectedTaskName?: string;
+  isStoppingTask?: boolean;
 }
 
 export const ControlsSection: React.FC<ControlsSectionProps> = ({
@@ -27,9 +30,11 @@ export const ControlsSection: React.FC<ControlsSectionProps> = ({
   onToggleVideo,
   onToggleScreenShare,
   onSelectTask,
+  onStopTask,
   onLeave,
   onMoreOptions,
   selectedTaskName,
+  isStoppingTask = false,
 }) => {
   return (
     <div className="bg-gray-800 px-6 py-4">
@@ -79,6 +84,16 @@ export const ControlsSection: React.FC<ControlsSectionProps> = ({
           onClick={onSelectTask}
           ariaLabel="Chọn task"
         />
+
+        {selectedTaskName && onStopTask && (
+          <ControlButton
+            icon={<Square size={24} />}
+            onClick={onStopTask}
+            variant="danger"
+            ariaLabel="Dừng task"
+            disabled={isStoppingTask}
+          />
+        )}
 
         <ControlButton
           icon={<PhoneOff size={24} />}

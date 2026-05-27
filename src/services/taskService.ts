@@ -6,6 +6,7 @@ import {
   TaskResponse,
   ActiveTaskResponse,
   TaskActionResponse,
+  DeactivateTaskResponse,
   TaskStatsPeriod,
   TaskStatsResponse,
 } from '@/types/task';
@@ -59,6 +60,14 @@ export const taskService = {
   activateTask: async (id: string): Promise<TaskActionResponse> => {
     const response = await apiClient.post<TaskActionResponse>(
       API_ENDPOINTS.TASKS.ACTIVATE(id),
+      {}
+    );
+    return response.data;
+  },
+
+  deactivateTask: async (id: string): Promise<DeactivateTaskResponse> => {
+    const response = await apiClient.post<DeactivateTaskResponse>(
+      API_ENDPOINTS.TASKS.DEACTIVATE(id),
       {}
     );
     return response.data;
