@@ -2,11 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import type { AxiosError } from 'axios';
 import { trackingSessionService } from '@/services/trackingSessionService';
 import { taskService } from '@/services/taskService';
-import {
-  ActivateTaskResponse,
-  SessionResponse,
-  SessionsProgressResponse,
-} from '@/types/trackingSession';
+import { ActivateTaskResponse } from '@/types/trackingSession';
 import { DeactivateTaskResponse } from '@/types/task';
 
 export const activateTaskThunk = createAsyncThunk<
@@ -36,35 +32,5 @@ export const deactivateTaskThunk = createAsyncThunk<
     const message = (error as AxiosError<{ message?: string }>).response?.data
       ?.message;
     return rejectWithValue(message || 'Failed to deactivate task');
-  }
-});
-
-export const stopSessionThunk = createAsyncThunk<
-  SessionResponse['data'],
-  string,
-  { rejectValue: string }
->('trackingSession/stop', async (sessionId, { rejectWithValue }) => {
-  try {
-    const response = await trackingSessionService.stopSession(sessionId);
-    return response.data;
-  } catch (error: unknown) {
-    const message = (error as AxiosError<{ message?: string }>).response?.data
-      ?.message;
-    return rejectWithValue(message || 'Failed to stop session');
-  }
-});
-
-export const getProgressThunk = createAsyncThunk<
-  SessionsProgressResponse['data'],
-  string,
-  { rejectValue: string }
->('trackingSession/progress', async (taskId, { rejectWithValue }) => {
-  try {
-    const response = await trackingSessionService.getProgress(taskId);
-    return response.data;
-  } catch (error: unknown) {
-    const message = (error as AxiosError<{ message?: string }>).response?.data
-      ?.message;
-    return rejectWithValue(message || 'Failed to get progress');
   }
 });

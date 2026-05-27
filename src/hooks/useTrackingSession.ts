@@ -3,16 +3,15 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   activateTaskThunk,
   deactivateTaskThunk,
-  stopSessionThunk,
-  getProgressThunk,
 } from '@/store/thunks/trackingSessionThunks';
 import { clearError, clearSession } from '@/store/slices/trackingSessionSlice';
 import toast from 'react-hot-toast';
 
 export const useTrackingSession = () => {
   const dispatch = useAppDispatch();
-  const { currentSession, activeTask, progress, isLoading, error } =
-    useAppSelector(state => state.trackingSession);
+  const { currentSession, activeTask, isLoading, error } = useAppSelector(
+    state => state.trackingSession
+  );
 
   const [currentTime, setCurrentTime] = useState(0);
   const timerRef = useRef<number | null>(null);
@@ -88,39 +87,6 @@ export const useTrackingSession = () => {
     [dispatch, stopTimer]
   );
 
-  const stopSession = useCallback(
-    async (sessionId?: string) => {
-      const id = sessionId ?? currentSession?.id;
-      if (!id) return;
-
-      const result = await dispatch(stopSessionThunk(id));
-
-      if (stopSessionThunk.fulfilled.match(result)) {
-        toast.success('Session stopped! Great work!');
-        stopTimer();
-        return result.payload;
-      } else if (stopSessionThunk.rejected.match(result)) {
-        toast.error(result.payload || 'Failed to stop session');
-        throw new Error(result.payload);
-      }
-    },
-    [dispatch, currentSession, stopTimer]
-  );
-
-  const getProgress = useCallback(
-    async (taskId: string) => {
-      const result = await dispatch(getProgressThunk(taskId));
-
-      if (getProgressThunk.fulfilled.match(result)) {
-        return result.payload;
-      } else if (getProgressThunk.rejected.match(result)) {
-        toast.error(result.payload || 'Failed to get progress');
-        throw new Error(result.payload);
-      }
-    },
-    [dispatch]
-  );
-
   const clearSessionError = useCallback(() => {
     dispatch(clearError());
   }, [dispatch]);
@@ -153,14 +119,11 @@ export const useTrackingSession = () => {
   return {
     currentSession,
     activeTask,
-    progress,
     isLoading,
     error,
     currentTime,
     activateTask,
     deactivateTask,
-    stopSession,
-    getProgress,
     clearSessionError,
     clearSessionData,
     restoreSession,
