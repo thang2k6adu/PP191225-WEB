@@ -5,6 +5,7 @@ import {
   LuMicOff as MicOff,
   LuVideoOff as VideoOff,
   LuPhoneOff as PhoneOff,
+  LuListChecks as ListChecks,
 } from 'react-icons/lu';
 import { ControlButton } from '../components/ControlButton';
 import { FocusRoomState } from '../types';
@@ -14,8 +15,10 @@ interface ControlsSectionProps {
   onToggleMute: () => void;
   onToggleVideo: () => void;
   onToggleScreenShare: () => void;
+  onSelectTask: () => void;
   onLeave: () => void;
   onMoreOptions: () => void;
+  selectedTaskName?: string;
 }
 
 export const ControlsSection: React.FC<ControlsSectionProps> = ({
@@ -23,11 +26,18 @@ export const ControlsSection: React.FC<ControlsSectionProps> = ({
   onToggleMute,
   onToggleVideo,
   onToggleScreenShare,
+  onSelectTask,
   onLeave,
   onMoreOptions,
+  selectedTaskName,
 }) => {
   return (
     <div className="bg-gray-800 px-6 py-4">
+      {selectedTaskName && (
+        <p className="text-center text-xs text-gray-400 mb-2 truncate max-w-md mx-auto">
+          Đang làm: <span className="text-gray-200">{selectedTaskName}</span>
+        </p>
+      )}
       <div className="flex items-center justify-center gap-4 max-w-2xl mx-auto">
         <ControlButton
           icon={state.isMuted ? <MicOff size={24} /> : <Mic size={24} />}
@@ -62,6 +72,12 @@ export const ControlsSection: React.FC<ControlsSectionProps> = ({
           }
           onClick={onToggleScreenShare}
           ariaLabel="Share screen"
+        />
+
+        <ControlButton
+          icon={<ListChecks size={24} />}
+          onClick={onSelectTask}
+          ariaLabel="Chọn task"
         />
 
         <ControlButton

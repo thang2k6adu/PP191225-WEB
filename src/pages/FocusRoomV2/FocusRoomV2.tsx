@@ -11,6 +11,10 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 import { Helmet } from 'react-helmet-async';
 import { rtcManager } from '@/lib/rtcManager';
 import { ROUTES } from '@/constants';
+import TaskSelectionDialog from '@/components/TaskSelectionDialog';
+import { Task } from '@/types/task';
+import { syncRoomParticipantTask } from '@/lib/roomParticipantMetadata';
+import { taskService } from '@/services/taskService';
 
 const LIVEKIT_URL =
   import.meta.env.VITE_LIVEKIT_URL || 'wss://your-livekit-server.com';
@@ -31,6 +35,8 @@ const FocusRoom: React.FC = () => {
   const [uiState, setUiState] = useState({
     isScreenSharing: false,
     showSettings: false,
+    showTaskDialog: false,
+    selectedTaskName: undefined as string | undefined,
   });
 
   const controlsState: FocusRoomState = {
@@ -79,6 +85,25 @@ const FocusRoom: React.FC = () => {
     }
   }, [roomId, navigate]);
 
+  useEffect(() => {
+    if (!livekitToken) return;
+
+    taskService
+      .getActiveTask()
+      .then(response => {
+        const activeTask = response.data;
+        if (activeTask?.name) {
+          setUiState(prev => ({
+            ...prev,
+            selectedTaskName: activeTask.name,
+          }));
+        }
+      })
+      .catch(error => {
+        console.warn('[FocusRoom] Failed to load active task:', error);
+      });
+  }, [livekitToken]);
+
   const handleToggleScreenShare = () => {
     setUiState(prev => ({ ...prev, isScreenSharing: !prev.isScreenSharing }));
   };
@@ -104,6 +129,27 @@ const FocusRoom: React.FC = () => {
 
   const handleMoreOptions = () => {
     console.log('Opening more options...');
+  };
+
+  const handleSelectTask = () => {
+    setUiState(prev => ({ ...prev, showTaskDialog: true }));
+  };
+
+  const handleTaskSelected = async (task: Task) => {
+    try {
+      await syncRoomParticipantTask({
+        id: task.id,
+        name: task.name,
+        progress: task.progress,
+      });
+      setUiState(prev => ({
+        ...prev,
+        selectedTaskName: task.name,
+        showTaskDialog: false,
+      }));
+    } catch (error) {
+      console.error('[FocusRoom] Failed to sync task to LiveKit:', error);
+    }
   };
 
   const handleSettingsClick = () => {
@@ -142,8 +188,18 @@ const FocusRoom: React.FC = () => {
           onToggleMute={toggleMic}
           onToggleVideo={toggleVideo}
           onToggleScreenShare={handleToggleScreenShare}
+          onSelectTask={handleSelectTask}
           onLeave={handleLeave}
           onMoreOptions={handleMoreOptions}
+          selectedTaskName={uiState.selectedTaskName}
+        />
+
+        <TaskSelectionDialog
+          isOpen={uiState.showTaskDialog}
+          onClose={() =>
+            setUiState(prev => ({ ...prev, showTaskDialog: false }))
+          }
+          onTaskSelected={handleTaskSelected}
         />
       </div>
     </>

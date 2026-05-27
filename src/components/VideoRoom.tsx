@@ -15,7 +15,12 @@ import {
   getParticipantMediaState,
   shouldAttachVideoPublication,
 } from '@/lib/livekitMediaState';
-import { getParticipantDisplayProfile } from '@/lib/livekitParticipantProfile';
+import {
+  getParticipantDisplayProfile,
+  getParticipantTaskInfo,
+} from '@/lib/livekitParticipantProfile';
+import { syncRoomParticipantTask } from '@/lib/roomParticipantMetadata';
+import { taskService } from '@/services/taskService';
 import { ParticipantsGridSection } from '@/pages/FocusRoomV2/sections/ParticipantsGridSection';
 import { Participant } from '@/pages/FocusRoomV2/types';
 
@@ -66,6 +71,7 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
       const localProfile = getParticipantDisplayProfile(localParticipant, {
         isLocal: true,
       });
+      const localTask = getParticipantTaskInfo(localParticipant);
 
       newParticipants.push({
         id: localId,
@@ -74,13 +80,14 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
         isMuted: localMedia.isMuted,
         isVideoOff: localMedia.isVideoOff,
         isActive: true,
-        taskTitle: 'Working...',
-        progress: 0,
+        taskTitle: localTask.taskTitle,
+        progress: localTask.progress,
       });
 
       room.remoteParticipants.forEach(participant => {
         const remoteMedia = getParticipantMediaState(participant);
         const remoteProfile = getParticipantDisplayProfile(participant);
+        const remoteTask = getParticipantTaskInfo(participant);
 
         newParticipants.push({
           id: participant.identity,
@@ -89,8 +96,8 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
           isMuted: remoteMedia.isMuted,
           isVideoOff: remoteMedia.isVideoOff,
           isActive: true,
-          taskTitle: 'Working...',
-          progress: 0,
+          taskTitle: remoteTask.taskTitle,
+          progress: remoteTask.progress,
         });
       });
 
@@ -275,6 +282,40 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
     [updateParticipants]
   );
 
+  const handleParticipantMetadataChanged = useCallback(
+    (_metadata: string | undefined, participant: LiveKitParticipant) => {
+      console.log('[VideoRoom] Participant metadata changed:', {
+        identity: participant.identity,
+        metadata: participant.metadata,
+      });
+      updateParticipants();
+    },
+    [updateParticipants]
+  );
+
+  const syncActiveTaskFromBackend = useCallback(async () => {
+    try {
+      const response = await taskService.getActiveTask();
+      const activeTask = response.data;
+
+      if (!activeTask || !isMountedRef.current) {
+        return;
+      }
+
+      await syncRoomParticipantTask({
+        id: activeTask.id,
+        name: activeTask.name,
+        progress: activeTask.progress,
+      });
+
+      if (isMountedRef.current) {
+        updateParticipants();
+      }
+    } catch (error) {
+      console.warn('[VideoRoom] Failed to sync active task metadata:', error);
+    }
+  }, [updateParticipants]);
+
   const handleLocalTrackPublished = useCallback(
     (publication: LocalTrackPublication) => {
       if (publication.source === Track.Source.Camera) {
@@ -337,7 +378,11 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
       await localParticipant.setCameraEnabled(!initialVideoOff);
       await localParticipant.setMicrophoneEnabled(!initialAudioOff);
 
+      // Cái này sẽ tạo ra các container sẵn có để có thể attach video
+      // Tức bắt buộc phải update participants trước khi attach video
       updateParticipants();
+
+      await syncActiveTaskFromBackend();
 
       if (!initialVideoOff) {
         setTimeout(() => renderLocalVideo(), 100);
@@ -387,6 +432,7 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
     initialVideoOff,
     initialAudioOff,
     attachVideoToParticipant,
+    syncActiveTaskFromBackend,
     status,
   ]);
 
@@ -415,6 +461,10 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
     room.on(RoomEvent.ConnectionStateChanged, handleConnectionStateChanged);
     room.on(RoomEvent.ParticipantConnected, handleParticipantConnected);
     room.on(RoomEvent.ParticipantDisconnected, handleParticipantDisconnected);
+    room.on(
+      RoomEvent.ParticipantMetadataChanged,
+      handleParticipantMetadataChanged
+    );
 
     connectToRoom();
 
@@ -435,6 +485,10 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
         RoomEvent.ParticipantDisconnected,
         handleParticipantDisconnected
       );
+      room.off(
+        RoomEvent.ParticipantMetadataChanged,
+        handleParticipantMetadataChanged
+      );
     };
   }, [
     room,
@@ -448,6 +502,7 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
     handleConnectionStateChanged,
     handleParticipantConnected,
     handleParticipantDisconnected,
+    handleParticipantMetadataChanged,
   ]);
 
   const renderStatusOverlay = () => {

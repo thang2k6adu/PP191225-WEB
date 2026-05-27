@@ -1,30 +1,14 @@
 import { Participant as LiveKitParticipant } from 'livekit-client';
-
-export type LiveKitParticipantMetadata = {
-  avatarUrl?: string;
-};
-
-export function parseLiveKitParticipantMetadata(
-  metadata?: string
-): LiveKitParticipantMetadata {
-  if (!metadata) return {};
-
-  try {
-    const parsed = JSON.parse(metadata) as LiveKitParticipantMetadata;
-    return {
-      avatarUrl:
-        typeof parsed.avatarUrl === 'string' ? parsed.avatarUrl : undefined,
-    };
-  } catch {
-    return {};
-  }
-}
+import {
+  getParticipantTaskInfo,
+  parseRoomParticipantMetadata,
+} from '@/lib/roomParticipantMetadata';
 
 export function getParticipantDisplayProfile(
   participant: LiveKitParticipant,
   options?: { isLocal?: boolean }
 ): { name: string; avatar: string } {
-  const { avatarUrl } = parseLiveKitParticipantMetadata(participant.metadata);
+  const { avatarUrl } = parseRoomParticipantMetadata(participant.metadata);
   const fallbackName = options?.isLocal ? 'You' : 'Guest';
 
   const name = participant.name?.trim() || participant.identity || fallbackName;
@@ -34,3 +18,5 @@ export function getParticipantDisplayProfile(
 
   return { name, avatar };
 }
+
+export { getParticipantTaskInfo };

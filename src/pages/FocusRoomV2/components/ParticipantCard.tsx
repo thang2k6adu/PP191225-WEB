@@ -63,7 +63,10 @@ export const ParticipantCard: React.FC<ParticipantCardProps> = React.memo(
       prevProps.participant.id === nextProps.participant.id &&
       prevProps.participant.isVideoOff === nextProps.participant.isVideoOff &&
       prevProps.participant.isMuted === nextProps.participant.isMuted &&
-      prevProps.participant.name === nextProps.participant.name
+      prevProps.participant.name === nextProps.participant.name &&
+      prevProps.participant.avatar === nextProps.participant.avatar &&
+      prevProps.participant.taskTitle === nextProps.participant.taskTitle &&
+      prevProps.participant.progress === nextProps.participant.progress
     );
   }
 );
