@@ -3,8 +3,6 @@ import { TrackingSession, SessionsProgress } from '@/types/trackingSession';
 import { Task } from '@/types/task';
 import {
   activateTaskThunk,
-  pauseSessionThunk,
-  resumeSessionThunk,
   stopSessionThunk,
   getProgressThunk,
 } from '../thunks/trackingSessionThunks';
@@ -71,36 +69,6 @@ const trackingSessionSlice = createSlice({
       .addCase(activateTaskThunk.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload || 'Failed to activate task';
-      });
-
-    // Pause session
-    builder
-      .addCase(pauseSessionThunk.pending, state => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(pauseSessionThunk.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.currentSession = action.payload;
-      })
-      .addCase(pauseSessionThunk.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload || 'Failed to pause session';
-      });
-
-    // Resume session
-    builder
-      .addCase(resumeSessionThunk.pending, state => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(resumeSessionThunk.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.currentSession = action.payload;
-      })
-      .addCase(resumeSessionThunk.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload || 'Failed to resume session';
       });
 
     // Stop session

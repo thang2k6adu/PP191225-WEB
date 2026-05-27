@@ -19,28 +19,6 @@ export const trackingSessionService = {
   },
 
   /**
-   * Pause tracking session
-   * @param sessionId - Session ID to pause
-   */
-  pauseSession: async (sessionId: string): Promise<SessionResponse> => {
-    const response = await apiClient.post<SessionResponse>(
-      API_ENDPOINTS.TRACKING_SESSIONS.PAUSE(sessionId)
-    );
-    return response.data;
-  },
-
-  /**
-   * Resume paused tracking session
-   * @param sessionId - Session ID to resume
-   */
-  resumeSession: async (sessionId: string): Promise<SessionResponse> => {
-    const response = await apiClient.post<SessionResponse>(
-      API_ENDPOINTS.TRACKING_SESSIONS.RESUME(sessionId)
-    );
-    return response.data;
-  },
-
-  /**
    * Stop tracking session (end session)
    * @param sessionId - Session ID to stop
    */

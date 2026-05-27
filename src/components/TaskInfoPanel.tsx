@@ -14,8 +14,6 @@ const TaskInfoPanel: React.FC<TaskInfoPanelProps> = ({ onStopSession }) => {
     currentSession,
     activeTask,
     currentTime,
-    pauseSession,
-    resumeSession,
     stopSession,
     formatTime,
     isLoading,
@@ -36,22 +34,6 @@ const TaskInfoPanel: React.FC<TaskInfoPanelProps> = ({ onStopSession }) => {
     }
   };
 
-  const handlePause = async () => {
-    try {
-      await pauseSession();
-    } catch (error) {
-      console.error('Failed to pause session:', error);
-    }
-  };
-
-  const handleResume = async () => {
-    try {
-      await resumeSession();
-    } catch (error) {
-      console.error('Failed to resume session:', error);
-    }
-  };
-
   const getProgressBarColor = (progress: number) => {
     if (progress >= 100) return 'bg-green-500';
     if (progress >= 50) return 'bg-blue-500';
@@ -63,8 +45,6 @@ const TaskInfoPanel: React.FC<TaskInfoPanelProps> = ({ onStopSession }) => {
     switch (status) {
       case 'active':
         return 'text-green-600 dark:text-green-400';
-      case 'paused':
-        return 'text-yellow-600 dark:text-yellow-400';
       default:
         return 'text-gray-600 dark:text-gray-400';
     }
@@ -72,7 +52,6 @@ const TaskInfoPanel: React.FC<TaskInfoPanelProps> = ({ onStopSession }) => {
 
   return (
     <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm">
-      {/* Header */}
       <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
@@ -86,16 +65,13 @@ const TaskInfoPanel: React.FC<TaskInfoPanelProps> = ({ onStopSession }) => {
         </div>
       </div>
 
-      {/* Content */}
       <div className="p-4 space-y-4">
-        {/* Task Name */}
         <div>
           <h4 className="font-medium text-gray-900 dark:text-gray-100">
             {activeTask.name}
           </h4>
         </div>
 
-        {/* Timer */}
         <div className="text-center py-2">
           <div className="text-3xl font-mono font-bold text-gray-900 dark:text-gray-100">
             {formatTime(currentTime)}
@@ -105,7 +81,6 @@ const TaskInfoPanel: React.FC<TaskInfoPanelProps> = ({ onStopSession }) => {
           </p>
         </div>
 
-        {/* Progress */}
         <div>
           <div className="flex items-center justify-between text-sm mb-2">
             <span className="text-gray-600 dark:text-gray-400">
@@ -123,7 +98,6 @@ const TaskInfoPanel: React.FC<TaskInfoPanelProps> = ({ onStopSession }) => {
           </div>
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2">
             <div className="text-gray-600 dark:text-gray-400 text-xs">
@@ -143,54 +117,19 @@ const TaskInfoPanel: React.FC<TaskInfoPanelProps> = ({ onStopSession }) => {
           </div>
         </div>
 
-        {/* Controls */}
-        <div className="flex gap-2 pt-2">
-          {currentSession.status === 'active' && (
-            <>
-              <Button
-                variant="secondary"
-                onClick={handlePause}
-                disabled={isLoading}
-                className="flex-1"
-                size="sm"
-              >
-                ⏸ {t('tasks.pause')}
-              </Button>
-              <Button
-                variant="danger"
-                onClick={handleStop}
-                disabled={isLoading}
-                className="flex-1"
-                size="sm"
-              >
-                ⏹ {t('tasks.stop')}
-              </Button>
-            </>
-          )}
-
-          {currentSession.status === 'paused' && (
-            <>
-              <Button
-                variant="primary"
-                onClick={handleResume}
-                disabled={isLoading}
-                className="flex-1"
-                size="sm"
-              >
-                ▶ {t('tasks.resume')}
-              </Button>
-              <Button
-                variant="danger"
-                onClick={handleStop}
-                disabled={isLoading}
-                className="flex-1"
-                size="sm"
-              >
-                ⏹ {t('tasks.stop')}
-              </Button>
-            </>
-          )}
-        </div>
+        {currentSession.status === 'active' && (
+          <div className="pt-2">
+            <Button
+              variant="danger"
+              onClick={handleStop}
+              disabled={isLoading}
+              className="w-full"
+              size="sm"
+            >
+              ⏹ {t('tasks.stop')}
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

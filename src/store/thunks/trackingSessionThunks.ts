@@ -26,42 +26,6 @@ export const activateTaskThunk = createAsyncThunk<
 });
 
 /**
- * Pause tracking session
- */
-export const pauseSessionThunk = createAsyncThunk<
-  SessionResponse['data'],
-  string,
-  { rejectValue: string }
->('trackingSession/pause', async (sessionId, { rejectWithValue }) => {
-  try {
-    const response = await trackingSessionService.pauseSession(sessionId);
-    return response.data;
-  } catch (error: unknown) {
-    const message = (error as AxiosError<{ message?: string }>).response?.data
-      ?.message;
-    return rejectWithValue(message || 'Failed to pause session');
-  }
-});
-
-/**
- * Resume tracking session
- */
-export const resumeSessionThunk = createAsyncThunk<
-  SessionResponse['data'],
-  string,
-  { rejectValue: string }
->('trackingSession/resume', async (sessionId, { rejectWithValue }) => {
-  try {
-    const response = await trackingSessionService.resumeSession(sessionId);
-    return response.data;
-  } catch (error: unknown) {
-    const message = (error as AxiosError<{ message?: string }>).response?.data
-      ?.message;
-    return rejectWithValue(message || 'Failed to resume session');
-  }
-});
-
-/**
  * Stop tracking session
  */
 export const stopSessionThunk = createAsyncThunk<

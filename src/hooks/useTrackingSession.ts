@@ -2,8 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   activateTaskThunk,
-  pauseSessionThunk,
-  resumeSessionThunk,
   stopSessionThunk,
   getProgressThunk,
 } from '@/store/thunks/trackingSessionThunks';
@@ -18,9 +16,6 @@ export const useTrackingSession = () => {
   const [currentTime, setCurrentTime] = useState(0);
   const timerRef = useRef<number | null>(null);
 
-  // (moved below) Timer effect will reference memoized callbacks
-
-  // Start timer from given start time
   const stopTimer = useCallback(() => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
@@ -46,7 +41,6 @@ export const useTrackingSession = () => {
     [stopTimer]
   );
 
-  // Timer effect - runs when session is active
   useEffect(() => {
     if (currentSession?.status === 'active' && currentSession.startTime) {
       startTimer(currentSession.startTime);
@@ -62,10 +56,6 @@ export const useTrackingSession = () => {
     stopTimer,
   ]);
 
-  // Stop timer
-  // (moved above) stopTimer is now a memoized callback
-
-  // Activate task and start tracking
   const activateTask = useCallback(
     async (taskId: string) => {
       const result = await dispatch(activateTaskThunk(taskId));
@@ -81,37 +71,6 @@ export const useTrackingSession = () => {
     [dispatch]
   );
 
-  // Pause session
-  const pauseSession = useCallback(async () => {
-    if (!currentSession) return;
-
-    const result = await dispatch(pauseSessionThunk(currentSession.id));
-
-    if (pauseSessionThunk.fulfilled.match(result)) {
-      toast.success('Session paused');
-      return result.payload;
-    } else if (pauseSessionThunk.rejected.match(result)) {
-      toast.error(result.payload || 'Failed to pause session');
-      throw new Error(result.payload);
-    }
-  }, [dispatch, currentSession]);
-
-  // Resume session
-  const resumeSession = useCallback(async () => {
-    if (!currentSession) return;
-
-    const result = await dispatch(resumeSessionThunk(currentSession.id));
-
-    if (resumeSessionThunk.fulfilled.match(result)) {
-      toast.success('Session resumed');
-      return result.payload;
-    } else if (resumeSessionThunk.rejected.match(result)) {
-      toast.error(result.payload || 'Failed to resume session');
-      throw new Error(result.payload);
-    }
-  }, [dispatch, currentSession]);
-
-  // Stop session
   const stopSession = useCallback(async () => {
     if (!currentSession) return;
 
@@ -125,9 +84,8 @@ export const useTrackingSession = () => {
       toast.error(result.payload || 'Failed to stop session');
       throw new Error(result.payload);
     }
-  }, [dispatch, currentSession]);
+  }, [dispatch, currentSession, stopTimer]);
 
-  // Get progress
   const getProgress = useCallback(
     async (taskId: string) => {
       const result = await dispatch(getProgressThunk(taskId));
@@ -142,18 +100,15 @@ export const useTrackingSession = () => {
     [dispatch]
   );
 
-  // Clear error
   const clearSessionError = useCallback(() => {
     dispatch(clearError());
   }, [dispatch]);
 
-  // Clear session data
   const clearSessionData = useCallback(() => {
     dispatch(clearSession());
     stopTimer();
-  }, [dispatch]);
+  }, [dispatch, stopTimer]);
 
-  // Format time (HH:MM:SS)
   const formatTime = useCallback((seconds: number) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
@@ -161,43 +116,32 @@ export const useTrackingSession = () => {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   }, []);
 
-  // Restore session from localStorage (for page refresh)
   const restoreSession = useCallback(async () => {
     const sessionId = localStorage.getItem('activeSessionId');
     const startTime = localStorage.getItem('sessionStartTime');
 
     if (sessionId && startTime) {
-      // Calculate elapsed time
       const elapsed = Math.floor(
         (Date.now() - new Date(startTime).getTime()) / 1000
       );
       setCurrentTime(elapsed);
-
-      // Start timer with original start time
       startTimer(startTime);
     }
   }, [startTimer]);
 
   return {
-    // State
     currentSession,
     activeTask,
     progress,
     isLoading,
     error,
     currentTime,
-
-    // Actions
     activateTask,
-    pauseSession,
-    resumeSession,
     stopSession,
     getProgress,
     clearSessionError,
     clearSessionData,
     restoreSession,
-
-    // Utils
     formatTime,
   };
 };

@@ -64,8 +64,6 @@ export const API_ENDPOINTS = {
   },
   TRACKING_SESSIONS: {
     ACTIVATE: (taskId: string) => `/tasks/${taskId}/activate`,
-    PAUSE: (sessionId: string) => `/tracking-sessions/${sessionId}/pause`,
-    RESUME: (sessionId: string) => `/tracking-sessions/${sessionId}/resume`,
     STOP: (sessionId: string) => `/tracking-sessions/${sessionId}/stop`,
     PROGRESS: '/tracking-sessions/progress',
   },

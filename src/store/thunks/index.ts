@@ -14,8 +14,6 @@ export {
 
 export {
   activateTaskThunk as activateSessionTaskThunk,
-  pauseSessionThunk,
-  resumeSessionThunk,
   stopSessionThunk,
   getProgressThunk,
 } from './trackingSessionThunks';
