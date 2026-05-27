@@ -1,3 +1,5 @@
+import { TrackingSession } from './trackingSession';
+
 export type TaskStatus = 'PLANNED' | 'ACTIVE' | 'DONE';
 
 export interface Task {
@@ -77,19 +79,11 @@ export interface DeactivateTaskResponse {
   message: string;
   data: {
     task: Task;
-    session: {
-      id: string;
-      taskId: string;
-      userId: string;
-      startTime: string;
-      endTime: string | null;
-      duration: number;
-      status: string;
-      expEarned: number;
-      progress?: number;
-      createdAt: string;
-      updatedAt: string;
-    } | null;
+    session:
+      | (TrackingSession & {
+          progress?: number;
+        })
+      | null;
   };
   traceId: string;
 }
