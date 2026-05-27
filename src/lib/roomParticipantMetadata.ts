@@ -8,7 +8,9 @@ export type RoomParticipantMetadata = {
   avatarUrl?: string;
   selectedTaskId?: string;
   selectedTaskTitle?: string;
-  selectedTaskProgress?: number;
+  selectedTaskProgress?: number; // base progress (%) tại lúc bắt đầu session
+  selectedTaskEstimateSeconds?: number; // estimateHours * 3600
+  selectedTaskSessionStartTime?: string; // ISO string — lúc bắt đầu session hiện tại
 };
 
 const DEFAULT_TASK_TITLE = 'Chưa chọn task';
@@ -35,6 +37,14 @@ export function parseRoomParticipantMetadata(
         typeof parsed.selectedTaskProgress === 'number'
           ? parsed.selectedTaskProgress
           : undefined,
+      selectedTaskEstimateSeconds:
+        typeof parsed.selectedTaskEstimateSeconds === 'number'
+          ? parsed.selectedTaskEstimateSeconds
+          : undefined,
+      selectedTaskSessionStartTime:
+        typeof parsed.selectedTaskSessionStartTime === 'string'
+          ? parsed.selectedTaskSessionStartTime
+          : undefined,
     };
   } catch {
     return {};
@@ -51,17 +61,58 @@ export function mergeRoomParticipantMetadata(
   });
 }
 
+export function computeLiveTaskProgress(
+  baseProgress: number,
+  estimateSeconds?: number,
+  sessionStartTime?: string,
+  now = Date.now()
+): number {
+  if (!sessionStartTime || !estimateSeconds || estimateSeconds <= 0) {
+    return baseProgress;
+  }
+
+  const elapsedSeconds = (now - new Date(sessionStartTime).getTime()) / 1000;
+
+  return Math.min(baseProgress + (elapsedSeconds / estimateSeconds) * 100, 100);
+}
+
+export function getParticipantTaskFields(participant: LiveKitParticipant): {
+  taskTitle?: string;
+  taskId?: string;
+  taskProgress?: number;
+  taskEstimateSeconds?: number;
+  taskSessionStartTime?: string;
+} {
+  const meta = parseRoomParticipantMetadata(participant.metadata);
+
+  if (!meta.selectedTaskId) {
+    return {};
+  }
+
+  return {
+    taskTitle: meta.selectedTaskTitle || DEFAULT_TASK_TITLE,
+    taskId: meta.selectedTaskId,
+    taskProgress: meta.selectedTaskProgress ?? 0,
+    taskEstimateSeconds: meta.selectedTaskEstimateSeconds,
+    taskSessionStartTime: meta.selectedTaskSessionStartTime,
+  };
+}
+
 export function getParticipantTaskInfo(participant: LiveKitParticipant): {
   taskTitle: string;
   taskId?: string;
   progress: number;
 } {
-  const meta = parseRoomParticipantMetadata(participant.metadata);
+  const fields = getParticipantTaskFields(participant);
 
   return {
-    taskTitle: meta.selectedTaskTitle || DEFAULT_TASK_TITLE,
-    taskId: meta.selectedTaskId,
-    progress: meta.selectedTaskProgress ?? 0,
+    taskTitle: fields.taskTitle || DEFAULT_TASK_TITLE,
+    taskId: fields.taskId,
+    progress: computeLiveTaskProgress(
+      fields.taskProgress ?? 0,
+      fields.taskEstimateSeconds,
+      fields.taskSessionStartTime
+    ),
   };
 }
 
@@ -84,6 +135,8 @@ export type RoomTaskSelection = {
   id: string;
   name: string;
   progress?: number;
+  estimateSeconds?: number;
+  sessionStartTime?: string;
 };
 
 export async function syncRoomParticipantTask(
@@ -104,6 +157,8 @@ export async function syncRoomParticipantTask(
       selectedTaskId: task.id,
       selectedTaskTitle: task.name,
       selectedTaskProgress: task.progress ?? 0,
+      selectedTaskEstimateSeconds: task.estimateSeconds,
+      selectedTaskSessionStartTime: task.sessionStartTime,
     }
   );
 

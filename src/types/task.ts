@@ -53,11 +53,15 @@ export interface TaskResponse {
   traceId: string;
 }
 
+export interface ActiveTask extends Task {
+  currentSessionStartTime: string | null;
+}
+
 export interface ActiveTaskResponse {
   error: boolean;
   code: number;
   message: string;
-  data: Task | null;
+  data: ActiveTask | null;
   traceId: string;
 }
 

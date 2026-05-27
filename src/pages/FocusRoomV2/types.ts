@@ -8,7 +8,10 @@ export interface Participant {
   isVideoOff?: boolean;
   isActive?: boolean;
   taskTitle?: string;
-  progress?: number;
+  taskId?: string;
+  taskProgress?: number;
+  taskEstimateSeconds?: number;
+  taskSessionStartTime?: string;
 }
 
 export interface ControlButtonProps {

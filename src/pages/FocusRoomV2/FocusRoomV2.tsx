@@ -13,21 +13,18 @@ import { Helmet } from 'react-helmet-async';
 import { rtcManager } from '@/lib/rtcManager';
 import { ROUTES } from '@/constants';
 import TaskSelectionDialog from '@/components/TaskSelectionDialog';
-import { Task } from '@/types/task';
+import { ActivateTaskResponse } from '@/types/trackingSession';
 import {
   syncRoomParticipantTask,
   clearRoomParticipantTask,
 } from '@/lib/roomParticipantMetadata';
 import { taskService } from '@/services/taskService';
-import { useAppDispatch } from '@/store/hooks';
-import { fetchActiveTaskThunk } from '@/store/thunks/taskThunks';
 
 const LIVEKIT_URL =
   import.meta.env.VITE_LIVEKIT_URL || 'wss://your-livekit-server.com';
 
 const FocusRoom: React.FC = () => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
   const params = useParams<{ roomId: string }>();
   const { currentRoom, fetchRoomDetail, joinRoom, leaveRoom } = useRooms();
   const { matchData } = useMatchmaking();
@@ -150,12 +147,15 @@ const FocusRoom: React.FC = () => {
     setUiState(prev => ({ ...prev, showTaskDialog: true }));
   };
 
-  const handleTaskSelected = async (task: Task) => {
+  const handleTaskSelected = async (result: ActivateTaskResponse['data']) => {
+    const { task, session } = result;
     try {
       await syncRoomParticipantTask({
         id: task.id,
         name: task.name,
         progress: task.progress,
+        estimateSeconds: task.estimateHours * 3600,
+        sessionStartTime: session.startTime,
       });
       setUiState(prev => ({
         ...prev,
@@ -174,7 +174,6 @@ const FocusRoom: React.FC = () => {
     try {
       await deactivateTask(uiState.selectedTaskId);
       await clearRoomParticipantTask();
-      await dispatch(fetchActiveTaskThunk());
 
       setUiState(prev => ({
         ...prev,

@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Task } from '@/types/task';
 import { useTasks } from '@/hooks/useTasks';
 import { useTrackingSession } from '@/hooks/useTrackingSession';
 import Modal from './Modal';
 import Button from './Button';
 import LoadingSpinner from './LoadingSpinner';
+import { ActivateTaskResponse } from '@/types/trackingSession';
 
 interface TaskSelectionDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onTaskSelected: (task: Task) => void;
+  onTaskSelected: (result: ActivateTaskResponse['data']) => void;
 }
 
 const TaskSelectionDialog: React.FC<TaskSelectionDialogProps> = ({
@@ -34,10 +34,9 @@ const TaskSelectionDialog: React.FC<TaskSelectionDialogProps> = ({
 
     try {
       const result = await activateTask(selectedTaskId);
-      const selectedTask = tasks.find(t => t.id === selectedTaskId);
 
-      if (selectedTask && result) {
-        onTaskSelected(selectedTask);
+      if (result) {
+        onTaskSelected(result);
         onClose();
       }
     } catch (error) {

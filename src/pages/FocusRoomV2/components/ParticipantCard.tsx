@@ -1,5 +1,6 @@
 import React from 'react';
 import { Participant } from '../types';
+import { TaskLiveProgressBar } from './TaskLiveProgressBar';
 
 interface ParticipantCardProps {
   participant: Participant;
@@ -39,19 +40,18 @@ export const ParticipantCard: React.FC<ParticipantCardProps> = React.memo(
             {participant.name}
           </div>
 
-          {participant.taskTitle && (
+          {participant.taskId && participant.taskTitle && (
             <div className="text-[10px] text-gray-300 truncate">
               {participant.taskTitle}
             </div>
           )}
 
-          {typeof participant.progress === 'number' && (
-            <div className="mt-1 h-1 w-full bg-gray-700 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-green-500 transition-all"
-                style={{ width: `${participant.progress}%` }}
-              />
-            </div>
+          {participant.taskId && (
+            <TaskLiveProgressBar
+              baseProgress={participant.taskProgress}
+              estimateSeconds={participant.taskEstimateSeconds}
+              sessionStartTime={participant.taskSessionStartTime}
+            />
           )}
         </div>
       </div>
@@ -66,7 +66,13 @@ export const ParticipantCard: React.FC<ParticipantCardProps> = React.memo(
       prevProps.participant.name === nextProps.participant.name &&
       prevProps.participant.avatar === nextProps.participant.avatar &&
       prevProps.participant.taskTitle === nextProps.participant.taskTitle &&
-      prevProps.participant.progress === nextProps.participant.progress
+      prevProps.participant.taskId === nextProps.participant.taskId &&
+      prevProps.participant.taskProgress ===
+        nextProps.participant.taskProgress &&
+      prevProps.participant.taskEstimateSeconds ===
+        nextProps.participant.taskEstimateSeconds &&
+      prevProps.participant.taskSessionStartTime ===
+        nextProps.participant.taskSessionStartTime
     );
   }
 );

@@ -17,7 +17,7 @@ import {
 } from '@/lib/livekitMediaState';
 import {
   getParticipantDisplayProfile,
-  getParticipantTaskInfo,
+  getParticipantTaskFields,
   syncRoomParticipantTask,
 } from '@/lib/roomParticipantMetadata';
 import { taskService } from '@/services/taskService';
@@ -71,7 +71,7 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
       const localProfile = getParticipantDisplayProfile(localParticipant, {
         isLocal: true,
       });
-      const localTask = getParticipantTaskInfo(localParticipant);
+      const localTask = getParticipantTaskFields(localParticipant);
 
       newParticipants.push({
         id: localId,
@@ -80,14 +80,13 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
         isMuted: localMedia.isMuted,
         isVideoOff: localMedia.isVideoOff,
         isActive: true,
-        taskTitle: localTask.taskTitle,
-        progress: localTask.progress,
+        ...localTask,
       });
 
       room.remoteParticipants.forEach(participant => {
         const remoteMedia = getParticipantMediaState(participant);
         const remoteProfile = getParticipantDisplayProfile(participant);
-        const remoteTask = getParticipantTaskInfo(participant);
+        const remoteTask = getParticipantTaskFields(participant);
 
         newParticipants.push({
           id: participant.identity,
@@ -96,8 +95,7 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
           isMuted: remoteMedia.isMuted,
           isVideoOff: remoteMedia.isVideoOff,
           isActive: true,
-          taskTitle: remoteTask.taskTitle,
-          progress: remoteTask.progress,
+          ...remoteTask,
         });
       });
 
@@ -306,6 +304,8 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
         id: activeTask.id,
         name: activeTask.name,
         progress: activeTask.progress,
+        estimateSeconds: activeTask.estimateHours * 3600,
+        sessionStartTime: activeTask.currentSessionStartTime ?? undefined,
       });
 
       if (isMountedRef.current) {
