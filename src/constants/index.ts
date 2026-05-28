@@ -35,11 +35,8 @@ export const USER_ROLES = {
 
 export const API_ENDPOINTS = {
   AUTH: {
-    LOGIN: '/auth/login',
-    SIGNUP: '/auth/signup',
     LOGOUT: '/auth/logout',
     REFRESH: '/auth/refresh',
-    FORGOT_PASSWORD: '/auth/forgot-password',
     RESET_PASSWORD: '/auth/reset-password',
     FIREBASE_LOGIN: '/auth/firebase/login',
     FIREBASE_REFRESH: '/auth/refresh',

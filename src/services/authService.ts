@@ -1,8 +1,5 @@
 import apiClient from '@/utils/api';
 import {
-  LoginCredentials,
-  SignUpCredentials,
-  AuthResponse,
   FirebaseLoginRequest,
   FirebaseLoginResponse,
   RefreshTokenRequest,
@@ -11,22 +8,6 @@ import {
 import { API_ENDPOINTS } from '@/constants';
 
 export const authService = {
-  login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
-    const response = await apiClient.post<AuthResponse>(
-      API_ENDPOINTS.AUTH.LOGIN,
-      credentials
-    );
-    return response.data;
-  },
-
-  signUp: async (credentials: SignUpCredentials): Promise<AuthResponse> => {
-    const response = await apiClient.post<AuthResponse>(
-      API_ENDPOINTS.AUTH.SIGNUP,
-      credentials
-    );
-    return response.data;
-  },
-
   logout: async (): Promise<void> => {
     await apiClient.post(API_ENDPOINTS.AUTH.LOGOUT);
   },
