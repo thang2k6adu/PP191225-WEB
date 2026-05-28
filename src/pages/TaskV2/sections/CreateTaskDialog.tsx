@@ -33,6 +33,17 @@ export function CreateTaskDialog({
   hideTrigger = false,
   onSuccess,
 }: CreateTaskDialogProps) {
+  const toEstimateHoursInput = (value: unknown): string => {
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      return String(value);
+    }
+    if (typeof value === 'string' && value.trim() !== '') {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? String(parsed) : '';
+    }
+    return '';
+  };
+
   const [internalOpen, setInternalOpen] = React.useState(false);
   const [name, setName] = React.useState('');
   const [estimateHours, setEstimateHours] = React.useState('');
@@ -79,9 +90,7 @@ export function CreateTaskDialog({
 
     if (mode === 'edit' && task) {
       setName(task.name || '');
-      setEstimateHours(
-        Number.isFinite(task.estimateHours) ? String(task.estimateHours) : ''
-      );
+      setEstimateHours(toEstimateHoursInput(task.estimateHours));
       setDate(task.deadline ? new Date(task.deadline) : undefined);
       return;
     }

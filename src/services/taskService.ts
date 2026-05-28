@@ -51,7 +51,7 @@ export const taskService = {
     id: string,
     data: UpdateTaskData
   ): Promise<TaskResponse> => {
-    const response = await apiClient.put<TaskResponse>(
+    const response = await apiClient.patch<TaskResponse>(
       API_ENDPOINTS.TASKS.UPDATE(id),
       data
     );

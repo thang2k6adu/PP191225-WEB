@@ -199,7 +199,7 @@ export function LoginFormSection() {
                 onClick={() => handleProviderClick(provider.id)}
                 aria-label={provider.label}
                 disabled={authLoading || !!socialLoading}
-                className="flex items-center justify-center w-12 h-12 bg-[#5B3EE5] hover:bg-opacity-90 disabled:opacity-70 transition-opacity rounded-full shadow-md text-white"
+                className="flex items-center justify-center w-12 h-12 bg-[#5B3EE5] hover:bg-opacity-90 disabled:opacity-70 transition-opacity rounded-full text-white"
               >
                 <div className="scale-90 flex items-center justify-center">
                   {socialLoading === provider.id ? (
