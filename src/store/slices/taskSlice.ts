@@ -63,7 +63,7 @@ const taskSlice = createSlice({
       state.page = action.payload;
     },
     updateRemainingTime: (state, action: PayloadAction<number>) => {
-      // Cập nhật remainingTime cho active task
+      // Update remainingTime for the active task
       if (state.activeTask) {
         state.activeTask.remainingTime = action.payload;
         const index = state.tasks.findIndex(t => t.id === state.activeTask!.id);

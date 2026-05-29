@@ -378,8 +378,8 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
       await localParticipant.setCameraEnabled(!initialVideoOff);
       await localParticipant.setMicrophoneEnabled(!initialAudioOff);
 
-      // Cái này sẽ tạo ra các container sẵn có để có thể attach video
-      // Tức bắt buộc phải update participants trước khi attach video
+      // This creates participant containers so video can be attached safely.
+      // We must update participants before attaching video tracks.
       updateParticipants();
 
       await syncActiveTaskFromBackend();

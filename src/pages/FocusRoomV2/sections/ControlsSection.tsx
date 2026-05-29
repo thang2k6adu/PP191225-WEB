@@ -40,7 +40,7 @@ export const ControlsSection: React.FC<ControlsSectionProps> = ({
     <div className="bg-gray-800 px-6 py-4">
       {selectedTaskName && (
         <p className="text-center text-xs text-gray-400 mb-2 truncate max-w-md mx-auto">
-          Đang làm: <span className="text-gray-200">{selectedTaskName}</span>
+          Working on: <span className="text-gray-200">{selectedTaskName}</span>
         </p>
       )}
       <div className="flex items-center justify-center gap-4 max-w-2xl mx-auto">
@@ -82,7 +82,7 @@ export const ControlsSection: React.FC<ControlsSectionProps> = ({
         <ControlButton
           icon={<ListChecks size={24} />}
           onClick={onSelectTask}
-          ariaLabel="Chọn task"
+          ariaLabel="Select task"
         />
 
         {selectedTaskName && onStopTask && (
@@ -90,7 +90,7 @@ export const ControlsSection: React.FC<ControlsSectionProps> = ({
             icon={<Square size={24} />}
             onClick={onStopTask}
             variant="danger"
-            ariaLabel="Dừng task"
+            ariaLabel="Stop task"
             disabled={isStoppingTask}
           />
         )}

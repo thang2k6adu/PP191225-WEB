@@ -60,7 +60,7 @@ export function IllustrationSection() {
                       ? 'w-6 bg-gray-600'
                       : 'w-2 bg-gray-300 hover:bg-gray-400'
                   }`}
-                  aria-label={`Đi tới trang ${index + 1}`}
+                  aria-label={`Go to slide ${index + 1}`}
                 />
               ))}
             </div>

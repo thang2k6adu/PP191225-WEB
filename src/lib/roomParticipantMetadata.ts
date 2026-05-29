@@ -8,12 +8,12 @@ export type RoomParticipantMetadata = {
   avatarUrl?: string;
   selectedTaskId?: string;
   selectedTaskTitle?: string;
-  selectedTaskProgress?: number; // base progress (%) tại lúc bắt đầu session
+  selectedTaskProgress?: number; // base progress (%) at session start
   selectedTaskEstimateSeconds?: number; // estimateHours * 3600
-  selectedTaskSessionStartTime?: string; // ISO string — lúc bắt đầu session hiện tại
+  selectedTaskSessionStartTime?: string; // ISO string - current session start
 };
 
-const DEFAULT_TASK_TITLE = 'Chưa chọn task';
+const DEFAULT_TASK_TITLE = 'No task selected';
 
 export function parseRoomParticipantMetadata(
   metadata?: string

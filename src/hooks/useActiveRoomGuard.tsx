@@ -78,7 +78,7 @@ export function useActiveRoomGuard() {
           targetRoomId,
         });
       } catch {
-        toast.error('Không thể kiểm tra room hiện tại');
+        toast.error('Unable to check the current room');
       }
     },
     [performJoinRoom, openConflictDialog]
@@ -99,7 +99,7 @@ export function useActiveRoomGuard() {
 
       openConflictDialog(current.room, { kind: 'match' });
     } catch {
-      toast.error('Không thể kiểm tra room hiện tại');
+      toast.error('Unable to check the current room');
     }
   }, [joinMatchmaking, openConflictDialog]);
 

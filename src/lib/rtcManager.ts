@@ -1,6 +1,6 @@
 import { Room, RoomEvent, ConnectionState } from 'livekit-client';
 
-// Singleton room manager - Senior coi connection như connection pool
+// Singleton room manager - treat connection as a connection pool
 class RTCManager {
   private room: Room | null = null;
   private currentRoomName: string | null = null;
@@ -71,7 +71,7 @@ class RTCManager {
     console.log('[RTC] Marked for manual leave');
   }
 
-  // Disconnect chỉ khi LEAVE room, không phải unmount UI
+  // Disconnect only when leaving room, not when UI unmounts
   disconnect(): void {
     if (!this.room) return;
 

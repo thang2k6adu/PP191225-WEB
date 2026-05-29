@@ -38,13 +38,11 @@ export function ActiveRoomConflictDialog({
   onLeaveAndProceed,
   onCancel,
 }: ActiveRoomConflictDialogProps) {
-  const roomName = activeRoom
-    ? getRoomDisplayName(activeRoom)
-    : 'room hiện tại';
+  const roomName = activeRoom ? getRoomDisplayName(activeRoom) : 'current room';
   const proceedLabel =
     pendingAction === 'match'
-      ? 'Rời room và bắt đầu match'
-      : 'Rời room và vào room mới';
+      ? 'Leave room and start matching'
+      : 'Leave room and join a new room';
 
   return (
     <Dialog
@@ -57,13 +55,13 @@ export function ActiveRoomConflictDialog({
     >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Bạn đang trong một room</DialogTitle>
+          <DialogTitle>You are currently in a room</DialogTitle>
           <DialogDescription>
-            Bạn đang trong room &quot;{roomName}&quot;. Bạn muốn quay lại room
-            này hay rời room để{' '}
+            You are in room &quot;{roomName}&quot;. Do you want to return to
+            this room or leave to{' '}
             {pendingAction === 'match'
-              ? 'bắt đầu match mới'
-              : 'vào room bạn chọn'}
+              ? 'start a new match'
+              : 'join your selected room'}
             ?
           </DialogDescription>
         </DialogHeader>
@@ -76,7 +74,7 @@ export function ActiveRoomConflictDialog({
             disabled={isBusy || !activeRoom}
           >
             {isBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-            Quay lại room hiện tại
+            Return to current room
           </Button>
           <Button
             type="button"
@@ -95,7 +93,7 @@ export function ActiveRoomConflictDialog({
             onClick={onCancel}
             disabled={isBusy}
           >
-            Hủy
+            Cancel
           </Button>
         </DialogFooter>
       </DialogContent>
