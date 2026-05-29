@@ -1,84 +1,108 @@
+import toast from 'react-hot-toast';
+import type { Socket } from 'socket.io-client';
+
+import { store } from '@/store';
+import {
+  joinedRoom,
+  opponentDisconnected,
+  opponentLeft,
+  reset,
+  setMatchData,
+} from '@/store/slices/matchmakingSlice';
+import type {
+  MatchData,
+  MatchFoundEvent,
+  RoomJoinedEvent,
+} from '@/types/matchmaking';
+
 import type { SocketModule } from './types';
 
-export type MatchmakingSocketHandlers = {
-  onConnect?: (data: unknown) => void;
-  onConnected?: (data: unknown) => void;
-  onError?: (data: unknown) => void;
-  onMatchFound?: (data: unknown) => void;
-  onOpponentDisconnected?: (data: unknown) => void;
-  onOpponentLeft?: (data: unknown) => void;
-  onRoomJoined?: (data: unknown) => void;
-  onRoomLeft?: (data: unknown) => void;
-  onDisconnect?: () => void;
-};
+function normalizeMatchFound(
+  raw: MatchFoundEvent,
+  currentUserId: string | undefined
+): MatchData {
+  const matchedUsers = raw.matchedUsers ?? [];
+  const opponentId =
+    raw.opponentId ?? matchedUsers.find(id => id !== currentUserId) ?? '';
 
-let handlers: MatchmakingSocketHandlers = {};
+  return {
+    roomId: raw.roomId,
+    opponentId,
+    opponentName: raw.opponentName ?? 'Partner',
+    livekitRoomName: raw.livekitRoomName,
+    token: raw.token,
+    wsUrl: raw.wsUrl,
+  };
+}
 
-export function setMatchmakingSocketHandlers(
-  next: MatchmakingSocketHandlers
-): void {
-  handlers = next;
+function handleMatchFound(socket: Socket, data: unknown): void {
+  const matchEvent = data as MatchFoundEvent;
+  const currentUserId = store.getState().auth.user?.id;
+  const matchData = normalizeMatchFound(matchEvent, currentUserId);
+
+  store.dispatch(setMatchData(matchData));
+  toast.success(`Match found! Opponent: ${matchData.opponentName}`);
+  socket.emit('join_room', { roomId: matchData.roomId });
+}
+
+function handleRoomJoined(data: unknown): void {
+  const roomEvent = data as RoomJoinedEvent;
+  store.dispatch(
+    joinedRoom({
+      roomId: roomEvent.roomId,
+      players: [],
+      createdAt: new Date().toISOString(),
+    })
+  );
+}
+
+function handleOpponentDisconnected(): void {
+  store.dispatch(opponentDisconnected());
+  toast.error('Your opponent has disconnected');
+}
+
+function handleOpponentLeft(): void {
+  store.dispatch(opponentLeft());
+  toast.error('Your opponent has left the room');
+}
+
+function handleSocketDisconnect(): void {
+  store.dispatch(reset());
+  toast.error('Disconnected from server');
+}
+
+function handleSocketError(error: unknown): void {
+  if (error instanceof Error) {
+    toast.error(error.message);
+  } else {
+    toast.error('An error occurred');
+  }
 }
 
 export const matchmakingModule: SocketModule = {
   id: 'matchmaking',
   register(socket) {
-    const onConnect = () => {
-      handlers.onConnect?.({ socketId: socket.id });
-    };
+    const onMatchFound = (data: unknown) => handleMatchFound(socket, data);
+    const onOpponentDisconnected = () => handleOpponentDisconnected();
+    const onOpponentLeft = () => handleOpponentLeft();
+    const onRoomJoined = (data: unknown) => handleRoomJoined(data);
+    const onDisconnect = () => handleSocketDisconnect();
+    const onError = (error: unknown) => handleSocketError(error);
 
-    const onConnected = (data: unknown) => {
-      handlers.onConnected?.(data);
-    };
-
-    const onError = (error: unknown) => {
-      handlers.onError?.(error);
-    };
-
-    const onMatchFound = (data: unknown) => {
-      handlers.onMatchFound?.(data);
-    };
-
-    const onOpponentDisconnected = (data: unknown) => {
-      handlers.onOpponentDisconnected?.(data);
-    };
-
-    const onOpponentLeft = (data: unknown) => {
-      handlers.onOpponentLeft?.(data);
-    };
-
-    const onRoomJoined = (data: unknown) => {
-      handlers.onRoomJoined?.(data);
-    };
-
-    const onRoomLeft = (data: unknown) => {
-      handlers.onRoomLeft?.(data);
-    };
-
-    const onDisconnect = () => {
-      handlers.onDisconnect?.();
-    };
-
-    socket.on('connect', onConnect);
-    socket.on('connected', onConnected);
-    socket.on('error', onError);
     socket.on('match_found', onMatchFound);
     socket.on('opponent_disconnected', onOpponentDisconnected);
     socket.on('opponent_left', onOpponentLeft);
     socket.on('room_joined', onRoomJoined);
-    socket.on('room_left', onRoomLeft);
     socket.on('disconnect', onDisconnect);
+    socket.on('error', onError);
 
     return () => {
-      socket.off('connect', onConnect);
-      socket.off('connected', onConnected);
-      socket.off('error', onError);
       socket.off('match_found', onMatchFound);
       socket.off('opponent_disconnected', onOpponentDisconnected);
       socket.off('opponent_left', onOpponentLeft);
       socket.off('room_joined', onRoomJoined);
-      socket.off('room_left', onRoomLeft);
       socket.off('disconnect', onDisconnect);
+      socket.off('error', onError);
     };
   },
 };

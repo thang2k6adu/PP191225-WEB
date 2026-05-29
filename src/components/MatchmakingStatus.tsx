@@ -1,24 +1,23 @@
 import React from 'react';
 import { UserState } from '@/types/matchmaking';
+import type { SocketConnectionStatus } from '@/socket';
 import { cn } from '@/utils/helpers';
 
 interface MatchmakingStatusProps {
   state: UserState;
-  isConnected: boolean;
-  isConnecting: boolean;
+  socketStatus: SocketConnectionStatus;
   opponentName?: string;
   className?: string;
 }
 
 export const MatchmakingStatus: React.FC<MatchmakingStatusProps> = ({
   state,
-  isConnected,
-  isConnecting,
+  socketStatus,
   opponentName,
   className,
 }) => {
   const getStatusInfo = () => {
-    if (isConnecting) {
+    if (socketStatus === 'connecting') {
       return {
         text: 'Connecting to server...',
         bgColor: 'bg-yellow-100 dark:bg-yellow-900',
@@ -27,7 +26,7 @@ export const MatchmakingStatus: React.FC<MatchmakingStatusProps> = ({
       };
     }
 
-    if (!isConnected) {
+    if (socketStatus !== 'connected') {
       return {
         text: 'Disconnected',
         bgColor: 'bg-red-100 dark:bg-red-900',
@@ -50,6 +49,13 @@ export const MatchmakingStatus: React.FC<MatchmakingStatusProps> = ({
           bgColor: 'bg-blue-100 dark:bg-blue-900',
           textColor: 'text-blue-800 dark:text-blue-200',
           icon: '🔍',
+        };
+      case UserState.MATCHED:
+        return {
+          text: 'Match found — joining room...',
+          bgColor: 'bg-emerald-100 dark:bg-emerald-900',
+          textColor: 'text-emerald-800 dark:text-emerald-200',
+          icon: '✨',
         };
       case UserState.IN_ROOM:
         return {

@@ -1,55 +1,28 @@
 import { Suspense, useEffect } from 'react';
 import { useRoutes } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import { useDispatch } from 'react-redux';
 import LoadingSpinner from './components/LoadingSpinner';
 import { useTheme } from './hooks/useTheme';
 import { useAuth } from './hooks/useAuth';
-import { useMatchmaking } from './hooks/useMatchmaking';
 import { useSocketConnection } from './hooks/useSocketConnection';
-import { matchmakingService } from './services/matchmakingService';
+import { reset } from './store/slices/matchmakingSlice';
 import { routes } from './routes';
-import { useRef } from 'react';
+import type { AppDispatch } from './store';
 
 function App() {
   const { theme } = useTheme();
   const { isAuthenticated } = useAuth();
+  const dispatch = useDispatch<AppDispatch>();
   useSocketConnection();
-  const { connect, disconnect, isConnected, isConnecting } = useMatchmaking();
   const element = useRoutes(routes);
-  const hasTriedRef = useRef(false);
-
-  useEffect(() => {
-    if (
-      !isAuthenticated ||
-      isConnected ||
-      isConnecting ||
-      matchmakingService.hasSocket() ||
-      hasTriedRef.current
-    ) {
-      return;
-    }
-
-    hasTriedRef.current = true;
-
-    connect().catch(error => {
-      console.error('[App] Failed to connect matchmaking socket:', error);
-    });
-  }, [isAuthenticated, isConnected, isConnecting, connect]);
 
   useEffect(() => {
     if (isAuthenticated) {
       return;
     }
-
-    hasTriedRef.current = false;
-    disconnect();
-  }, [isAuthenticated, disconnect]);
-
-  useEffect(() => {
-    return () => {
-      disconnect();
-    };
-  }, [disconnect]);
+    dispatch(reset());
+  }, [isAuthenticated, dispatch]);
 
   return (
     <>

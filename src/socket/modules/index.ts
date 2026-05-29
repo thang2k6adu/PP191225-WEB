@@ -7,9 +7,5 @@ export const SOCKET_MODULES: SocketModule[] = [
   notificationModule,
 ];
 
-export {
-  matchmakingModule,
-  setMatchmakingSocketHandlers,
-} from './matchmakingModule';
-export type { MatchmakingSocketHandlers } from './matchmakingModule';
+export { matchmakingModule } from './matchmakingModule';
 export type { SocketModule } from './types';

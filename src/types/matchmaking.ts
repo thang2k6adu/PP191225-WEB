@@ -1,6 +1,7 @@
 export enum UserState {
   IDLE = 'IDLE',
   WAITING = 'WAITING',
+  MATCHED = 'MATCHED',
   IN_ROOM = 'IN_ROOM',
 }
 
@@ -26,12 +27,12 @@ export interface MatchData {
 
 export interface MatchFoundEvent {
   roomId: string;
-  opponentId: string;
-  opponentName: string;
-  message: string;
-  livekitRoomName: string;
-  token: string;
-  wsUrl: string;
+  opponentId?: string;
+  opponentName?: string;
+  message?: string;
+  livekitRoomName?: string;
+  token?: string;
+  wsUrl?: string;
   matchedUsers?: string[];
   timestamp?: string;
 }
@@ -83,8 +84,6 @@ export interface MatchmakingStatsData {
 
 export interface MatchmakingState {
   state: UserState;
-  isConnected: boolean;
-  isConnecting: boolean;
   room: RoomData | null;
   matchData: MatchData | null;
   error: string | null;

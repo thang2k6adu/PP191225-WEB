@@ -1,7 +1,9 @@
 export {
   connectSocket,
   disconnectSocket,
+  ensureSocketReady,
   getSocket,
+  isSocketConnected,
   subscribeSocketStatus,
 } from './socketClient';
 export type {
@@ -9,4 +11,4 @@ export type {
   SocketConnectedPayload,
   SocketStatusListener,
 } from './types';
-export { setMatchmakingSocketHandlers } from './modules';
+export { SOCKET_MODULES } from './modules';

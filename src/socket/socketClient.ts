@@ -111,3 +111,43 @@ export function disconnectSocket(): void {
   socket = null;
   notifyStatus('disconnected');
 }
+
+export function isSocketConnected(): boolean {
+  return socket?.connected ?? false;
+}
+
+export function ensureSocketReady(
+  accessToken: string,
+  timeoutMs = 10000
+): Promise<void> {
+  if (socket?.connected && currentToken === accessToken) {
+    return Promise.resolve();
+  }
+
+  connectSocket(accessToken);
+
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      unsubscribe();
+      reject(new Error('Connection timeout'));
+    }, timeoutMs);
+
+    const unsubscribe = subscribeSocketStatus(status => {
+      if (status === 'connected') {
+        clearTimeout(timeout);
+        unsubscribe();
+        resolve();
+      } else if (status === 'error') {
+        clearTimeout(timeout);
+        unsubscribe();
+        reject(new Error('Failed to connect to server'));
+      }
+    });
+
+    if (socket?.connected) {
+      clearTimeout(timeout);
+      unsubscribe();
+      resolve();
+    }
+  });
+}

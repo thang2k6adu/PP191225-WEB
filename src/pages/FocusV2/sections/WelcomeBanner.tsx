@@ -3,29 +3,15 @@ import { Button } from '@/components/ui/button';
 import { useMatchmaking } from '@/hooks/useMatchmaking';
 import { UserState } from '@/types/matchmaking';
 import { LuLoaderCircle as Loader2 } from 'react-icons/lu';
-import toast from 'react-hot-toast';
 
 interface WelcomeBannerProps {
   onMatchRequest: () => void | Promise<void>;
 }
 
 export function WelcomeBanner({ onMatchRequest }: WelcomeBannerProps) {
-  const { state, isConnected, isJoining, connect } = useMatchmaking();
+  const { state, isJoining } = useMatchmaking();
 
   const handleMatchNow = async () => {
-    if (!isConnected) {
-      toast.loading('Connecting to server...', { id: 'connecting' });
-      try {
-        await connect();
-        toast.success('Connected!', { id: 'connecting' });
-      } catch {
-        toast.error('Failed to connect. Please try again.', {
-          id: 'connecting',
-        });
-        return;
-      }
-    }
-
     await onMatchRequest();
   };
 

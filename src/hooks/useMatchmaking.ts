@@ -1,61 +1,39 @@
-import { useEffect, useCallback } from 'react';
+import { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
+import { TOKEN_STORAGE_KEYS } from '@/constants';
+import { ensureSocketReady } from '@/socket';
 import { RootState, AppDispatch } from '@/store';
 import { matchmakingService } from '@/services/matchmakingService';
 import {
-  setConnecting,
-  setConnected,
-  setConnectionError,
   setJoining,
   joinSuccess,
   joinError,
   setCanceling,
   cancelSuccess,
   cancelError,
-  setMatchData,
-  joinedRoom,
   leftRoom,
-  opponentDisconnected,
-  opponentLeft,
   clearError,
-  reset,
 } from '@/store/slices/matchmakingSlice';
-import { MatchFoundEvent, RoomJoinedEvent } from '@/types/matchmaking';
-
-let activeSubscribers = 0;
-let cleanupGlobalListeners: (() => void) | null = null;
+import { MatchmakingStatus } from '@/types/matchmaking';
 
 export const useMatchmaking = () => {
   const dispatch = useDispatch<AppDispatch>();
   const matchmaking = useSelector((state: RootState) => state.matchmaking);
 
-  const connect = useCallback(async () => {
-    if (matchmaking.isConnected || matchmaking.isConnecting) {
+  const joinMatchmaking = useCallback(async () => {
+    const token = localStorage.getItem(TOKEN_STORAGE_KEYS.ACCESS_TOKEN);
+    if (!token) {
+      toast.error('Please log in to continue');
       return;
     }
 
-    dispatch(setConnecting(true));
-
     try {
-      await matchmakingService.connect();
-      dispatch(setConnected(true));
+      await ensureSocketReady(token);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Failed to connect to server';
-      dispatch(setConnectionError(errorMessage));
-    }
-  }, [dispatch, matchmaking.isConnected, matchmaking.isConnecting]);
-
-  const disconnect = useCallback(() => {
-    matchmakingService.disconnect();
-    dispatch(setConnected(false));
-    dispatch(reset());
-  }, [dispatch]);
-
-  const joinMatchmaking = useCallback(async () => {
-    if (!matchmaking.isConnected) {
-      toast.error('Please connect to server first');
+      toast.error(errorMessage);
       return;
     }
 
@@ -68,15 +46,9 @@ export const useMatchmaking = () => {
         throw new Error(response.message || 'Failed to join matchmaking');
       }
 
-      if (response.data.status === 'WAITING') {
+      if (response.data.status === MatchmakingStatus.WAITING) {
         dispatch(joinSuccess());
         toast.success('Waiting for opponent...');
-      } else if (response.data.status === 'MATCHED') {
-        if (response.data.matchData) {
-          dispatch(setMatchData(response.data.matchData));
-          toast.success('Match found!');
-          matchmakingService.joinRoom(response.data.matchData.roomId);
-        }
       }
     } catch (error) {
       const axiosError = error as {
@@ -87,7 +59,7 @@ export const useMatchmaking = () => {
       dispatch(joinError(errorMessage));
       toast.error(errorMessage);
     }
-  }, [dispatch, matchmaking.isConnected]);
+  }, [dispatch]);
 
   const cancelMatchmaking = useCallback(async () => {
     dispatch(setCanceling(true));
@@ -125,103 +97,8 @@ export const useMatchmaking = () => {
     dispatch(clearError());
   }, [dispatch]);
 
-  // Register one shared listener set for the singleton service.
-  useEffect(() => {
-    activeSubscribers += 1;
-
-    if (activeSubscribers > 1) {
-      return () => {
-        activeSubscribers -= 1;
-
-        if (activeSubscribers === 0 && cleanupGlobalListeners) {
-          cleanupGlobalListeners();
-          cleanupGlobalListeners = null;
-        }
-      };
-    }
-
-    const handleMatchFound = (data: unknown): void => {
-      const matchEvent = data as MatchFoundEvent;
-      dispatch(setMatchData(matchEvent));
-      toast.success(`Match found! Opponent: ${matchEvent.opponentName}`);
-      matchmakingService.joinRoom(matchEvent.roomId);
-    };
-
-    const handleConnect = (): void => {
-      dispatch(setConnected(true));
-    };
-
-    const handleRoomJoined = (data: unknown): void => {
-      const roomEvent = data as RoomJoinedEvent;
-      dispatch(
-        joinedRoom({
-          roomId: roomEvent.roomId,
-          players: [],
-          createdAt: new Date().toISOString(),
-        })
-      );
-      console.log('Joined room:', roomEvent.roomId);
-    };
-
-    const handleOpponentDisconnected = (): void => {
-      dispatch(opponentDisconnected());
-      toast.error('Your opponent has disconnected');
-    };
-
-    const handleOpponentLeft = (): void => {
-      dispatch(opponentLeft());
-      toast.error('Your opponent has left the room');
-    };
-
-    const handleDisconnect = (): void => {
-      dispatch(setConnected(false));
-      toast.error('Disconnected from server');
-    };
-
-    const handleError = (error: unknown): void => {
-      if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error('An error occurred');
-      }
-    };
-
-    matchmakingService.on('match_found', handleMatchFound);
-    matchmakingService.on('connect', handleConnect);
-    matchmakingService.on('room_joined', handleRoomJoined);
-    matchmakingService.on('opponent_disconnected', handleOpponentDisconnected);
-    matchmakingService.on('opponent_left', handleOpponentLeft);
-    matchmakingService.on('disconnect', handleDisconnect);
-    matchmakingService.on('error', handleError);
-
-    cleanupGlobalListeners = () => {
-      matchmakingService.off('match_found', handleMatchFound);
-      matchmakingService.off('connect', handleConnect);
-      matchmakingService.off('room_joined', handleRoomJoined);
-      matchmakingService.off(
-        'opponent_disconnected',
-        handleOpponentDisconnected
-      );
-      matchmakingService.off('opponent_left', handleOpponentLeft);
-      matchmakingService.off('disconnect', handleDisconnect);
-      matchmakingService.off('error', handleError);
-    };
-
-    return () => {
-      activeSubscribers -= 1;
-
-      if (activeSubscribers === 0 && cleanupGlobalListeners) {
-        cleanupGlobalListeners();
-        cleanupGlobalListeners = null;
-      }
-    };
-  }, [dispatch]);
-
   return {
     ...matchmaking,
-
-    connect,
-    disconnect,
     joinMatchmaking,
     cancelMatchmaking,
     leaveRoom,

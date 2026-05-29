@@ -25,16 +25,17 @@ export default function FocusV2() {
     fetchPublicRooms();
   }, [fetchPublicRooms]);
 
-  // Redirect to room when matched
   useEffect(() => {
-    if (matchData && state === UserState.IN_ROOM) {
-      const roomId = matchData.roomId;
-
-      if (roomId) {
-        clearError();
-        navigate(`${ROUTES.FOCUS_ROOM}/${roomId}`);
-      }
+    const roomId = matchData?.roomId;
+    if (
+      !roomId ||
+      (state !== UserState.MATCHED && state !== UserState.IN_ROOM)
+    ) {
+      return;
     }
+
+    clearError();
+    navigate(`${ROUTES.FOCUS_ROOM}/${roomId}`);
   }, [matchData, state, navigate, clearError]);
 
   // Transform API data to UI format
