@@ -39,10 +39,7 @@ export function ActiveRoomConflictDialog({
   onCancel,
 }: ActiveRoomConflictDialogProps) {
   const roomName = activeRoom ? getRoomDisplayName(activeRoom) : 'current room';
-  const proceedLabel =
-    pendingAction === 'match'
-      ? 'Leave room and start matching'
-      : 'Leave room and join a new room';
+  const proceedLabel = pendingAction === 'match' ? 'Match Now' : 'Join room';
 
   return (
     <Dialog
@@ -53,47 +50,40 @@ export function ActiveRoomConflictDialog({
         }
       }}
     >
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
+      <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-md">
+        <DialogHeader className="space-y-2 px-6 pb-2 pt-6 text-left">
           <DialogTitle>You are currently in a room</DialogTitle>
           <DialogDescription>
-            You are in room &quot;{roomName}&quot;. Do you want to return to
-            this room or leave to{' '}
-            {pendingAction === 'match'
-              ? 'start a new match'
-              : 'join your selected room'}
-            ?
+            You are in &quot;{roomName}&quot;. Rejoin this room or leave to{' '}
+            {pendingAction === 'match' ? 'start matching' : 'join another room'}
+            .
           </DialogDescription>
         </DialogHeader>
 
-        <DialogFooter className="flex-col gap-2 sm:flex-col sm:space-x-0">
-          <Button
-            type="button"
-            className="w-full"
-            onClick={onRejoin}
-            disabled={isBusy || !activeRoom}
-          >
-            {isBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-            Return to current room
-          </Button>
+        <DialogFooter className="flex flex-col gap-2 border-t border-border bg-muted/40 px-6 py-4 sm:flex-row sm:justify-stretch sm:gap-3 sm:space-x-0">
           <Button
             type="button"
             variant="outline"
-            className="w-full"
+            className="h-10 w-full sm:flex-1"
+            onClick={onRejoin}
+            disabled={isBusy || !activeRoom}
+          >
+            {isBusy ? (
+              <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
+            ) : null}
+            Rejoin
+          </Button>
+
+          <Button
+            type="button"
+            className="h-10 w-full sm:flex-1"
             onClick={onLeaveAndProceed}
             disabled={isBusy || !activeRoom}
           >
-            {isBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+            {isBusy ? (
+              <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
+            ) : null}
             {proceedLabel}
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            className="w-full"
-            onClick={onCancel}
-            disabled={isBusy}
-          >
-            Cancel
           </Button>
         </DialogFooter>
       </DialogContent>
