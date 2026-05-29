@@ -23,7 +23,7 @@ export const Layout: React.FC = () => {
                 ? {
                     name: getDisplayName(user),
                     initials: getInitials(user),
-                    role: user.role,
+                    exp: user.exp ?? 0,
                     avatar: user.avatar ?? undefined,
                   }
                 : undefined

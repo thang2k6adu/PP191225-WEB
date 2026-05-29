@@ -2,12 +2,14 @@ import {
   LuBell as Bell,
   LuChevronDown as ChevronDown,
   LuLogOut as LogOut,
+  LuStar,
   LuUser as UserIcon,
 } from 'react-icons/lu';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '@/store/hooks';
 import { logoutThunk } from '@/store/thunks/authThunks';
 import { ROUTES } from '@/constants';
+import { formatExp } from '@/utils/profile-exp';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,7 +24,7 @@ type HeaderProps = {
   user?: {
     name: string;
     initials?: string;
-    role?: string;
+    exp?: number;
     avatar?: string;
   };
 };
@@ -75,9 +77,13 @@ export function Header({ user }: HeaderProps) {
                       <span className="text-caption-lg-semibold">
                         {user?.name ?? 'Guest'}
                       </span>
-                      {user?.role && (
-                        <span className="text-caption-sm-regular text-muted-foreground">
-                          {user.role}
+                      {user?.exp !== undefined && (
+                        <span className="flex items-start gap-1 text-caption-lg-regular text-blue-600">
+                          <LuStar
+                            className="h-4 w-4 shrink-0 text-blue-600"
+                            aria-hidden
+                          />
+                          {formatExp(user.exp)}
                         </span>
                       )}
                     </div>

@@ -10,6 +10,7 @@ export interface UserProfile {
   bio: string | null;
   role: string;
   isActive: boolean;
+  exp: number;
   createdAt: string;
   updatedAt: string;
 }

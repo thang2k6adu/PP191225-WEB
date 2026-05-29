@@ -10,6 +10,11 @@ import {
 import { GiAchievement } from 'react-icons/gi';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { getDisplayName } from '@/types/user';
+import {
+  formatExp,
+  getLevelFromExp,
+  getLevelProgress,
+} from '@/utils/profile-exp';
 import { storageService } from '@/services/storageService';
 import { userService } from '@/services/userService';
 import { updateUser } from '@/store/slices/authSlice';
@@ -26,6 +31,9 @@ export function ProfileCardSection({
   const dispatch = useAppDispatch();
   const user = useAppSelector(state => state.auth.user);
   const displayName = user ? getDisplayName(user) : 'Unknown User';
+  const exp = user?.exp ?? 0;
+  const level = getLevelFromExp(exp);
+  const levelProgress = getLevelProgress(exp);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
@@ -178,19 +186,19 @@ export function ProfileCardSection({
 
         {/* Level & Progress */}
         <div className="w-full">
-          <h3 className="text-h6-medium text-gray-900 mb-3">Level 56</h3>
+          <h3 className="text-h6-medium text-gray-900 mb-3">Level {level}</h3>
           <div className="flex items-center gap-2 mb-2 text-blue-600 text-base-medium">
             <img
               src="/icons/project-experience.svg"
-              alt="Star"
+              alt="EXP"
               className="w-7 h-7"
             />
-            2,000,000
+            {formatExp(exp)}
           </div>
           <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
             <div
-              className="h-full bg-blue-500 rounded-full"
-              style={{ width: '85%' }}
+              className="h-full bg-blue-500 rounded-full transition-all"
+              style={{ width: `${levelProgress}%` }}
             />
           </div>
         </div>
