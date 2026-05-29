@@ -64,6 +64,10 @@ export const useMatchmaking = () => {
     try {
       const response = await matchmakingService.joinMatchmaking();
 
+      if (response.error || !response.data) {
+        throw new Error(response.message || 'Failed to join matchmaking');
+      }
+
       if (response.data.status === 'WAITING') {
         dispatch(joinSuccess());
         toast.success('Waiting for opponent...');

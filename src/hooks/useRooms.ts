@@ -10,7 +10,7 @@ import toast from 'react-hot-toast';
 
 interface FetchPublicRoomsOptions {
   page?: number;
-  limit?: number;
+  size?: number;
   force?: boolean;
   ttlMs?: number;
 }

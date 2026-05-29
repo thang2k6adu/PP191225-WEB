@@ -1,12 +1,8 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { roomService } from '@/services/roomService';
 import type { RootState } from '@/store';
-import {
-  JoinRoomResponse,
-  RoomDetail,
-  PaginatedResponse,
-  PublicRoom,
-} from '@/types/room';
+import type { PaginatedApiResponse } from '@/types/common/api';
+import { JoinRoomData, RoomDetail, PublicRoom } from '@/types/room';
 import { apiFailureMessage } from '@/utils/apiEnvelope';
 
 const getErrorMessage = (error: unknown, fallback: string): string => {
@@ -23,7 +19,7 @@ const getErrorMessage = (error: unknown, fallback: string): string => {
 
 export interface FetchPublicRoomsArgs {
   page?: number;
-  limit?: number;
+  size?: number;
   force?: boolean;
   ttlMs?: number;
 }
@@ -31,11 +27,11 @@ export interface FetchPublicRoomsArgs {
 const getPublicRoomsParamsKey = (args?: FetchPublicRoomsArgs): string =>
   JSON.stringify({
     page: args?.page ?? 1,
-    limit: args?.limit ?? 10,
+    size: args?.size ?? 10,
   });
 
 export const fetchPublicRoomsThunk = createAsyncThunk<
-  PaginatedResponse<PublicRoom>,
+  PaginatedApiResponse<PublicRoom>,
   FetchPublicRoomsArgs | undefined,
   { rejectValue: string; state: RootState }
 >(
@@ -44,12 +40,12 @@ export const fetchPublicRoomsThunk = createAsyncThunk<
     try {
       const res = await roomService.getPublicRooms({
         page: args?.page,
-        limit: args?.limit,
+        size: args?.size,
       });
-      if (res.error || !res.data?.rooms) {
+      if (res.error || !Array.isArray(res.data)) {
         return rejectWithValue(apiFailureMessage(res));
       }
-      return res.data.rooms;
+      return res;
     } catch (error: unknown) {
       return rejectWithValue(
         getErrorMessage(error, 'Failed to fetch public rooms')
@@ -87,7 +83,7 @@ export const fetchPublicRoomsThunk = createAsyncThunk<
 );
 
 export const joinRoomThunk = createAsyncThunk<
-  JoinRoomResponse,
+  JoinRoomData,
   string,
   { rejectValue: string }
 >('room/joinRoom', async (roomId, { rejectWithValue }) => {

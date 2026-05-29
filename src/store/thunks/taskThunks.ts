@@ -1,13 +1,13 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { taskService } from '@/services/taskService';
 import type { RootState } from '@/store';
-import { ActivateTaskResponse } from '@/types/trackingSession';
+import type { PaginatedApiResponse } from '@/types/common/api';
+import type { ActivateTaskData } from '@/types/trackingSession';
 import {
   CreateTaskData,
   UpdateTaskData,
   Task,
-  TaskListResponse,
-  TaskActionResponse,
+  TaskActionData,
 } from '@/types/task';
 import { apiFailureMessage } from '@/utils/apiEnvelope';
 
@@ -22,7 +22,7 @@ const getErrorMessage = (error: unknown, fallback: string): string => {
 
 export interface FetchTasksArgs {
   page?: number;
-  limit?: number;
+  size?: number;
   force?: boolean;
   ttlMs?: number;
 }
@@ -30,12 +30,12 @@ export interface FetchTasksArgs {
 const getTaskParamsKey = (args?: FetchTasksArgs): string =>
   JSON.stringify({
     page: args?.page ?? 1,
-    limit: args?.limit ?? 10,
+    size: args?.size ?? 10,
   });
 
 // Fetch tasks
 export const fetchTasksThunk = createAsyncThunk<
-  TaskListResponse,
+  PaginatedApiResponse<Task>,
   FetchTasksArgs | undefined,
   { rejectValue: string; state: RootState }
 >(
@@ -44,10 +44,10 @@ export const fetchTasksThunk = createAsyncThunk<
     try {
       const params = {
         page: args?.page,
-        limit: args?.limit,
+        size: args?.size,
       };
       const res = await taskService.getTasks(params);
-      if (res.error || !res.data) {
+      if (res.error || !Array.isArray(res.data)) {
         return rejectWithValue(apiFailureMessage(res));
       }
       return res;
@@ -141,7 +141,7 @@ export const updateTaskThunk = createAsyncThunk<
 
 // Activate task
 export const activateTaskThunk = createAsyncThunk<
-  ActivateTaskResponse['data']['task'],
+  ActivateTaskData['task'],
   string,
   { rejectValue: string }
 >('task/activateTask', async (id, { rejectWithValue }) => {
@@ -158,7 +158,7 @@ export const activateTaskThunk = createAsyncThunk<
 
 // Complete task
 export const completeTaskThunk = createAsyncThunk<
-  TaskActionResponse['data'],
+  TaskActionData,
   string,
   { rejectValue: string }
 >('task/completeTask', async (id, { rejectWithValue }) => {

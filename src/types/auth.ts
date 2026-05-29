@@ -33,21 +33,18 @@ export interface ResetPasswordData {
   password: string;
 }
 
-// Firebase Login Types
 export interface FirebaseLoginRequest {
   idToken: string;
   deviceId: string;
   platform: 'web' | 'mobile' | 'desktop';
-  /** Passed when Firebase token has no display name (e.g. email/password registration) */
   firstName?: string;
-  /** Passed when Firebase token has no display name (e.g. email/password registration) */
   lastName?: string;
 }
 
 export interface TokenData {
   accessToken: string;
   refreshToken: string;
-  expiresIn: number; // seconds
+  expiresIn: number;
 }
 
 export interface FirebaseUserData {
@@ -59,28 +56,16 @@ export interface FirebaseUserData {
   role: 'admin' | 'user' | 'basic';
 }
 
-export interface FirebaseLoginResponse {
-  error: boolean;
-  code: number;
-  message: string;
-  data: {
-    user: FirebaseUserData;
-    tokens: TokenData;
-  } | null;
-  traceId: string;
+export interface FirebaseLoginData {
+  user: FirebaseUserData;
+  tokens: TokenData;
 }
 
 export interface RefreshTokenRequest {
   refreshToken: string;
 }
 
-export interface RefreshTokenResponse {
-  error: boolean;
-  code: number;
-  message: string;
-  data: {
-    accessToken: string;
-    expiresIn: number;
-  } | null;
-  traceId: string;
+export interface RefreshTokenData {
+  accessToken: string;
+  expiresIn: number;
 }

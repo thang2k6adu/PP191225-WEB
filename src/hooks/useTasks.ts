@@ -14,7 +14,7 @@ import toast from 'react-hot-toast';
 
 interface FetchTasksOptions {
   page?: number;
-  limit?: number;
+  size?: number;
   force?: boolean;
   ttlMs?: number;
 }
@@ -24,7 +24,7 @@ const isConditionSkip = (action: { meta?: { condition?: boolean } }) =>
 
 export const useTasks = () => {
   const dispatch = useAppDispatch();
-  const { tasks, activeTask, isLoading, error, total, page, limit } =
+  const { tasks, activeTask, isLoading, error, total, page, size } =
     useAppSelector(state => state.task);
 
   const fetchTasks = useCallback(
@@ -118,7 +118,7 @@ export const useTasks = () => {
     error,
     total,
     page,
-    limit,
+    size,
     fetchTasks,
     fetchActiveTask,
     createTask,

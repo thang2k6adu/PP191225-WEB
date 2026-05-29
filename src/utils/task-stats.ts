@@ -1,6 +1,4 @@
-import { TaskStatsPeriod, TaskStatsResponse } from '@/types/task';
-
-type TaskStatsData = NonNullable<TaskStatsResponse['data']>;
+import { TaskStatsPeriod, TaskStatsData } from '@/types/task';
 
 export const toTaskChartData = (
   statsData: TaskStatsData,

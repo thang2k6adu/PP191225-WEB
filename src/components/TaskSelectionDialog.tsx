@@ -5,12 +5,12 @@ import { useTrackingSession } from '@/hooks/useTrackingSession';
 import Modal from './Modal';
 import Button from './Button';
 import LoadingSpinner from './LoadingSpinner';
-import { ActivateTaskResponse } from '@/types/trackingSession';
+import type { ActivateTaskData } from '@/types/trackingSession';
 
 interface TaskSelectionDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onTaskSelected: (result: ActivateTaskResponse['data']) => void;
+  onTaskSelected: (result: ActivateTaskData) => void;
 }
 
 const TaskSelectionDialog: React.FC<TaskSelectionDialogProps> = ({

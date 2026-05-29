@@ -1,11 +1,12 @@
 import { io, Socket } from 'socket.io-client';
 import apiClient from '@/utils/api';
 import { TOKEN_STORAGE_KEYS } from '@/constants';
+import type { ApiResponse } from '@/types/common/api';
 import {
-  JoinMatchmakingResponse,
-  CancelMatchmakingResponse,
-  GetStatusResponse,
-  GetStatsResponse,
+  JoinMatchmakingData,
+  CancelMatchmakingData,
+  MatchmakingStatusData,
+  MatchmakingStatsData,
 } from '@/types/matchmaking';
 
 const API_BASE_URL =
@@ -200,20 +201,28 @@ class MatchmakingService {
     }
   }
 
-  joinMatchmaking(): Promise<JoinMatchmakingResponse> {
-    return apiClient.post<JoinMatchmakingResponse>('/matchmaking/join');
+  joinMatchmaking(): Promise<ApiResponse<JoinMatchmakingData>> {
+    return apiClient.post<ApiResponse<JoinMatchmakingData>>(
+      '/matchmaking/join'
+    );
   }
 
-  cancelMatchmaking(): Promise<CancelMatchmakingResponse> {
-    return apiClient.post<CancelMatchmakingResponse>('/matchmaking/cancel');
+  cancelMatchmaking(): Promise<ApiResponse<CancelMatchmakingData>> {
+    return apiClient.post<ApiResponse<CancelMatchmakingData>>(
+      '/matchmaking/cancel'
+    );
   }
 
-  getStatus(): Promise<GetStatusResponse> {
-    return apiClient.get<GetStatusResponse>('/matchmaking/status');
+  getStatus(): Promise<ApiResponse<MatchmakingStatusData>> {
+    return apiClient.get<ApiResponse<MatchmakingStatusData>>(
+      '/matchmaking/status'
+    );
   }
 
-  getStats(): Promise<GetStatsResponse> {
-    return apiClient.get<GetStatsResponse>('/matchmaking/stats');
+  getStats(): Promise<ApiResponse<MatchmakingStatsData>> {
+    return apiClient.get<ApiResponse<MatchmakingStatsData>>(
+      '/matchmaking/stats'
+    );
   }
 
   joinRoom(roomId: string): void {

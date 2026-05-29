@@ -2,10 +2,10 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTrackingSession } from '@/hooks/useTrackingSession';
 import Button from './Button';
-import { SessionResponse } from '@/types/trackingSession';
+import type { SessionData } from '@/types/trackingSession';
 
 interface TaskInfoPanelProps {
-  onStopSession?: (result: SessionResponse['data']) => void;
+  onStopSession?: (result: SessionData) => void;
 }
 
 const TaskInfoPanel: React.FC<TaskInfoPanelProps> = ({ onStopSession }) => {

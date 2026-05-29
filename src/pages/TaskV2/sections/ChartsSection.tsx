@@ -2,7 +2,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import TotalWorkChart from '@/components/TotalWorkChart';
 import TaskPercentageChart from '@/components/TaskPercentageChart';
 import { taskService } from '@/services/taskService';
-import { TaskStatsPeriod, TaskStatsResponse } from '@/types/task';
+import { TaskStatsPeriod, TaskStatsData } from '@/types/task';
 import { useEffect, useMemo, useState } from 'react';
 import { toTaskChartData } from '@/utils/task-stats';
 
@@ -12,9 +12,7 @@ type ChartsSectionProps = {
 
 export function ChartsSection({ referenceX }: ChartsSectionProps) {
   const [period, setPeriod] = useState<TaskStatsPeriod>('month');
-  const [stats, setStats] = useState<NonNullable<
-    TaskStatsResponse['data']
-  > | null>(null);
+  const [stats, setStats] = useState<TaskStatsData | null>(null);
 
   useEffect(() => {
     let mounted = true;

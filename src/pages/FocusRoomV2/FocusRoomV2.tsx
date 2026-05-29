@@ -13,7 +13,7 @@ import { Helmet } from 'react-helmet-async';
 import { rtcManager } from '@/lib/rtcManager';
 import { ROUTES } from '@/constants';
 import TaskSelectionDialog from '@/components/TaskSelectionDialog';
-import { ActivateTaskResponse } from '@/types/trackingSession';
+import type { ActivateTaskData } from '@/types/trackingSession';
 import {
   syncRoomParticipantTask,
   clearRoomParticipantTask,
@@ -147,7 +147,7 @@ const FocusRoom: React.FC = () => {
     setUiState(prev => ({ ...prev, showTaskDialog: true }));
   };
 
-  const handleTaskSelected = async (result: ActivateTaskResponse['data']) => {
+  const handleTaskSelected = async (result: ActivateTaskData) => {
     const { task, session } = result;
     try {
       await syncRoomParticipantTask({

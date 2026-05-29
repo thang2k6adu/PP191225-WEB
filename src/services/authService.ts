@@ -1,17 +1,20 @@
 import apiClient from '@/utils/api';
+import type { ApiResponse } from '@/types/common/api';
 import {
   FirebaseLoginRequest,
-  FirebaseLoginResponse,
+  FirebaseLoginData,
   RefreshTokenRequest,
-  RefreshTokenResponse,
+  RefreshTokenData,
 } from '@/types/auth';
 import { API_ENDPOINTS } from '@/constants';
 
 export const authService = {
   logout: (): Promise<void> => apiClient.post(API_ENDPOINTS.AUTH.LOGOUT),
 
-  refreshToken: (refreshToken: string): Promise<RefreshTokenResponse> =>
-    apiClient.post<RefreshTokenResponse>(API_ENDPOINTS.AUTH.REFRESH, {
+  refreshToken: (
+    refreshToken: string
+  ): Promise<ApiResponse<RefreshTokenData>> =>
+    apiClient.post<ApiResponse<RefreshTokenData>>(API_ENDPOINTS.AUTH.REFRESH, {
       refreshToken,
     } satisfies RefreshTokenRequest),
 
@@ -29,16 +32,16 @@ export const authService = {
 
   loginWithFirebase: (
     request: FirebaseLoginRequest
-  ): Promise<FirebaseLoginResponse> =>
-    apiClient.post<FirebaseLoginResponse>(
+  ): Promise<ApiResponse<FirebaseLoginData>> =>
+    apiClient.post<ApiResponse<FirebaseLoginData>>(
       API_ENDPOINTS.AUTH.FIREBASE_LOGIN,
       request
     ),
 
   signUpWithFirebase: (
     request: FirebaseLoginRequest
-  ): Promise<FirebaseLoginResponse> =>
-    apiClient.post<FirebaseLoginResponse>(
+  ): Promise<ApiResponse<FirebaseLoginData>> =>
+    apiClient.post<ApiResponse<FirebaseLoginData>>(
       API_ENDPOINTS.AUTH.FIREBASE_LOGIN,
       request
     ),

@@ -15,13 +15,13 @@ const DEFAULT_TASK_TTL_MS = 60_000;
 
 const getTaskParamsKey = (args?: {
   page?: number;
-  limit?: number;
+  size?: number;
   force?: boolean;
   ttlMs?: number;
 }): string =>
   JSON.stringify({
     page: args?.page ?? 1,
-    limit: args?.limit ?? 10,
+    size: args?.size ?? 10,
   });
 
 interface TaskState {
@@ -31,7 +31,7 @@ interface TaskState {
   error: string | null;
   total: number;
   page: number;
-  limit: number;
+  size: number;
   lastFetchedAt: number | null;
   lastParamsKey: string | null;
   ttlMs: number;
@@ -45,7 +45,7 @@ const initialState: TaskState = {
   error: null,
   total: 0,
   page: 1,
-  limit: 10,
+  size: 10,
   lastFetchedAt: null,
   lastParamsKey: null,
   ttlMs: DEFAULT_TASK_TTL_MS,
@@ -82,10 +82,12 @@ const taskSlice = createSlice({
       })
       .addCase(fetchTasksThunk.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.tasks = action.payload.data.items;
-        state.total = action.payload.data.meta.totalItems;
-        state.page = action.payload.data.meta.currentPage;
-        state.limit = action.payload.data.meta.itemsPerPage;
+        state.tasks = action.payload.data ?? [];
+        if (action.payload.meta) {
+          state.total = action.payload.meta.totalItems;
+          state.page = action.payload.meta.currentPage;
+          state.size = action.payload.meta.itemsPerPage;
+        }
         state.lastFetchedAt = Date.now();
         state.lastParamsKey = getTaskParamsKey(action.meta.arg);
         state.ttlMs = action.meta.arg?.ttlMs ?? state.ttlMs;

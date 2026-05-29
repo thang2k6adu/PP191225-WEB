@@ -1,12 +1,12 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import type { AxiosError } from 'axios';
 import { taskService } from '@/services/taskService';
-import { ActivateTaskResponse } from '@/types/trackingSession';
-import { DeactivateTaskResponse } from '@/types/task';
+import type { ActivateTaskData } from '@/types/trackingSession';
+import type { DeactivateTaskData } from '@/types/task';
 import { apiFailureMessage } from '@/utils/apiEnvelope';
 
 export const activateTaskThunk = createAsyncThunk<
-  ActivateTaskResponse['data'],
+  ActivateTaskData,
   string,
   { rejectValue: string }
 >('trackingSession/activate', async (taskId, { rejectWithValue }) => {
@@ -24,7 +24,7 @@ export const activateTaskThunk = createAsyncThunk<
 });
 
 export const deactivateTaskThunk = createAsyncThunk<
-  DeactivateTaskResponse['data'],
+  DeactivateTaskData,
   string,
   { rejectValue: string }
 >('trackingSession/deactivate', async (taskId, { rejectWithValue }) => {

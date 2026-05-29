@@ -3,19 +3,6 @@ export type RoomVisibility = 'PUBLIC' | 'PRIVATE';
 export type RoomStatus = 'WAITING' | 'ACTIVE' | 'CLOSED';
 export type RoomMemberStatus = 'JOINED' | 'READY' | 'LEFT';
 
-export interface PaginationMeta {
-  itemCount: number;
-  totalItems: number;
-  itemsPerPage: number;
-  totalPages: number;
-  currentPage: number;
-}
-
-export interface PaginatedResponse<T> {
-  items: T[];
-  meta: PaginationMeta;
-}
-
 export interface Room {
   id: string;
   type: RoomType;
@@ -60,7 +47,7 @@ export interface RoomDetail {
   members: RoomMember[];
 }
 
-export interface JoinRoomResponse {
+export interface JoinRoomData {
   roomId: string;
   livekitRoomName: string;
   token: string;
@@ -75,52 +62,12 @@ export interface ActiveRoomSummary {
   status: RoomStatus;
 }
 
-export interface CurrentActiveRoomResponse {
+export interface CurrentActiveRoomData {
   hasActiveRoom: boolean;
   room: ActiveRoomSummary | null;
   token: string | null;
 }
 
-export interface CurrentActiveRoomApiResponse {
-  error: boolean;
-  code: number;
+export interface LeaveRoomData {
   message: string;
-  data: CurrentActiveRoomResponse;
-  traceId: string;
-}
-
-export interface PublicRoomsResponse {
-  error: boolean;
-  code: number;
-  message: string;
-  data: {
-    rooms: PaginatedResponse<PublicRoom>;
-  };
-  traceId: string;
-}
-
-export interface RoomDetailResponse {
-  error: boolean;
-  code: number;
-  message: string;
-  data: RoomDetail;
-  traceId: string;
-}
-
-export interface JoinRoomApiResponse {
-  error: boolean;
-  code: number;
-  message: string;
-  data: JoinRoomResponse;
-  traceId: string;
-}
-
-export interface LeaveRoomResponse {
-  error: boolean;
-  code: number;
-  message: string;
-  data: {
-    message: string;
-  };
-  traceId: string;
 }

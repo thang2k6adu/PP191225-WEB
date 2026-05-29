@@ -6,14 +6,12 @@ import { WorkProgressSection } from './sections/WorkProgressSection';
 import { SidebarSection } from './sections/SidebarSection';
 import { WORK_PROGRESS_TASKS } from './constants';
 import { taskService } from '@/services/taskService';
-import { TaskStatsPeriod, TaskStatsResponse } from '@/types/task';
+import { TaskStatsPeriod, TaskStatsData } from '@/types/task';
 import { toTaskChartData } from '@/utils/task-stats';
 
 function DashboardV2() {
   const [period, setPeriod] = useState<TaskStatsPeriod>('month');
-  const [stats, setStats] = useState<NonNullable<
-    TaskStatsResponse['data']
-  > | null>(null);
+  const [stats, setStats] = useState<TaskStatsData | null>(null);
 
   useEffect(() => {
     let mounted = true;

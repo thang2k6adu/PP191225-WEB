@@ -9,8 +9,8 @@ export interface Task {
   deadline: string;
   status: TaskStatus;
   isActive: boolean;
-  progress?: number; // 0-100%
-  totalTimeSpent?: number; // Total seconds spent
+  progress?: number;
+  totalTimeSpent?: number;
   remainingTime?: number;
   userId?: string;
   createdAt: string;
@@ -30,88 +30,35 @@ export interface UpdateTaskData {
   status?: TaskStatus;
 }
 
-export interface TaskListResponse {
-  error: boolean;
-  code: number;
-  message: string;
-  data: {
-    items: Task[];
-    meta: {
-      totalItems: number;
-      currentPage: number;
-      itemsPerPage: number;
-    };
-  };
-  traceId: string;
-}
-
-export interface TaskResponse {
-  error: boolean;
-  code: number;
-  message: string;
-  data: Task;
-  traceId: string;
-}
-
 export interface ActiveTask extends Task {
   currentSessionStartTime: string | null;
 }
 
-export interface ActiveTaskResponse {
-  error: boolean;
-  code: number;
-  message: string;
-  data: ActiveTask | null;
-  traceId: string;
+export interface TaskActionData {
+  id: string;
+  status: TaskStatus;
+  isActive: boolean;
 }
 
-export interface TaskActionResponse {
-  error: boolean;
-  code: number;
-  message: string;
-  data: {
-    id: string;
-    status: TaskStatus;
-    isActive: boolean;
-  };
-  traceId: string;
-}
-
-export interface DeactivateTaskResponse {
-  error: boolean;
-  code: number;
-  message: string;
-  data: {
-    task: Task;
-    session:
-      | (TrackingSession & {
-          progress?: number;
-        })
-      | null;
-  };
-  traceId: string;
+export interface DeactivateTaskData {
+  task: Task;
+  session: (TrackingSession & { progress?: number }) | null;
 }
 
 export type TaskStatsPeriod = 'day' | 'month' | 'year';
 
-export interface TaskStatsResponse {
-  error: boolean;
-  code: number;
-  message: string;
-  data: {
-    range: {
-      from: string;
-      to: string;
-    };
-    summary: {
-      planned: number;
-      inProgress: number;
-      completed: number;
-    };
-    series: Array<{
-      timestamp: string;
-      count: number;
-    }>;
-  } | null;
-  traceId: string;
+export interface TaskStatsData {
+  range: {
+    from: string;
+    to: string;
+  };
+  summary: {
+    planned: number;
+    inProgress: number;
+    completed: number;
+  };
+  series: Array<{
+    timestamp: string;
+    count: number;
+  }>;
 }

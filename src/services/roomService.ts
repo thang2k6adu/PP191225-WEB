@@ -1,29 +1,41 @@
 import apiClient from '@/utils/api';
+import type { ApiResponse, PaginatedApiResponse } from '@/types/common/api';
 import {
-  PublicRoomsResponse,
-  JoinRoomApiResponse,
-  RoomDetailResponse,
-  LeaveRoomResponse,
-  CurrentActiveRoomApiResponse,
+  PublicRoom,
+  JoinRoomData,
+  RoomDetail,
+  LeaveRoomData,
+  CurrentActiveRoomData,
 } from '@/types/room';
 import { API_ENDPOINTS } from '@/constants';
 
 export const roomService = {
-  getCurrentRoom: (): Promise<CurrentActiveRoomApiResponse> =>
-    apiClient.get<CurrentActiveRoomApiResponse>(API_ENDPOINTS.ROOMS.CURRENT),
+  getCurrentRoom: (): Promise<ApiResponse<CurrentActiveRoomData>> =>
+    apiClient.get<ApiResponse<CurrentActiveRoomData>>(
+      API_ENDPOINTS.ROOMS.CURRENT
+    ),
 
   getPublicRooms: (params?: {
     page?: number;
-    limit?: number;
-  }): Promise<PublicRoomsResponse> =>
-    apiClient.get<PublicRoomsResponse>(API_ENDPOINTS.ROOMS.PUBLIC, { params }),
+    size?: number;
+  }): Promise<PaginatedApiResponse<PublicRoom>> =>
+    apiClient.get<PaginatedApiResponse<PublicRoom>>(
+      API_ENDPOINTS.ROOMS.PUBLIC,
+      { params }
+    ),
 
-  joinRoom: (roomId: string): Promise<JoinRoomApiResponse> =>
-    apiClient.post<JoinRoomApiResponse>(API_ENDPOINTS.ROOMS.JOIN(roomId), {}),
+  joinRoom: (roomId: string): Promise<ApiResponse<JoinRoomData>> =>
+    apiClient.post<ApiResponse<JoinRoomData>>(
+      API_ENDPOINTS.ROOMS.JOIN(roomId),
+      {}
+    ),
 
-  getRoomDetail: (roomId: string): Promise<RoomDetailResponse> =>
-    apiClient.get<RoomDetailResponse>(API_ENDPOINTS.ROOMS.DETAIL(roomId)),
+  getRoomDetail: (roomId: string): Promise<ApiResponse<RoomDetail>> =>
+    apiClient.get<ApiResponse<RoomDetail>>(API_ENDPOINTS.ROOMS.DETAIL(roomId)),
 
-  leaveRoom: (roomId: string): Promise<LeaveRoomResponse> =>
-    apiClient.post<LeaveRoomResponse>(API_ENDPOINTS.ROOMS.LEAVE(roomId), {}),
+  leaveRoom: (roomId: string): Promise<ApiResponse<LeaveRoomData>> =>
+    apiClient.post<ApiResponse<LeaveRoomData>>(
+      API_ENDPOINTS.ROOMS.LEAVE(roomId),
+      {}
+    ),
 };

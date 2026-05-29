@@ -55,49 +55,29 @@ export interface RoomLeftEvent {
   message: string;
 }
 
-export interface JoinMatchmakingResponse {
-  error: boolean;
-  code: number;
+export interface JoinMatchmakingData {
+  status: MatchmakingStatus;
   message: string;
-  data: {
-    status: MatchmakingStatus;
-    message: string;
-    matchData?: MatchData;
-  };
+  matchData?: MatchData;
 }
 
-export interface CancelMatchmakingResponse {
-  error: boolean;
-  code: number;
+export interface CancelMatchmakingData {
   message: string;
-  data: {
-    message: string;
-  };
 }
 
-export interface GetStatusResponse {
-  error: boolean;
-  code: number;
-  message: string;
-  data: {
-    state: UserState;
-    room?: RoomData;
-  };
+export interface MatchmakingStatusData {
+  state: UserState;
+  room?: RoomData;
 }
 
-export interface GetStatsResponse {
-  error: boolean;
-  code: number;
-  message: string;
-  data: {
-    waitingQueueSize: number;
-    activeRooms: number;
-    onlineUsers: number;
-    stateDistribution: {
-      idle: number;
-      waiting: number;
-      inRoom: number;
-    };
+export interface MatchmakingStatsData {
+  waitingQueueSize: number;
+  activeRooms: number;
+  onlineUsers: number;
+  stateDistribution: {
+    idle: number;
+    waiting: number;
+    inRoom: number;
   };
 }
 

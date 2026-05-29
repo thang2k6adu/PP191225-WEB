@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { PublicRoom, JoinRoomResponse, RoomDetail } from '@/types/room';
+import { PublicRoom, JoinRoomData, RoomDetail } from '@/types/room';
 import {
   fetchPublicRoomsThunk,
   joinRoomThunk,
@@ -11,18 +11,18 @@ const DEFAULT_PUBLIC_ROOMS_TTL_MS = 30_000;
 
 const getPublicRoomsParamsKey = (args?: {
   page?: number;
-  limit?: number;
+  size?: number;
   force?: boolean;
   ttlMs?: number;
 }): string =>
   JSON.stringify({
     page: args?.page ?? 1,
-    limit: args?.limit ?? 10,
+    size: args?.size ?? 10,
   });
 
 interface RoomState {
   publicRooms: PublicRoom[];
-  currentRoom: JoinRoomResponse | null;
+  currentRoom: JoinRoomData | null;
   roomDetail: RoomDetail | null;
   isLoading: boolean;
   error: string | null;
@@ -65,7 +65,7 @@ const roomSlice = createSlice({
       })
       .addCase(fetchPublicRoomsThunk.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.publicRooms = action.payload.items;
+        state.publicRooms = action.payload.data ?? [];
         state.lastFetchedAt = Date.now();
         state.lastParamsKey = getPublicRoomsParamsKey(action.meta.arg);
         state.ttlMs = action.meta.arg?.ttlMs ?? state.ttlMs;
