@@ -132,7 +132,7 @@ export function ActivitiesSidebar() {
 
   return (
     <div className="col-span-3">
-      <div className="flex items-center justify-between mb-6 bg-gray-50 rounded-lg">
+      <div className="flex items-center justify-between mb-6 rounded-lg">
         <div>
           <h3 className="text-h4-medium text-gray-900">Activities</h3>
           <p className="text-body-regular text-gray-500">
