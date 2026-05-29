@@ -18,6 +18,7 @@ import {
 } from '@/types/auth';
 import { authService } from '@/services/authService';
 import { userService } from '@/services/userService';
+import type { ApiResponse } from '@/types/common/api';
 import { UserProfile } from '@/types/user';
 import { apiFailureMessage } from '@/utils/apiEnvelope';
 
@@ -52,7 +53,6 @@ const getDeviceId = (): string => {
   return deviceId;
 };
 
-// ─── Helper: exchange Firebase idToken → backend JWT tokens ──────────────────
 const exchangeFirebaseToken = async (idToken: string) => {
   const loginRequest: FirebaseLoginRequest = {
     idToken,
@@ -147,7 +147,6 @@ export const logoutThunk = createAsyncThunk<
   }
 });
 
-/** Google OAuth → Firebase popup → exchange idToken → backend JWT. */
 export const signInWithGoogleThunk = createAsyncThunk<
   TokensPayload,
   void,
@@ -246,16 +245,16 @@ export const resetPasswordThunk = createAsyncThunk<
 );
 
 export const getUserProfileThunk = createAsyncThunk<
-  UserProfile,
+  ApiResponse<UserProfile>,
   void,
   { rejectValue: string }
 >('auth/getUserProfile', async (_, { rejectWithValue }) => {
   try {
-    const response = await userService.getProfile();
-    if (response.error || !response.data) {
-      return rejectWithValue(apiFailureMessage(response));
+    const res = await userService.getProfile();
+    if (res.error || !res.data) {
+      return rejectWithValue(apiFailureMessage(res));
     }
-    return response.data;
+    return res;
   } catch (error: unknown) {
     const err = error as { message?: string };
     return rejectWithValue(err?.message || 'Failed to fetch user profile');

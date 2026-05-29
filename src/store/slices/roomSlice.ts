@@ -84,7 +84,7 @@ const roomSlice = createSlice({
       })
       .addCase(joinRoomThunk.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.currentRoom = action.payload;
+        state.currentRoom = action.payload.data ?? null;
         state.isInvalidated = true;
       })
       .addCase(joinRoomThunk.rejected, (state, action) => {
@@ -100,7 +100,7 @@ const roomSlice = createSlice({
       })
       .addCase(fetchRoomDetailThunk.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.roomDetail = action.payload;
+        state.roomDetail = action.payload.data ?? null;
       })
       .addCase(fetchRoomDetailThunk.rejected, (state, action) => {
         state.isLoading = false;

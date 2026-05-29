@@ -51,17 +51,15 @@ const trackingSessionSlice = createSlice({
       })
       .addCase(activateTaskThunk.fulfilled, (state, action) => {
         state.isLoading = false;
+        const payload = action.payload.data;
+        if (!payload) return;
         state.activeTask = {
-          ...action.payload.task,
-          status: action.payload.task.status as Task['status'],
+          ...payload.task,
+          status: payload.task.status as Task['status'],
         };
-        state.currentSession = action.payload.session;
-        // Save to localStorage
-        localStorage.setItem('activeSessionId', action.payload.session.id);
-        localStorage.setItem(
-          'sessionStartTime',
-          action.payload.session.startTime
-        );
+        state.currentSession = payload.session;
+        localStorage.setItem('activeSessionId', payload.session.id);
+        localStorage.setItem('sessionStartTime', payload.session.startTime);
       })
       .addCase(activateTaskThunk.rejected, (state, action) => {
         state.isLoading = false;

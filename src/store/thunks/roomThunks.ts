@@ -1,7 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { roomService } from '@/services/roomService';
 import type { RootState } from '@/store';
-import type { PaginatedApiResponse } from '@/types/common/api';
+import type { ApiResponse, PaginatedApiResponse } from '@/types/common/api';
 import { JoinRoomData, RoomDetail, PublicRoom } from '@/types/room';
 import { apiFailureMessage } from '@/utils/apiEnvelope';
 
@@ -83,7 +83,7 @@ export const fetchPublicRoomsThunk = createAsyncThunk<
 );
 
 export const joinRoomThunk = createAsyncThunk<
-  JoinRoomData,
+  ApiResponse<JoinRoomData>,
   string,
   { rejectValue: string }
 >('room/joinRoom', async (roomId, { rejectWithValue }) => {
@@ -92,14 +92,14 @@ export const joinRoomThunk = createAsyncThunk<
     if (res.error || !res.data) {
       return rejectWithValue(apiFailureMessage(res));
     }
-    return res.data;
+    return res;
   } catch (error: unknown) {
     return rejectWithValue(getErrorMessage(error, 'Failed to join room'));
   }
 });
 
 export const fetchRoomDetailThunk = createAsyncThunk<
-  RoomDetail,
+  ApiResponse<RoomDetail>,
   string,
   { rejectValue: string }
 >('room/fetchRoomDetail', async (roomId, { rejectWithValue }) => {
@@ -108,7 +108,7 @@ export const fetchRoomDetailThunk = createAsyncThunk<
     if (res.error || !res.data) {
       return rejectWithValue(apiFailureMessage(res));
     }
-    return res.data;
+    return res;
   } catch (error: unknown) {
     return rejectWithValue(
       getErrorMessage(error, 'Failed to fetch room detail')

@@ -1,21 +1,22 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import type { AxiosError } from 'axios';
 import { taskService } from '@/services/taskService';
+import type { ApiResponse } from '@/types/common/api';
 import type { ActivateTaskData } from '@/types/trackingSession';
 import type { DeactivateTaskData } from '@/types/task';
 import { apiFailureMessage } from '@/utils/apiEnvelope';
 
 export const activateTaskThunk = createAsyncThunk<
-  ActivateTaskData,
+  ApiResponse<ActivateTaskData>,
   string,
   { rejectValue: string }
 >('trackingSession/activate', async (taskId, { rejectWithValue }) => {
   try {
-    const response = await taskService.activateTask(taskId);
-    if (response.error || !response.data) {
-      return rejectWithValue(apiFailureMessage(response));
+    const res = await taskService.activateTask(taskId);
+    if (res.error || !res.data) {
+      return rejectWithValue(apiFailureMessage(res));
     }
-    return response.data;
+    return res;
   } catch (error: unknown) {
     const message = (error as AxiosError<{ message?: string }>).response?.data
       ?.message;
@@ -24,16 +25,16 @@ export const activateTaskThunk = createAsyncThunk<
 });
 
 export const deactivateTaskThunk = createAsyncThunk<
-  DeactivateTaskData,
+  ApiResponse<DeactivateTaskData>,
   string,
   { rejectValue: string }
 >('trackingSession/deactivate', async (taskId, { rejectWithValue }) => {
   try {
-    const response = await taskService.deactivateTask(taskId);
-    if (response.error || !response.data) {
-      return rejectWithValue(apiFailureMessage(response));
+    const res = await taskService.deactivateTask(taskId);
+    if (res.error || !res.data) {
+      return rejectWithValue(apiFailureMessage(res));
     }
-    return response.data;
+    return res;
   } catch (error: unknown) {
     const message = (error as AxiosError<{ message?: string }>).response?.data
       ?.message;

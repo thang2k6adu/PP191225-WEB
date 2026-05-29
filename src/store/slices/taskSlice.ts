@@ -106,7 +106,7 @@ const taskSlice = createSlice({
       })
       .addCase(fetchActiveTaskThunk.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.activeTask = action.payload;
+        state.activeTask = action.payload.data ?? null;
       })
       .addCase(fetchActiveTaskThunk.rejected, (state, action) => {
         state.isLoading = false;
@@ -121,8 +121,10 @@ const taskSlice = createSlice({
       })
       .addCase(createTaskThunk.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.tasks.unshift(action.payload);
-        state.total += 1;
+        if (action.payload.data) {
+          state.tasks.unshift(action.payload.data);
+          state.total += 1;
+        }
         state.isInvalidated = true;
       })
       .addCase(createTaskThunk.rejected, (state, action) => {
@@ -138,9 +140,11 @@ const taskSlice = createSlice({
       })
       .addCase(updateTaskThunk.fulfilled, (state, action) => {
         state.isLoading = false;
-        const index = state.tasks.findIndex(t => t.id === action.payload.id);
+        const updated = action.payload.data;
+        if (!updated) return;
+        const index = state.tasks.findIndex(t => t.id === updated.id);
         if (index !== -1) {
-          state.tasks[index] = action.payload;
+          state.tasks[index] = updated;
         }
         state.isInvalidated = true;
       })
@@ -157,14 +161,14 @@ const taskSlice = createSlice({
       })
       .addCase(activateTaskThunk.fulfilled, (state, action) => {
         state.isLoading = false;
-        // Deactivate all other tasks
+        const activated = action.payload.data?.task;
+        if (!activated) return;
         state.tasks = state.tasks.map(task => ({
           ...task,
-          isActive: task.id === action.payload.id,
-          status: task.id === action.payload.id ? 'ACTIVE' : task.status,
+          isActive: task.id === activated.id,
+          status: task.id === activated.id ? 'ACTIVE' : task.status,
         }));
-        // Set active task
-        const activatedTask = state.tasks.find(t => t.id === action.payload.id);
+        const activatedTask = state.tasks.find(t => t.id === activated.id);
         if (activatedTask) {
           state.activeTask = activatedTask;
         }
@@ -177,13 +181,15 @@ const taskSlice = createSlice({
 
     // Deactivate task (stop tracking)
     builder.addCase(deactivateTaskThunk.fulfilled, (state, action) => {
-      const taskId = action.payload.task.id;
+      const payload = action.payload.data;
+      if (!payload) return;
+      const taskId = payload.task.id;
       const index = state.tasks.findIndex(t => t.id === taskId);
       if (index !== -1) {
         state.tasks[index] = {
           ...state.tasks[index],
-          ...action.payload.task,
-          status: action.payload.task.status as Task['status'],
+          ...payload.task,
+          status: payload.task.status as Task['status'],
         };
       }
       if (state.activeTask?.id === taskId) {
@@ -200,12 +206,14 @@ const taskSlice = createSlice({
       })
       .addCase(completeTaskThunk.fulfilled, (state, action) => {
         state.isLoading = false;
-        const index = state.tasks.findIndex(t => t.id === action.payload.id);
+        const completed = action.payload.data;
+        if (!completed) return;
+        const index = state.tasks.findIndex(t => t.id === completed.id);
         if (index !== -1) {
           state.tasks[index].status = 'DONE';
           state.tasks[index].isActive = false;
         }
-        if (state.activeTask?.id === action.payload.id) {
+        if (state.activeTask?.id === completed.id) {
           state.activeTask = null;
         }
         state.isInvalidated = true;

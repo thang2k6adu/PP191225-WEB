@@ -62,7 +62,7 @@ export const useTrackingSession = () => {
 
       if (activateTaskThunk.fulfilled.match(result)) {
         toast.success('Task activated! Tracking started.');
-        return result.payload;
+        return result.payload.data ?? undefined;
       } else if (activateTaskThunk.rejected.match(result)) {
         toast.error(result.payload || 'Failed to activate task');
         throw new Error(result.payload);
@@ -78,7 +78,7 @@ export const useTrackingSession = () => {
       if (deactivateTaskThunk.fulfilled.match(result)) {
         toast.success('Task stopped!');
         stopTimer();
-        return result.payload;
+        return result.payload.data ?? undefined;
       } else if (deactivateTaskThunk.rejected.match(result)) {
         toast.error(result.payload || 'Failed to stop task');
         throw new Error(result.payload);
