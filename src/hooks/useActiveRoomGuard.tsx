@@ -10,6 +10,7 @@ import {
   ActiveRoomConflictDialog,
 } from '@/components/ActiveRoomConflictDialog';
 import { ROUTES } from '@/constants';
+import { apiFailureMessage } from '@/utils/apiEnvelope';
 
 type PendingAction = { kind: 'join'; targetRoomId: string } | { kind: 'match' };
 
@@ -56,7 +57,11 @@ export function useActiveRoomGuard() {
   const requestJoinRoom = useCallback(
     async (targetRoomId: string) => {
       try {
-        const current = await roomService.getCurrentRoom();
+        const res = await roomService.getCurrentRoom();
+        if (res.error || !res.data) {
+          throw new Error(apiFailureMessage(res));
+        }
+        const current = res.data;
 
         if (!current.hasActiveRoom || !current.room) {
           await performJoinRoom(targetRoomId);
@@ -81,7 +86,11 @@ export function useActiveRoomGuard() {
 
   const requestMatchmaking = useCallback(async () => {
     try {
-      const current = await roomService.getCurrentRoom();
+      const res = await roomService.getCurrentRoom();
+      if (res.error || !res.data) {
+        throw new Error(apiFailureMessage(res));
+      }
+      const current = res.data;
 
       if (!current.hasActiveRoom || !current.room) {
         await joinMatchmaking();

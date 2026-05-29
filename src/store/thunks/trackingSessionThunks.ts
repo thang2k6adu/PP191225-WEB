@@ -3,6 +3,7 @@ import type { AxiosError } from 'axios';
 import { taskService } from '@/services/taskService';
 import { ActivateTaskResponse } from '@/types/trackingSession';
 import { DeactivateTaskResponse } from '@/types/task';
+import { apiFailureMessage } from '@/utils/apiEnvelope';
 
 export const activateTaskThunk = createAsyncThunk<
   ActivateTaskResponse['data'],
@@ -11,6 +12,9 @@ export const activateTaskThunk = createAsyncThunk<
 >('trackingSession/activate', async (taskId, { rejectWithValue }) => {
   try {
     const response = await taskService.activateTask(taskId);
+    if (response.error || !response.data) {
+      return rejectWithValue(apiFailureMessage(response));
+    }
     return response.data;
   } catch (error: unknown) {
     const message = (error as AxiosError<{ message?: string }>).response?.data
@@ -26,6 +30,9 @@ export const deactivateTaskThunk = createAsyncThunk<
 >('trackingSession/deactivate', async (taskId, { rejectWithValue }) => {
   try {
     const response = await taskService.deactivateTask(taskId);
+    if (response.error || !response.data) {
+      return rejectWithValue(apiFailureMessage(response));
+    }
     return response.data;
   } catch (error: unknown) {
     const message = (error as AxiosError<{ message?: string }>).response?.data

@@ -9,6 +9,7 @@ import {
   TaskListResponse,
   TaskActionResponse,
 } from '@/types/task';
+import { apiFailureMessage } from '@/utils/apiEnvelope';
 
 const getErrorMessage = (error: unknown, fallback: string): string => {
   if (error && typeof error === 'object' && 'response' in error) {
@@ -45,7 +46,11 @@ export const fetchTasksThunk = createAsyncThunk<
         page: args?.page,
         limit: args?.limit,
       };
-      return await taskService.getTasks(params);
+      const res = await taskService.getTasks(params);
+      if (res.error || !res.data) {
+        return rejectWithValue(apiFailureMessage(res));
+      }
+      return res;
     } catch (error: unknown) {
       return rejectWithValue(getErrorMessage(error, 'Failed to fetch tasks'));
     }
@@ -89,6 +94,9 @@ export const fetchActiveTaskThunk = createAsyncThunk<
 >('task/fetchActiveTask', async (_, { rejectWithValue }) => {
   try {
     const response = await taskService.getActiveTask();
+    if (response.error) {
+      return rejectWithValue(apiFailureMessage(response));
+    }
     return response.data;
   } catch (error: unknown) {
     return rejectWithValue(
@@ -105,6 +113,9 @@ export const createTaskThunk = createAsyncThunk<
 >('task/createTask', async (data, { rejectWithValue }) => {
   try {
     const response = await taskService.createTask(data);
+    if (response.error || !response.data) {
+      return rejectWithValue(apiFailureMessage(response));
+    }
     return response.data;
   } catch (error: unknown) {
     return rejectWithValue(getErrorMessage(error, 'Failed to create task'));
@@ -119,6 +130,9 @@ export const updateTaskThunk = createAsyncThunk<
 >('task/updateTask', async ({ id, data }, { rejectWithValue }) => {
   try {
     const response = await taskService.updateTask(id, data);
+    if (response.error || !response.data) {
+      return rejectWithValue(apiFailureMessage(response));
+    }
     return response.data;
   } catch (error: unknown) {
     return rejectWithValue(getErrorMessage(error, 'Failed to update task'));
@@ -133,6 +147,9 @@ export const activateTaskThunk = createAsyncThunk<
 >('task/activateTask', async (id, { rejectWithValue }) => {
   try {
     const response = await taskService.activateTask(id);
+    if (response.error || !response.data?.task) {
+      return rejectWithValue(apiFailureMessage(response));
+    }
     return response.data.task;
   } catch (error: unknown) {
     return rejectWithValue(getErrorMessage(error, 'Failed to activate task'));
@@ -147,6 +164,9 @@ export const completeTaskThunk = createAsyncThunk<
 >('task/completeTask', async (id, { rejectWithValue }) => {
   try {
     const response = await taskService.completeTask(id);
+    if (response.error || !response.data) {
+      return rejectWithValue(apiFailureMessage(response));
+    }
     return response.data;
   } catch (error: unknown) {
     return rejectWithValue(getErrorMessage(error, 'Failed to complete task'));

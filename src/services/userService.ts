@@ -1,26 +1,15 @@
 import apiClient from '@/utils/api';
 import { API_ENDPOINTS } from '@/constants';
+import type { ApiResponse } from '@/types/common/api';
 import { UserProfile } from '@/types/user';
 
-export interface ApiResponse<T> {
-  error: boolean;
-  code: number;
-  message: string;
-  data: T | null;
-  traceId: string;
-}
+export type { ApiResponse } from '@/types/common/api';
 
 export const userService = {
-  getProfile: async (): Promise<ApiResponse<UserProfile>> => {
-    const response = await apiClient.get<ApiResponse<UserProfile>>(
-      API_ENDPOINTS.USERS.PROFILE
-    );
+  getProfile: (): Promise<ApiResponse<UserProfile>> =>
+    apiClient.get<ApiResponse<UserProfile>>(API_ENDPOINTS.USERS.PROFILE),
 
-    console.log('getProfile response:', response.data);
-    return response.data;
-  },
-
-  updateProfile: async (
+  updateProfile: (
     data: Partial<
       Pick<
         UserProfile,
@@ -33,11 +22,9 @@ export const userService = {
         | 'bio'
       >
     >
-  ): Promise<ApiResponse<UserProfile>> => {
-    const response = await apiClient.patch<ApiResponse<UserProfile>>(
+  ): Promise<ApiResponse<UserProfile>> =>
+    apiClient.patch<ApiResponse<UserProfile>>(
       API_ENDPOINTS.USERS.UPDATE_PROFILE,
       data
-    );
-    return response.data;
-  },
+    ),
 };

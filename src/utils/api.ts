@@ -2,6 +2,7 @@
 import axios, {
   AxiosInstance,
   AxiosError,
+  AxiosResponse,
   AxiosRequestConfig,
   InternalAxiosRequestConfig,
 } from 'axios';
@@ -109,6 +110,10 @@ class ApiClient {
             const { authService } = await import('@/services/authService');
             const response = await authService.refreshToken(refreshToken);
 
+            if (response.error) {
+              throw new Error(response.message || 'Refresh token failed');
+            }
+
             const refreshed = response.data?.accessToken;
             if (refreshed && response.data) {
               const { accessToken, expiresIn } = response.data;
@@ -180,36 +185,52 @@ class ApiClient {
     );
   }
 
-  public get<T = unknown>(url: string, config?: AxiosRequestConfig) {
-    return this.client.get<T>(url, config);
+  public get<T = unknown>(
+    url: string,
+    config?: AxiosRequestConfig
+  ): Promise<T> {
+    return this.client
+      .get<T, AxiosResponse<T>>(url, config)
+      .then(response => response.data);
   }
 
   public post<T = unknown>(
     url: string,
     data?: unknown,
     config?: AxiosRequestConfig
-  ) {
-    return this.client.post<T>(url, data, config);
+  ): Promise<T> {
+    return this.client
+      .post<T, AxiosResponse<T>>(url, data, config)
+      .then(response => response.data);
   }
 
   public put<T = unknown>(
     url: string,
     data?: unknown,
     config?: AxiosRequestConfig
-  ) {
-    return this.client.put<T>(url, data, config);
+  ): Promise<T> {
+    return this.client
+      .put<T, AxiosResponse<T>>(url, data, config)
+      .then(response => response.data);
   }
 
   public patch<T = unknown>(
     url: string,
     data?: unknown,
     config?: AxiosRequestConfig
-  ) {
-    return this.client.patch<T>(url, data, config);
+  ): Promise<T> {
+    return this.client
+      .patch<T, AxiosResponse<T>>(url, data, config)
+      .then(response => response.data);
   }
 
-  public delete<T = unknown>(url: string, config?: AxiosRequestConfig) {
-    return this.client.delete<T>(url, config);
+  public delete<T = unknown>(
+    url: string,
+    config?: AxiosRequestConfig
+  ): Promise<T> {
+    return this.client
+      .delete<T, AxiosResponse<T>>(url, config)
+      .then(response => response.data);
   }
 }
 

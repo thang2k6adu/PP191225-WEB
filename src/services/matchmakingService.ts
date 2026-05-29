@@ -200,30 +200,20 @@ class MatchmakingService {
     }
   }
 
-  async joinMatchmaking(): Promise<JoinMatchmakingResponse> {
-    const response =
-      await apiClient.post<JoinMatchmakingResponse>('/matchmaking/join');
-    return response.data;
+  joinMatchmaking(): Promise<JoinMatchmakingResponse> {
+    return apiClient.post<JoinMatchmakingResponse>('/matchmaking/join');
   }
 
-  async cancelMatchmaking(): Promise<CancelMatchmakingResponse> {
-    const response = await apiClient.post<CancelMatchmakingResponse>(
-      '/matchmaking/cancel'
-    );
-    return response.data;
+  cancelMatchmaking(): Promise<CancelMatchmakingResponse> {
+    return apiClient.post<CancelMatchmakingResponse>('/matchmaking/cancel');
   }
 
-  async getStatus(): Promise<GetStatusResponse> {
-    const response = await apiClient.get<GetStatusResponse>(
-      '/matchmaking/status'
-    );
-    return response.data;
+  getStatus(): Promise<GetStatusResponse> {
+    return apiClient.get<GetStatusResponse>('/matchmaking/status');
   }
 
-  async getStats(): Promise<GetStatsResponse> {
-    const response =
-      await apiClient.get<GetStatsResponse>('/matchmaking/stats');
-    return response.data;
+  getStats(): Promise<GetStatsResponse> {
+    return apiClient.get<GetStatsResponse>('/matchmaking/stats');
   }
 
   joinRoom(roomId: string): void {

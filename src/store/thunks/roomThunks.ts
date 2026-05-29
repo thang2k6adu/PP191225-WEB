@@ -7,12 +7,16 @@ import {
   PaginatedResponse,
   PublicRoom,
 } from '@/types/room';
+import { apiFailureMessage } from '@/utils/apiEnvelope';
 
 const getErrorMessage = (error: unknown, fallback: string): string => {
   if (error && typeof error === 'object' && 'response' in error) {
     const response = (error as { response?: { data?: { message?: string } } })
       .response;
     return response?.data?.message || fallback;
+  }
+  if (error instanceof Error && error.message) {
+    return error.message;
   }
   return fallback;
 };
@@ -30,7 +34,6 @@ const getPublicRoomsParamsKey = (args?: FetchPublicRoomsArgs): string =>
     limit: args?.limit ?? 10,
   });
 
-// Fetch public rooms
 export const fetchPublicRoomsThunk = createAsyncThunk<
   PaginatedResponse<PublicRoom>,
   FetchPublicRoomsArgs | undefined,
@@ -39,10 +42,14 @@ export const fetchPublicRoomsThunk = createAsyncThunk<
   'room/fetchPublicRooms',
   async (args, { rejectWithValue }) => {
     try {
-      return await roomService.getPublicRooms({
+      const res = await roomService.getPublicRooms({
         page: args?.page,
         limit: args?.limit,
       });
+      if (res.error || !res.data?.rooms) {
+        return rejectWithValue(apiFailureMessage(res));
+      }
+      return res.data.rooms;
     } catch (error: unknown) {
       return rejectWithValue(
         getErrorMessage(error, 'Failed to fetch public rooms')
@@ -79,27 +86,33 @@ export const fetchPublicRoomsThunk = createAsyncThunk<
   }
 );
 
-// Join room
 export const joinRoomThunk = createAsyncThunk<
   JoinRoomResponse,
   string,
   { rejectValue: string }
 >('room/joinRoom', async (roomId, { rejectWithValue }) => {
   try {
-    return await roomService.joinRoom(roomId);
+    const res = await roomService.joinRoom(roomId);
+    if (res.error || !res.data) {
+      return rejectWithValue(apiFailureMessage(res));
+    }
+    return res.data;
   } catch (error: unknown) {
     return rejectWithValue(getErrorMessage(error, 'Failed to join room'));
   }
 });
 
-// Fetch room detail
 export const fetchRoomDetailThunk = createAsyncThunk<
   RoomDetail,
   string,
   { rejectValue: string }
 >('room/fetchRoomDetail', async (roomId, { rejectWithValue }) => {
   try {
-    return await roomService.getRoomDetail(roomId);
+    const res = await roomService.getRoomDetail(roomId);
+    if (res.error || !res.data) {
+      return rejectWithValue(apiFailureMessage(res));
+    }
+    return res.data;
   } catch (error: unknown) {
     return rejectWithValue(
       getErrorMessage(error, 'Failed to fetch room detail')
@@ -107,14 +120,16 @@ export const fetchRoomDetailThunk = createAsyncThunk<
   }
 });
 
-// Leave room
 export const leaveRoomThunk = createAsyncThunk<
   void,
   string,
   { rejectValue: string }
 >('room/leaveRoom', async (roomId, { rejectWithValue }) => {
   try {
-    await roomService.leaveRoom(roomId);
+    const res = await roomService.leaveRoom(roomId);
+    if (res.error) {
+      return rejectWithValue(apiFailureMessage(res));
+    }
   } catch (error: unknown) {
     return rejectWithValue(getErrorMessage(error, 'Failed to leave room'));
   }

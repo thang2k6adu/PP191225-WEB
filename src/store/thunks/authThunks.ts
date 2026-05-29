@@ -19,6 +19,7 @@ import {
 import { authService } from '@/services/authService';
 import { userService } from '@/services/userService';
 import { UserProfile } from '@/types/user';
+import { apiFailureMessage } from '@/utils/apiEnvelope';
 
 interface TokensPayload {
   tokens: TokenData;
@@ -252,9 +253,7 @@ export const getUserProfileThunk = createAsyncThunk<
   try {
     const response = await userService.getProfile();
     if (response.error || !response.data) {
-      return rejectWithValue(
-        response.message || 'Failed to fetch user profile'
-      );
+      return rejectWithValue(apiFailureMessage(response));
     }
     return response.data;
   } catch (error: unknown) {

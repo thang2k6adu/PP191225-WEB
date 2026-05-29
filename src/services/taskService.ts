@@ -14,86 +14,42 @@ import { ActivateTaskResponse } from '@/types/trackingSession';
 import { API_ENDPOINTS } from '@/constants';
 
 export const taskService = {
-  getTasks: async (params?: {
+  getTasks: (params?: {
     page?: number;
     limit?: number;
-  }): Promise<TaskListResponse> => {
-    const response = await apiClient.get<TaskListResponse>(
-      API_ENDPOINTS.TASKS.LIST,
-      { params }
-    );
-    return response.data;
-  },
+  }): Promise<TaskListResponse> =>
+    apiClient.get<TaskListResponse>(API_ENDPOINTS.TASKS.LIST, { params }),
 
-  getTaskById: async (id: string): Promise<TaskResponse> => {
-    const response = await apiClient.get<TaskResponse>(
-      API_ENDPOINTS.TASKS.DETAIL(id)
-    );
-    return response.data;
-  },
+  getTaskById: (id: string): Promise<TaskResponse> =>
+    apiClient.get<TaskResponse>(API_ENDPOINTS.TASKS.DETAIL(id)),
 
-  getActiveTask: async (): Promise<ActiveTaskResponse> => {
-    const response = await apiClient.get<ActiveTaskResponse>(
-      API_ENDPOINTS.TASKS.ACTIVE
-    );
-    return response.data;
-  },
+  getActiveTask: (): Promise<ActiveTaskResponse> =>
+    apiClient.get<ActiveTaskResponse>(API_ENDPOINTS.TASKS.ACTIVE),
 
-  createTask: async (data: CreateTaskData): Promise<TaskResponse> => {
-    const response = await apiClient.post<TaskResponse>(
-      API_ENDPOINTS.TASKS.CREATE,
-      data
-    );
-    return response.data;
-  },
+  createTask: (data: CreateTaskData): Promise<TaskResponse> =>
+    apiClient.post<TaskResponse>(API_ENDPOINTS.TASKS.CREATE, data),
 
-  updateTask: async (
-    id: string,
-    data: UpdateTaskData
-  ): Promise<TaskResponse> => {
-    const response = await apiClient.patch<TaskResponse>(
-      API_ENDPOINTS.TASKS.UPDATE(id),
-      data
-    );
-    return response.data;
-  },
+  updateTask: (id: string, data: UpdateTaskData): Promise<TaskResponse> =>
+    apiClient.patch<TaskResponse>(API_ENDPOINTS.TASKS.UPDATE(id), data),
 
-  activateTask: async (id: string): Promise<ActivateTaskResponse> => {
-    const response = await apiClient.post<ActivateTaskResponse>(
-      API_ENDPOINTS.TASKS.ACTIVATE(id),
-      {}
-    );
-    return response.data;
-  },
+  activateTask: (id: string): Promise<ActivateTaskResponse> =>
+    apiClient.post<ActivateTaskResponse>(API_ENDPOINTS.TASKS.ACTIVATE(id), {}),
 
-  deactivateTask: async (id: string): Promise<DeactivateTaskResponse> => {
-    const response = await apiClient.post<DeactivateTaskResponse>(
+  deactivateTask: (id: string): Promise<DeactivateTaskResponse> =>
+    apiClient.post<DeactivateTaskResponse>(
       API_ENDPOINTS.TASKS.DEACTIVATE(id),
       {}
-    );
-    return response.data;
-  },
+    ),
 
-  completeTask: async (id: string): Promise<TaskActionResponse> => {
-    const response = await apiClient.post<TaskActionResponse>(
-      API_ENDPOINTS.TASKS.COMPLETE(id),
-      {}
-    );
-    return response.data;
-  },
+  completeTask: (id: string): Promise<TaskActionResponse> =>
+    apiClient.post<TaskActionResponse>(API_ENDPOINTS.TASKS.COMPLETE(id), {}),
 
-  deleteTask: async (id: string): Promise<void> => {
-    await apiClient.delete(API_ENDPOINTS.TASKS.DELETE(id));
-  },
+  deleteTask: (id: string): Promise<void> =>
+    apiClient.delete(API_ENDPOINTS.TASKS.DELETE(id)),
 
-  getTaskStats: async (params?: {
+  getTaskStats: (params?: {
     period?: TaskStatsPeriod;
     anchorDate?: string;
-  }): Promise<TaskStatsResponse> => {
-    const response = await apiClient.get<TaskStatsResponse>(
-      API_ENDPOINTS.TASKS.STATS,
-      { params }
-    );
-    return response.data;
-  },
+  }): Promise<TaskStatsResponse> =>
+    apiClient.get<TaskStatsResponse>(API_ENDPOINTS.TASKS.STATS, { params }),
 };
