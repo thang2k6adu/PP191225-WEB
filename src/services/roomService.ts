@@ -4,14 +4,23 @@ import {
   JoinRoomApiResponse,
   RoomDetailResponse,
   LeaveRoomResponse,
+  CurrentActiveRoomApiResponse,
   PaginatedResponse,
   PublicRoom,
   JoinRoomResponse,
   RoomDetail,
+  CurrentActiveRoomResponse,
 } from '@/types/room';
 import { API_ENDPOINTS } from '@/constants';
 
 export const roomService = {
+  getCurrentRoom: async (): Promise<CurrentActiveRoomResponse> => {
+    const response = await apiClient.get<CurrentActiveRoomApiResponse>(
+      API_ENDPOINTS.ROOMS.CURRENT
+    );
+    return response.data.data;
+  },
+
   // Get all public rooms
   getPublicRooms: async (params?: {
     page?: number;

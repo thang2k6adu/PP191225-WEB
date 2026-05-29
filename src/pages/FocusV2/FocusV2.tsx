@@ -4,6 +4,7 @@ import { FilterSidebar } from './sections/FilterSidebar';
 import { WelcomeBanner } from './sections/WelcomeBanner';
 import { RoomsGrid } from './sections/RoomsGrid';
 import { useRooms } from '@/hooks/useRooms';
+import { useActiveRoomGuard } from '@/hooks/useActiveRoomGuard';
 import { useMatchmaking } from '@/hooks/useMatchmaking';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import MatchingBanner from '@/components/MatchingBanner';
@@ -15,8 +16,10 @@ import { ROUTES } from '@/constants';
 
 export default function FocusV2() {
   const navigate = useNavigate();
-  const { publicRooms, isLoading, fetchPublicRooms, joinRoom } = useRooms();
+  const { publicRooms, isLoading, fetchPublicRooms } = useRooms();
   const { matchData, state, clearError } = useMatchmaking();
+  const { requestJoinRoom, requestMatchmaking, conflictDialog } =
+    useActiveRoomGuard();
 
   useEffect(() => {
     fetchPublicRooms();
@@ -52,21 +55,14 @@ export default function FocusV2() {
     }));
   }, [publicRooms]);
 
-  const handleJoinRoom = async (roomId: string) => {
-    const result = await joinRoom(roomId);
-    // Check if join was successful (thunk returns fulfilled result with payload)
-    if (result.meta.requestStatus === 'fulfilled' && result.payload) {
-      // Navigate to focus room page with roomId in URL
-      navigate(`${ROUTES.FOCUS_ROOM}/${roomId}`);
-    }
-  };
-
   if (isLoading && publicRooms.length === 0) {
     return <LoadingSpinner />;
   }
 
   return (
     <>
+      {conflictDialog}
+
       <Helmet>
         <title>Focus Rooms - Focus Hub</title>
         <meta
@@ -82,9 +78,9 @@ export default function FocusV2() {
       </div>
 
       <div className="col-span-9 space-y-8">
-        <WelcomeBanner />
+        <WelcomeBanner onMatchRequest={requestMatchmaking} />
 
-        <RoomsGrid rooms={rooms} onJoinRoom={handleJoinRoom} />
+        <RoomsGrid rooms={rooms} onJoinRoom={requestJoinRoom} />
       </div>
     </>
   );

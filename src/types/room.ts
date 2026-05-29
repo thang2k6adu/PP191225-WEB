@@ -67,6 +67,28 @@ export interface JoinRoomResponse {
   topic: string;
 }
 
+export interface ActiveRoomSummary {
+  id: string;
+  type: RoomType;
+  topic: string | null;
+  livekitRoomName: string;
+  status: RoomStatus;
+}
+
+export interface CurrentActiveRoomResponse {
+  hasActiveRoom: boolean;
+  room: ActiveRoomSummary | null;
+  token: string | null;
+}
+
+export interface CurrentActiveRoomApiResponse {
+  error: boolean;
+  code: number;
+  message: string;
+  data: CurrentActiveRoomResponse;
+  traceId: string;
+}
+
 export interface PublicRoomsResponse {
   error: boolean;
   code: number;

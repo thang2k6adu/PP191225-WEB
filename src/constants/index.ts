@@ -61,6 +61,7 @@ export const API_ENDPOINTS = {
     STATS: '/matchmaking/stats',
   },
   ROOMS: {
+    CURRENT: '/rooms/current',
     PUBLIC: '/rooms/public',
     JOIN: (roomId: string) => `/rooms/${roomId}/join`,
     DETAIL: (roomId: string) => `/rooms/${roomId}`,

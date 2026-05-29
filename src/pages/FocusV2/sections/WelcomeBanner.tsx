@@ -5,12 +5,14 @@ import { UserState } from '@/types/matchmaking';
 import { LuLoaderCircle as Loader2 } from 'react-icons/lu';
 import toast from 'react-hot-toast';
 
-export function WelcomeBanner() {
-  const { joinMatchmaking, state, isConnected, isJoining, connect } =
-    useMatchmaking();
+interface WelcomeBannerProps {
+  onMatchRequest: () => void | Promise<void>;
+}
+
+export function WelcomeBanner({ onMatchRequest }: WelcomeBannerProps) {
+  const { state, isConnected, isJoining, connect } = useMatchmaking();
 
   const handleMatchNow = async () => {
-    // If not connected, connect first
     if (!isConnected) {
       toast.loading('Connecting to server...', { id: 'connecting' });
       try {
@@ -24,7 +26,7 @@ export function WelcomeBanner() {
       }
     }
 
-    joinMatchmaking();
+    await onMatchRequest();
   };
 
   const isMatching = state === UserState.WAITING || isJoining;
