@@ -30,7 +30,6 @@ export function FloatingTextarea({
           px-3
           pb-2.5 pt-6
           text-body-regular text-gray-900
-          shadow-md
           appearance-none
           resize-none
           focus:outline-none

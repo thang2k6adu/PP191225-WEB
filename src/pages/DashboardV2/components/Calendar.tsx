@@ -68,7 +68,7 @@ export function Calendar() {
     selected && selected.day === d.day && selected.offset === d.offset;
 
   return (
-    <Card className="w-full">
+    <Card className="w-full shadow-md">
       <CardContent className="p-8">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-h5-bold">

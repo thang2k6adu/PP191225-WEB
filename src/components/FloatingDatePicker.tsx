@@ -39,7 +39,6 @@ export function FloatingDatePicker({
             px-3
             pb-2.5 pt-5
             text-left
-            shadow-md
             appearance-none
             focus:outline-none
           `,

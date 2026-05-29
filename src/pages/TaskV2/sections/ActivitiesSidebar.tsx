@@ -191,13 +191,13 @@ export function ActivitiesSidebar() {
         >
           <button
             onClick={handleEditFromMenu}
-            className="w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-gray-700 hover:bg-gray-100"
+            className="w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-gray-700 hover:bg-gray-100"
           >
             Edit
           </button>
           <button
             onClick={handleDeleteFromMenu}
-            className="w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-red-600 hover:bg-red-50"
+            className="w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-red-600 hover:bg-red-50"
           >
             Delete
           </button>

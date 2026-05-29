@@ -29,7 +29,6 @@ export function FloatingInput({
           px-3
           pb-2.5 pt-5
           text-body-regular text-gray-900
-          shadow-md
           bg-white
           appearance-none
           focus:outline-none

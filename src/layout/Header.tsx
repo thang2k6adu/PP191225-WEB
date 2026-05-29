@@ -93,7 +93,7 @@ export function Header({ user }: HeaderProps) {
                   </div>
                   <Button
                     variant="ghost"
-                    className="w-full justify-start text-sm font-normal"
+                    className="w-full justify-start text-sm font-normal rounded-xl"
                     onClick={() => {
                       navigate(ROUTES.PROFILE);
                     }}
@@ -103,7 +103,7 @@ export function Header({ user }: HeaderProps) {
                   </Button>
                   <Button
                     variant="ghost"
-                    className="w-full justify-start text-sm font-normal text-red-600 hover:text-red-700 hover:bg-red-50"
+                    className="w-full justify-start text-sm font-normal text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl"
                     onClick={async () => {
                       await dispatch(logoutThunk());
                       navigate(ROUTES.LOGIN);
