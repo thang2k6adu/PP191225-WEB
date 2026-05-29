@@ -1,6 +1,6 @@
-# React Boilerplate
+# Focus Hub
 
-A modern, production-ready React + TypeScript boilerplate with all the essential features and best practices.
+Focus Hub web app — React + TypeScript frontend for collaborative focus sessions, tasks, and video rooms.
 
 ## 🚀 Features
 
@@ -42,13 +42,13 @@ A modern, production-ready React + TypeScript boilerplate with all the essential
 ### API / Data Fetching
 
 - ✅ Axios wrapper with interceptors
-- ✅ React Query for data fetching and caching
+- ✅ Redux Toolkit thunks for API data fetching
 - ✅ Error handling and retry logic
 
 ### Utilities
 
 - ✅ Helper functions (debounce, throttle, etc.)
-- ✅ Date formatting with dayjs
+- ✅ Date formatting with date-fns
 - ✅ Toast notifications (react-hot-toast)
 - ✅ Global error boundary
 
@@ -136,10 +136,10 @@ npm run preview
 
 ```bash
 # Build Docker image
-docker build -t react-boilerplate .
+docker build -t focus-hub .
 
 # Run Docker container
-docker run -p 80:80 react-boilerplate
+docker run -p 80:80 focus-hub
 ```
 
 ## 📁 Project Structure

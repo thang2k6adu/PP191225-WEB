@@ -15,7 +15,7 @@ export default function TasksV2() {
   return (
     <>
       <Helmet>
-        <title>Tasks - React Boilerplate</title>
+        <title>Tasks - Focus Hub</title>
         <meta
           name="description"
           content="Manage your tasks and track progress"

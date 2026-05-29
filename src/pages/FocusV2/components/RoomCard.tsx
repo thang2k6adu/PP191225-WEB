@@ -2,7 +2,7 @@ import { Room } from '../types';
 import { LuUsers as Users } from 'react-icons/lu';
 
 type RoomCardProps = Room & {
-  onJoin?: (id: number) => void;
+  onJoin?: (id: string) => void;
 };
 
 export function RoomCard({

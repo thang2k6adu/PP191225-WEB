@@ -1,8 +1,7 @@
 export type SortOption = 'newest' | 'oldest' | 'a-z';
 
 export type Room = {
-  id: number;
-  roomId?: string; // UUID from API
+  id: string;
   title: string;
   subtitle: string;
   image: string;

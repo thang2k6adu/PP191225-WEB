@@ -1,7 +1,6 @@
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { HelmetProvider } from 'react-helmet-async';
 import { BrowserRouter } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
@@ -11,51 +10,39 @@ import ErrorBoundary from './components/ErrorBoundary';
 import './index.css';
 import './config/i18n';
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: 1,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-    },
-  },
-});
-
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <ErrorBoundary>
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <QueryClientProvider client={queryClient}>
-          <HelmetProvider>
-            <BrowserRouter>
-              <App />
-              <Toaster
-                position="top-right"
-                toastOptions={{
+        <HelmetProvider>
+          <BrowserRouter>
+            <App />
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                duration: 4000,
+                style: {
+                  background: '#363636',
+                  color: '#fff',
+                },
+                success: {
+                  duration: 3000,
+                  iconTheme: {
+                    primary: '#4ade80',
+                    secondary: '#fff',
+                  },
+                },
+                error: {
                   duration: 4000,
-                  style: {
-                    background: '#363636',
-                    color: '#fff',
+                  iconTheme: {
+                    primary: '#ef4444',
+                    secondary: '#fff',
                   },
-                  success: {
-                    duration: 3000,
-                    iconTheme: {
-                      primary: '#4ade80',
-                      secondary: '#fff',
-                    },
-                  },
-                  error: {
-                    duration: 4000,
-                    iconTheme: {
-                      primary: '#ef4444',
-                      secondary: '#fff',
-                    },
-                  },
-                }}
-              />
-            </BrowserRouter>
-          </HelmetProvider>
-        </QueryClientProvider>
+                },
+              }}
+            />
+          </BrowserRouter>
+        </HelmetProvider>
       </PersistGate>
     </Provider>
   </ErrorBoundary>

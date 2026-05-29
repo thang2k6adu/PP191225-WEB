@@ -24,10 +24,10 @@ export const routes: RouteObject[] = [
       { path: 'forgot-password', element: <ForgotPasswordV2 /> },
       { path: 'reset-password', element: <ResetPasswordV2 /> },
       { path: 'verify-email', element: <VerifyEmailV2 /> },
-      { path: 'focus-room/:roomId', element: <FocusRoomV2 /> },
       {
         element: <ProtectedRoute />,
         children: [
+          { path: 'focus-room/:roomId', element: <FocusRoomV2 /> },
           {
             element: <Layout />,
             children: [

@@ -40,8 +40,7 @@ export default function FocusV2() {
   // Transform API data to UI format
   const rooms: Room[] = useMemo(() => {
     return publicRooms.map((room, index) => ({
-      id: parseInt(room.id.substring(0, 8), 16), // Convert UUID to number for UI
-      roomId: room.id, // Keep original UUID for API calls
+      id: room.id,
       title: room.topic || 'Study Room',
       subtitle: "Let's study and be productive",
       image: getNatureImage(index),

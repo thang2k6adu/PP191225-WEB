@@ -30,7 +30,7 @@ export function RoomsGrid({ rooms, onJoinRoom }: RoomsGridProps) {
             <RoomCard
               key={room.id}
               {...room}
-              onJoin={() => onJoinRoom?.(room.roomId || room.id.toString())}
+              onJoin={() => onJoinRoom?.(room.id)}
             />
           ))}
         </div>
