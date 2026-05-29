@@ -18,15 +18,21 @@ import matchmakingReducer from './slices/matchmakingSlice';
 import trackingSessionReducer from './slices/trackingSessionSlice';
 import roomReducer from './slices/roomSlice';
 
-const persistConfig = {
+const authPersistConfig = {
+  key: 'auth',
+  storage,
+  blacklist: ['user', 'isLoading', 'isLoadingProfile', 'error'],
+};
+
+const rootPersistConfig = {
   key: 'root',
   version: 1,
   storage,
-  whitelist: ['auth', 'theme'], // Only persist these slices
+  whitelist: ['theme'],
 };
 
 const rootReducer = combineReducers({
-  auth: authReducer,
+  auth: persistReducer(authPersistConfig, authReducer),
   theme: themeReducer,
   task: taskReducer,
   matchmaking: matchmakingReducer,
@@ -34,7 +40,7 @@ const rootReducer = combineReducers({
   room: roomReducer,
 });
 
-const persistedReducer = persistReducer(persistConfig, rootReducer);
+const persistedReducer = persistReducer(rootPersistConfig, rootReducer);
 
 export const store = configureStore({
   reducer: persistedReducer,

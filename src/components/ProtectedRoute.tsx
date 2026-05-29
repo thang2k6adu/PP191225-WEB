@@ -1,16 +1,25 @@
-import React from 'react';
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import React, { useEffect } from 'react';
+import { Navigate, Outlet } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { getUserProfileThunk } from '@/store/thunks/authThunks';
 import { ROUTES } from '@/constants';
 import LoadingSpinner from './LoadingSpinner';
-import { Outlet } from 'react-router-dom';
 
 interface ProtectedRouteProps {
   requiredRole?: 'admin' | 'user' | 'basic';
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ requiredRole }) => {
-  const { isAuthenticated, isLoading, user } = useAuth();
+  const dispatch = useAppDispatch();
+  const { isAuthenticated, isLoading, isLoadingProfile, user } = useAppSelector(
+    state => state.auth
+  );
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      dispatch(getUserProfileThunk());
+    }
+  }, [isAuthenticated, dispatch]);
 
   if (isLoading) {
     return <LoadingSpinner />;
@@ -18,6 +27,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ requiredRole }) => {
 
   if (!isAuthenticated) {
     return <Navigate to={ROUTES.LOGIN} replace />;
+  }
+
+  if (isLoadingProfile && !user) {
+    return <LoadingSpinner />;
   }
 
   if (requiredRole && user?.role !== requiredRole && user?.role !== 'admin') {

@@ -1,23 +1,13 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import CollapsibleSidebar from '@/layout/CollapsibleSidebar';
 import { MeshGradientBackground } from '@/layout/MeshGradientBackground';
 import { Header } from '@/layout/Header.tsx';
 import { Outlet } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { getUserProfileThunk } from '@/store/thunks/authThunks';
+import { useAppSelector } from '@/store/hooks';
 import { getDisplayName, getInitials } from '@/types/user';
 
 export const Layout: React.FC = () => {
-  const dispatch = useAppDispatch();
-  const { isAuthenticated, user } = useAppSelector(state => state.auth);
-
-  useEffect(() => {
-    console.log('user', user);
-
-    if (isAuthenticated && !user) {
-      dispatch(getUserProfileThunk());
-    }
-  }, [isAuthenticated, user, dispatch]);
+  const { user } = useAppSelector(state => state.auth);
 
   return (
     <div className="relative flex h-screen w-full overflow-hidden bg-[#fcfcfb]">
