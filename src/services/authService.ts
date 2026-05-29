@@ -12,9 +12,10 @@ export const authService = {
     await apiClient.post(API_ENDPOINTS.AUTH.LOGOUT);
   },
 
-  refreshToken: async (): Promise<{ token: string }> => {
-    const response = await apiClient.post<{ token: string }>(
-      API_ENDPOINTS.AUTH.REFRESH
+  refreshToken: async (refreshToken: string): Promise<RefreshTokenResponse> => {
+    const response = await apiClient.post<RefreshTokenResponse>(
+      API_ENDPOINTS.AUTH.REFRESH,
+      { refreshToken } satisfies RefreshTokenRequest
     );
     return response.data;
   },
@@ -33,8 +34,6 @@ export const authService = {
     });
   },
 
-  // resetPassword is now handled directly by Firebase Client SDK in thunks
-
   // Firebase Login
   loginWithFirebase: async (
     request: FirebaseLoginRequest
@@ -46,24 +45,12 @@ export const authService = {
     return response.data;
   },
 
-  // Firebase Sign Up
   signUpWithFirebase: async (
     request: FirebaseLoginRequest
   ): Promise<FirebaseLoginResponse> => {
     const response = await apiClient.post<FirebaseLoginResponse>(
       API_ENDPOINTS.AUTH.FIREBASE_LOGIN,
       request
-    );
-    return response.data;
-  },
-
-  // Refresh Token (standalone, for recovery)
-  refreshAccessToken: async (
-    refreshToken: string
-  ): Promise<RefreshTokenResponse> => {
-    const response = await apiClient.post<RefreshTokenResponse>(
-      API_ENDPOINTS.AUTH.FIREBASE_REFRESH,
-      { refreshToken } as RefreshTokenRequest
     );
     return response.data;
   },

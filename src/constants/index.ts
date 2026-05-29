@@ -39,7 +39,6 @@ export const API_ENDPOINTS = {
     REFRESH: '/auth/refresh',
     RESET_PASSWORD: '/auth/reset-password',
     FIREBASE_LOGIN: '/auth/firebase/login',
-    FIREBASE_REFRESH: '/auth/refresh',
     SEND_VERIFICATION_EMAIL: '/auth/send-verification-email',
   },
   TASKS: {

@@ -106,14 +106,12 @@ class ApiClient {
               throw new Error('No refresh token available');
             }
 
-            const response = await this.client.post<{
-              error: boolean;
-              data: { accessToken: string; expiresIn: number } | null;
-            }>('/auth/refresh', { refreshToken });
+            const { authService } = await import('@/services/authService');
+            const response = await authService.refreshToken(refreshToken);
 
-            const refreshed = response.data?.data?.accessToken;
-            if (refreshed && response.data?.data) {
-              const { accessToken, expiresIn } = response.data.data;
+            const refreshed = response.data?.accessToken;
+            if (refreshed && response.data) {
+              const { accessToken, expiresIn } = response.data;
               localStorage.setItem(
                 TOKEN_STORAGE_KEYS.ACCESS_TOKEN,
                 accessToken
