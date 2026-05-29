@@ -1,6 +1,5 @@
 import * as React from 'react';
 import {
-  LuHeart as Heart,
   LuHouse as Home,
   LuFocus as Focus,
   LuList as List,
@@ -92,8 +91,11 @@ export default function CollapsibleSidebar() {
       )}
     >
       <div className="flex-1 flex flex-col gap-6">
-        <div className="flex items-center gap-3 p-6 pb-4">
-          <Heart className="h-8 w-8 flex-shrink-0 fill-gray-500 text-gray-500" />
+        <div className="flex items-end gap-1 p-6 pb-4">
+          <img
+            src="/logo.svg"
+            className="h-8 w-8 flex-shrink-0 fill-gray-500 text-gray-500"
+          />
           <span
             className={cn(
               'text-2xl text-black font-bold whitespace-nowrap overflow-hidden transition-all duration-200 ease-out',
@@ -102,7 +104,7 @@ export default function CollapsibleSidebar() {
                 : 'max-w-[200px] opacity-100 translate-x-0'
             )}
           >
-            Logo
+            KruzeTech
           </span>
         </div>
 

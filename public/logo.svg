@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 218 210" role="img" aria-label="Kreutzer K logo">
+  <defs>
+    <linearGradient id="kreutzerPurple" x1="0" y1="0" x2="0.88" y2="1">
+      <stop offset="0%" stop-color="#4F2DD2"/>
+      <stop offset="48%" stop-color="#5933DB"/>
+      <stop offset="100%" stop-color="#4B28CC"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Clean vector recreation of the K mark from the supplied image -->
+  <path fill="#6734df"
+        d="M1 0H39V104L126 0H217L99 145L145 210H110L63 145L152 38H138L39 147V210H0Z"/>
+  <path fill="#6734df"
+        d="M139 123L201 210H166L121 146Z"/>
+</svg>
