@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   fetchTasksThunk,
@@ -8,27 +8,33 @@ import {
   activateTaskThunk,
   completeTaskThunk,
   deleteTaskThunk,
+  type FetchTasksArgs,
 } from '@/store/thunks/taskThunks';
 import { CreateTaskData, UpdateTaskData } from '@/types/task';
 import toast from 'react-hot-toast';
 
-interface FetchTasksOptions {
-  page?: number;
-  size?: number;
-  force?: boolean;
-  ttlMs?: number;
-}
+export type { FetchTasksArgs };
 
 const isConditionSkip = (action: { meta?: { condition?: boolean } }) =>
   Boolean(action.meta?.condition);
 
 export const useTasks = () => {
   const dispatch = useAppDispatch();
-  const { tasks, activeTask, isLoading, error, total, page, size } =
-    useAppSelector(state => state.task);
+  const {
+    tasks,
+    activeTask,
+    isLoading,
+    isLoadingMore,
+    error,
+    total,
+    page,
+    size,
+  } = useAppSelector(state => state.task);
+
+  const hasMore = useMemo(() => tasks.length < total, [tasks.length, total]);
 
   const fetchTasks = useCallback(
-    async (params?: FetchTasksOptions) => {
+    async (params?: FetchTasksArgs) => {
       const result = await dispatch(fetchTasksThunk(params));
       if (fetchTasksThunk.rejected.match(result) && !isConditionSkip(result)) {
         toast.error(result.payload || 'Failed to fetch tasks');
@@ -115,6 +121,8 @@ export const useTasks = () => {
     tasks,
     activeTask,
     isLoading,
+    isLoadingMore,
+    hasMore,
     error,
     total,
     page,

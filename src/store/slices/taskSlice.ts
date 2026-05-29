@@ -8,32 +8,25 @@ import {
   activateTaskThunk,
   completeTaskThunk,
   deleteTaskThunk,
+  getTaskListFilterKey,
 } from '../thunks/taskThunks';
 import { deactivateTaskThunk } from '../thunks/trackingSessionThunks';
 
 const DEFAULT_TASK_TTL_MS = 60_000;
 
-const getTaskParamsKey = (args?: {
-  page?: number;
-  size?: number;
-  force?: boolean;
-  ttlMs?: number;
-}): string =>
-  JSON.stringify({
-    page: args?.page ?? 1,
-    size: args?.size ?? 10,
-  });
+const DEFAULT_TASK_PAGE_SIZE = 12;
 
 interface TaskState {
   tasks: Task[];
   activeTask: Task | null;
   isLoading: boolean;
+  isLoadingMore: boolean;
   error: string | null;
   total: number;
   page: number;
   size: number;
   lastFetchedAt: number | null;
-  lastParamsKey: string | null;
+  lastFilterKey: string | null;
   ttlMs: number;
   isInvalidated: boolean;
 }
@@ -42,12 +35,13 @@ const initialState: TaskState = {
   tasks: [],
   activeTask: null,
   isLoading: false,
+  isLoadingMore: false,
   error: null,
   total: 0,
   page: 1,
-  size: 10,
+  size: DEFAULT_TASK_PAGE_SIZE,
   lastFetchedAt: null,
-  lastParamsKey: null,
+  lastFilterKey: null,
   ttlMs: DEFAULT_TASK_TTL_MS,
   isInvalidated: false,
 };
@@ -76,25 +70,45 @@ const taskSlice = createSlice({
   extraReducers: builder => {
     // Fetch tasks
     builder
-      .addCase(fetchTasksThunk.pending, state => {
-        state.isLoading = true;
+      .addCase(fetchTasksThunk.pending, (state, action) => {
+        if (action.meta.arg?.append) {
+          state.isLoadingMore = true;
+        } else {
+          state.isLoading = true;
+        }
         state.error = null;
       })
       .addCase(fetchTasksThunk.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.tasks = action.payload.data ?? [];
+        state.isLoadingMore = false;
+
+        const incoming = action.payload.data ?? [];
+        if (action.meta.arg?.append) {
+          const existingIds = new Set(state.tasks.map(task => task.id));
+          const merged = [...state.tasks];
+          for (const task of incoming) {
+            if (!existingIds.has(task.id)) {
+              merged.push(task);
+            }
+          }
+          state.tasks = merged;
+        } else {
+          state.tasks = incoming;
+        }
+
         if (action.payload.meta) {
           state.total = action.payload.meta.totalItems;
           state.page = action.payload.meta.currentPage;
           state.size = action.payload.meta.itemsPerPage;
         }
         state.lastFetchedAt = Date.now();
-        state.lastParamsKey = getTaskParamsKey(action.meta.arg);
+        state.lastFilterKey = getTaskListFilterKey(action.meta.arg);
         state.ttlMs = action.meta.arg?.ttlMs ?? state.ttlMs;
         state.isInvalidated = false;
       })
       .addCase(fetchTasksThunk.rejected, (state, action) => {
         state.isLoading = false;
+        state.isLoadingMore = false;
         state.error = action.payload || 'Failed to fetch tasks';
       });
 

@@ -9,17 +9,30 @@ import {
   DeactivateTaskData,
   TaskStatsPeriod,
   TaskStatsData,
+  TaskStatus,
 } from '@/types/task';
 import type { ActivateTaskData } from '@/types/trackingSession';
 import { API_ENDPOINTS } from '@/constants';
 
+export interface GetTasksParams {
+  page?: number;
+  size?: number;
+  status?: TaskStatus;
+  statuses?: TaskStatus[];
+  excludeDone?: boolean;
+  search?: string;
+  isActive?: boolean;
+}
+
 export const taskService = {
-  getTasks: (params?: {
-    page?: number;
-    size?: number;
-  }): Promise<PaginatedApiResponse<Task>> =>
+  getTasks: (params?: GetTasksParams): Promise<PaginatedApiResponse<Task>> =>
     apiClient.get<PaginatedApiResponse<Task>>(API_ENDPOINTS.TASKS.LIST, {
-      params,
+      params: {
+        ...params,
+        statuses: params?.statuses?.length
+          ? params.statuses.join(',')
+          : undefined,
+      },
     }),
 
   getTaskById: (id: string): Promise<ApiResponse<Task>> =>

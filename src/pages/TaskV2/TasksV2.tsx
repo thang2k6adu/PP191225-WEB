@@ -1,17 +1,9 @@
-import { useEffect } from 'react';
 import { ActivitiesSidebar } from './sections/ActivitiesSidebar';
 import { ChartsSection } from './sections/ChartsSection';
 import { RecentActivities } from '@/components/RecentActivities';
-import { useTasks } from '@/hooks/useTasks';
 import { Helmet } from 'react-helmet-async';
 
 export default function TasksV2() {
-  const { fetchTasks } = useTasks();
-
-  useEffect(() => {
-    fetchTasks();
-  }, [fetchTasks]);
-
   return (
     <>
       <Helmet>

@@ -9,6 +9,7 @@ import {
   Task,
   ActiveTask,
   TaskActionData,
+  TaskStatus,
 } from '@/types/task';
 import { apiFailureMessage } from '@/utils/apiEnvelope';
 
@@ -24,14 +25,24 @@ const getErrorMessage = (error: unknown, fallback: string): string => {
 export interface FetchTasksArgs {
   page?: number;
   size?: number;
+  status?: TaskStatus;
+  statuses?: TaskStatus[];
+  excludeDone?: boolean;
+  search?: string;
+  isActive?: boolean;
+  append?: boolean;
   force?: boolean;
   ttlMs?: number;
 }
 
-const getTaskParamsKey = (args?: FetchTasksArgs): string =>
+export const getTaskListFilterKey = (args?: FetchTasksArgs): string =>
   JSON.stringify({
-    page: args?.page ?? 1,
-    size: args?.size ?? 10,
+    size: args?.size ?? 12,
+    status: args?.status ?? null,
+    statuses: args?.statuses?.slice().sort() ?? null,
+    excludeDone: args?.excludeDone ?? false,
+    search: args?.search ?? null,
+    isActive: args?.isActive ?? null,
   });
 
 export const fetchTasksThunk = createAsyncThunk<
@@ -45,6 +56,11 @@ export const fetchTasksThunk = createAsyncThunk<
       const res = await taskService.getTasks({
         page: args?.page,
         size: args?.size,
+        status: args?.status,
+        statuses: args?.statuses,
+        excludeDone: args?.excludeDone,
+        search: args?.search,
+        isActive: args?.isActive,
       });
       if (res.error || !Array.isArray(res.data)) {
         return rejectWithValue(apiFailureMessage(res));
@@ -56,6 +72,10 @@ export const fetchTasksThunk = createAsyncThunk<
   },
   {
     condition: (args, { getState }) => {
+      if (args?.append) {
+        return !getState().task.isLoadingMore;
+      }
+
       const state = getState().task;
       const force = args?.force ?? false;
       const requestedTtlMs = args?.ttlMs;
@@ -72,8 +92,8 @@ export const fetchTasksThunk = createAsyncThunk<
         return true;
       }
 
-      const paramsKey = getTaskParamsKey(args);
-      if (state.lastParamsKey !== paramsKey) {
+      const filterKey = getTaskListFilterKey(args);
+      if (state.lastFilterKey !== filterKey) {
         return true;
       }
 

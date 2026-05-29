@@ -2,8 +2,8 @@ import { TaskCard } from '@/components/TaskCard';
 import { CreateTaskDialog } from './CreateTaskDialog';
 import { useTasks } from '@/hooks/useTasks';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import { Task } from '@/types/task';
-import { useEffect, useMemo, useState } from 'react';
+import { Task, TaskStatus } from '@/types/task';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { MouseEvent } from 'react';
 import {
   Dialog,
@@ -14,6 +14,14 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { LuLoaderCircle as Loader2 } from 'react-icons/lu';
+import type { FetchTasksArgs } from '@/hooks/useTasks';
+
+const TASK_PAGE_SIZE = 12;
+const ONGOING_STATUSES: TaskStatus[] = ['PLANNED', 'ACTIVE'];
+
+type TaskTab = 'all' | 'ongoing';
 
 type TaskContextMenuState = {
   task: Task;
@@ -21,8 +29,32 @@ type TaskContextMenuState = {
   y: number;
 };
 
+function buildFetchParams(
+  tab: TaskTab,
+  page = 1,
+  append = false
+): FetchTasksArgs {
+  return {
+    page,
+    size: TASK_PAGE_SIZE,
+    append,
+    force: !append,
+    ...(tab === 'ongoing' ? { statuses: ONGOING_STATUSES } : {}),
+  };
+}
+
 export function ActivitiesSidebar() {
-  const { tasks, isLoading, deleteTask } = useTasks();
+  const {
+    tasks,
+    isLoading,
+    isLoadingMore,
+    hasMore,
+    total,
+    page,
+    fetchTasks,
+    deleteTask,
+  } = useTasks();
+  const [activeTab, setActiveTab] = useState<TaskTab>('all');
   const [contextMenu, setContextMenu] = useState<TaskContextMenuState | null>(
     null
   );
@@ -31,6 +63,15 @@ export function ActivitiesSidebar() {
   const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    fetchTasks(buildFetchParams(activeTab, 1, false));
+  }, [activeTab, fetchTasks]);
+
+  const handleLoadMore = useCallback(() => {
+    if (!hasMore || isLoadingMore || isLoading) return;
+    fetchTasks(buildFetchParams(activeTab, page + 1, true));
+  }, [activeTab, fetchTasks, hasMore, isLoadingMore, isLoading, page]);
 
   useEffect(() => {
     if (!contextMenu) return;
@@ -48,7 +89,6 @@ export function ActivitiesSidebar() {
     };
   }, [contextMenu]);
 
-  // Transform tasks to TaskCard format
   const activities = useMemo(() => {
     return tasks.map((task: Task) => ({
       id: task.id,
@@ -130,6 +170,10 @@ export function ActivitiesSidebar() {
     }
   };
 
+  const handleCreateSuccess = () => {
+    fetchTasks(buildFetchParams(activeTab, 1, false));
+  };
+
   return (
     <div className="col-span-3">
       <div className="flex items-center justify-between mb-6 rounded-lg">
@@ -144,11 +188,36 @@ export function ActivitiesSidebar() {
           </p>
         </div>
 
-        <CreateTaskDialog />
+        <CreateTaskDialog onSuccess={handleCreateSuccess} />
       </div>
 
       <div className="flex flex-col gap-3 text-gray-400">
-        <h6 className="text-h6 font-regular">All Tasks</h6>
+        <div className="flex items-center justify-between gap-3">
+          <h6 className="text-h6 font-regular text-gray-700">Tasks</h6>
+          {!isLoading && total > 0 && (
+            <span className="text-caption-lg-regular text-gray-500">
+              {tasks.length} of {total}
+            </span>
+          )}
+        </div>
+
+        <div className="flex gap-2">
+          {(['all', 'ongoing'] as const).map(tab => (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => setActiveTab(tab)}
+              className={cn(
+                'rounded-lg px-3 py-1.5 text-caption-lg-medium capitalize transition-colors',
+                activeTab === tab
+                  ? 'bg-primary-900 text-white'
+                  : 'bg-white text-gray-600 shadow-sm hover:bg-gray-50'
+              )}
+            >
+              {tab === 'all' ? 'All' : 'Ongoing'}
+            </button>
+          ))}
+        </div>
 
         {isLoading ? (
           <div className="flex justify-center py-8">
@@ -179,6 +248,25 @@ export function ActivitiesSidebar() {
                 />
               </div>
             ))}
+
+            {hasMore && (
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full rounded-xl"
+                onClick={handleLoadMore}
+                disabled={isLoadingMore}
+              >
+                {isLoadingMore ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Loading...
+                  </>
+                ) : (
+                  'Load more'
+                )}
+              </Button>
+            )}
           </div>
         )}
       </div>
@@ -210,6 +298,7 @@ export function ActivitiesSidebar() {
         open={isEditOpen}
         onOpenChange={handleEditDialogChange}
         hideTrigger
+        onSuccess={handleCreateSuccess}
       />
 
       <Dialog open={isDeleteDialogOpen} onOpenChange={handleDeleteDialogChange}>
