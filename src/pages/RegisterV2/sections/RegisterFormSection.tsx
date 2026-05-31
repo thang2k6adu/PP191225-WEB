@@ -77,7 +77,7 @@ export function RegisterFormSection() {
     } catch (err) {
       console.error(err);
       if (err === 'email_not_verified') {
-        navigate(ROUTES.VERIFY_EMAIL);
+        navigate(ROUTES.VERIFY_EMAIL, { state: { email: data.email } });
         return;
       }
       const errorMessage =

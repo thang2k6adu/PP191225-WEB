@@ -81,6 +81,10 @@ export const TOKEN_STORAGE_KEYS = {
   TOKEN_EXPIRES_AT: 'tokenExpiresAt',
 } as const;
 
+export const AUTH_STORAGE_KEYS = {
+  PENDING_VERIFICATION_EMAIL: 'pendingVerificationEmail',
+} as const;
+
 const apiBaseUrl =
   import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
 

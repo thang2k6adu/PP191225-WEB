@@ -1,5 +1,5 @@
 import toast from 'react-hot-toast';
-import { ROUTES, TOKEN_STORAGE_KEYS } from '@/constants';
+import { AUTH_STORAGE_KEYS, ROUTES, TOKEN_STORAGE_KEYS } from '@/constants';
 
 const PERSIST_ROOT_KEY = 'persist:root';
 const SESSION_EXPIRED_MESSAGE = 'Session expired. Please login again.';
@@ -11,6 +11,18 @@ export function clearAuthStorage(): void {
   localStorage.removeItem(TOKEN_STORAGE_KEYS.REFRESH_TOKEN);
   localStorage.removeItem(TOKEN_STORAGE_KEYS.TOKEN_EXPIRES_AT);
   localStorage.removeItem(PERSIST_ROOT_KEY);
+}
+
+export function setPendingVerificationEmail(email: string): void {
+  sessionStorage.setItem(AUTH_STORAGE_KEYS.PENDING_VERIFICATION_EMAIL, email);
+}
+
+export function getPendingVerificationEmail(): string | null {
+  return sessionStorage.getItem(AUTH_STORAGE_KEYS.PENDING_VERIFICATION_EMAIL);
+}
+
+export function clearPendingVerificationEmail(): void {
+  sessionStorage.removeItem(AUTH_STORAGE_KEYS.PENDING_VERIFICATION_EMAIL);
 }
 
 export async function handleSessionExpired(

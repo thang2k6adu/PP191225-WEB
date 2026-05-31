@@ -1,19 +1,48 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { ROUTES } from '@/constants';
 import toast from 'react-hot-toast';
 import { LuMailCheck } from 'react-icons/lu';
 import { auth } from '@/config/firebase';
 import { authService } from '@/services/authService';
 import { IllustrationSection } from '@/pages/LoginV2/sections/IllustrationSection';
+import {
+  getPendingVerificationEmail,
+  setPendingVerificationEmail,
+} from '@/utils/authSession';
+
+type VerifyEmailLocationState = {
+  email?: string;
+};
+
+function resolveVerificationEmail(
+  locationState?: VerifyEmailLocationState | null
+): string | null {
+  return (
+    locationState?.email ??
+    getPendingVerificationEmail() ??
+    auth?.currentUser?.email ??
+    null
+  );
+}
 
 export default function VerifyEmailV2() {
+  const location = useLocation();
+  const locationState = location.state as VerifyEmailLocationState | null;
   const [isResending, setIsResending] = useState(false);
 
+  useEffect(() => {
+    if (locationState?.email) {
+      setPendingVerificationEmail(locationState.email);
+    }
+  }, [locationState?.email]);
+
   const handleResend = async () => {
-    const email = auth?.currentUser?.email;
+    const email = resolveVerificationEmail(locationState);
     if (!email) {
-      toast.error('Unable to find current session. Please register again.');
+      toast.error(
+        'Unable to find your email. Please log in or register again.'
+      );
       return;
     }
 
