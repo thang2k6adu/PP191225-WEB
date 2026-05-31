@@ -74,7 +74,7 @@ export function ResetPasswordFormSection() {
       <div className="flex flex-col items-center gap-2 w-full py-16 max-w-[400px]">
         {isSuccess ? (
           <div className="flex flex-col items-center w-full space-y-6 mt-4 text-center">
-            <h1 className="text-h1-semi text-gray-900 tracking-tight leading-none">
+            <h1 className="text-h2-semi text-gray-900 tracking-tight leading-none">
               Password Changed
             </h1>
 
